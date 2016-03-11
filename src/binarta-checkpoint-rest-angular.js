@@ -1,6 +1,7 @@
 (function () {
     angular.module('binarta-checkpointjs-rest-angular1', ['config', 'rest.client'])
-        .provider('restBinartaCheckpointGateway', proxy(new CheckpointGateway()));
+        .provider('restBinartaCheckpointGateway', proxy(new CheckpointGateway()))
+        .run(['restBinartaCheckpointGateway', WireAngularDependencies]);
 
     function proxy(gateway) {
         return function() {
@@ -28,5 +29,8 @@
                 success: ui.approveBillingAgreement
             })
         }
+    }
+
+    function WireAngularDependencies() {
     }
 })();
