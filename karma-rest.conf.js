@@ -9,8 +9,10 @@ module.exports = function(config) {
             {pattern:'bower_components/binartajs/src/binarta.js'},
             {pattern:'bower_components/binartajs/src/checkpoint.js'},
             {pattern:'bower_components/binartajs/src/gateways.inmem.js'},
+            {pattern:'bower_components/thk-rest-client-mock/src/rest.client.mock.js'},
+            {pattern:'bower_components/thk-config-mock/src/config.mock.js'},
             {pattern:'src/**/*.js'},
-            {pattern:'test/**/*.js'}
+            {pattern:'test/**/binarta-rest-angular.spec.js'}
         ],
         browsers:['PhantomJS']
     });

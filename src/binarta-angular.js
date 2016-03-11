@@ -3,13 +3,18 @@
         .provider('binarta', BinartaProvider);
 
     function BinartaProvider() {
-        var factory = new BinartajsFactory();
+        this.ui = new UI();
 
-        this.addUI = factory.addUI;
+        var factory = new BinartajsFactory();
+        factory.addUI(this.ui);
         this.addSubSystems = factory.addSubSystems;
 
         this.$get = function() {
             return factory.create();
         }
+    }
+
+    function UI() {
+
     }
 })();
