@@ -1,5 +1,5 @@
 {
-    "name": "binartajs-angular",
+    "name": "binartajs-angular1",
     "main": "./src/binarta-angular.js",
     "dependencies": {
         "binartajs":"binarta/binartajs#master",
