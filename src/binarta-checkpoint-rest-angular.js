@@ -19,7 +19,7 @@
             this.rest({
                 params: {
                     method: 'POST',
-                    url: (this.config.baseUri || '') + 'api/echo/purchase-order',
+                    url: (this.config.baseUri || '') + 'api/usecase',
                     withCredentials: true,
                     data: {
                         headers: {usecase: 'initiate.billing.agreement'},

@@ -27,7 +27,7 @@
 
                 it('performs rest request', function() {
                     expect(request(0).params.method).toEqual('POST');
-                    expect(request(0).params.url).toEqual('http://host/api/echo/purchase-order');
+                    expect(request(0).params.url).toEqual('http://host/api/usecase');
                     expect(request(0).params.withCredentials).toEqual(true);
                     expect(request(0).params.data.headers.usecase).toEqual('initiate.billing.agreement');
                     expect(request(0).params.data.payload.paymentProvider).toEqual('p');
