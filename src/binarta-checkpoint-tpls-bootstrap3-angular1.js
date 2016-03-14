@@ -1,1 +1,2 @@
-angular.module("binarta-checkpointjs-tpls-angular1", []).run(["$templateCache", function($templateCache) {$templateCache.put("checkpoint-cancel-billing-agreement.html","<div ng-init=\"ctrl.execute();\"></div>");}]);
+angular.module("binarta-checkpointjs-tpls-angular1", []).run(["$templateCache", function($templateCache) {$templateCache.put("checkpoint-cancel-billing-agreement.html","<div ng-init=\"ctrl.execute();\"></div>");
+$templateCache.put("checkpoint-confirm-billing-agreement.html","<div ng-init=\"ctrl.execute();\"></div>");}]);
