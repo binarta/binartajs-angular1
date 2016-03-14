@@ -18,18 +18,20 @@
             });
 
             describe('SetupBillingAgreementController', function() {
-                var ctrl, $scope;
+                var ctrl;
 
-                beforeEach(inject(function($controller, $rootScope) {
-                    $scope = $rootScope.$new();
-                    ctrl = $controller('SetupBillingAgreementController', {
-                        $scope: $scope
-                    })
+                beforeEach(inject(function($controller) {
+                    ctrl = $controller('SetupBillingAgreementController')
                 }));
 
                 it('exposes the fact billing details are incomplete', function() {
                     expect(ctrl.status).toEqual('incomplete');
                 });
+
+                it('exposes the fact billing detaisl are complete', inject(function($controller) {
+                    binarta.checkpoint.profile.billing.confirm({paymentProvider:'p', confirmationToken:'t'});
+                    expect($controller('SetupBillingAgreementController').status).toEqual('complete');
+                }));
 
                 it('initiate billing agreement redirects to external approval url', inject(function($window) {
                     ctrl.paymentProvider = 'p';

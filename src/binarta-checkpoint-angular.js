@@ -32,7 +32,7 @@
     }
 
     function SetupBillingAgreementController(binarta) {
-        this.status = binarta.checkpoint.profile.billing.isComplete() ? '???' : 'incomplete';
+        this.status = binarta.checkpoint.profile.billing.isComplete() ? 'complete' : 'incomplete';
 
         this.submit = function () {
             binarta.checkpoint.profile.billing.initiate(this.paymentProvider);
