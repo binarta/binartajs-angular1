@@ -7,6 +7,7 @@
         .provider('checkpoint', ['binartaCheckpointGatewayProvider', CheckpointProvider])
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
         .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
+        .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
         .config(['binartaProvider', 'checkpointProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['checkpoint', WireAngularDependencies]);
@@ -39,8 +40,17 @@
     }
 
     function CancelBillingAgreementController(binarta) {
-        this.execute = function() {
+        this.execute = function () {
             binarta.checkpoint.profile.billing.cancel();
+        }
+    }
+
+    function ConfirmBillingAgreementController(binarta, $location) {
+        this.execute = function () {
+            binarta.checkpoint.profile.billing.confirm({
+                paymentProvider: this.paymentProvider,
+                confirmationToken: $location.search('token')
+            });
         }
     }
 
@@ -54,9 +64,21 @@
 
     function InstallRoutes($routeProvider) {
         $routeProvider
-            .when('/billing/agreement/confirm', {templateUrl: 'checkpoint-confirm-billing-agreement.html', controller:'ConfirmBillingAgreementController as ctrl'})
-            .when('/billing/agreement/cancel', {templateUrl: 'checkpoint-cancel-billing-agreement.html', controller:'CancelBillingAgreementController as ctrl'})
-            .when('/:locale/billing/agreement/confirm', {templateUrl: 'checkpoint-confirm-billing-agreement.html', controller:'ConfirmBillingAgreementController as ctrl'})
-            .when('/:locale/billing/agreement/cancel', {templateUrl: 'checkpoint-cancel-billing-agreement.html', controller:'CancelBillingAgreementController as ctrl'});
+            .when('/billing/agreement/confirm', {
+                templateUrl: 'checkpoint-confirm-billing-agreement.html',
+                controller: 'ConfirmBillingAgreementController as ctrl'
+            })
+            .when('/billing/agreement/cancel', {
+                templateUrl: 'checkpoint-cancel-billing-agreement.html',
+                controller: 'CancelBillingAgreementController as ctrl'
+            })
+            .when('/:locale/billing/agreement/confirm', {
+                templateUrl: 'checkpoint-confirm-billing-agreement.html',
+                controller: 'ConfirmBillingAgreementController as ctrl'
+            })
+            .when('/:locale/billing/agreement/cancel', {
+                templateUrl: 'checkpoint-cancel-billing-agreement.html',
+                controller: 'CancelBillingAgreementController as ctrl'
+            });
     }
 })();

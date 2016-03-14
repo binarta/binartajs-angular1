@@ -13,19 +13,19 @@
             ui = new UI();
         }));
 
-        describe('checkpoint gateway', function() {
+        describe('checkpoint gateway', function () {
             var gateway;
 
-            beforeEach(inject(function(restBinartaCheckpointGateway) {
+            beforeEach(inject(function (restBinartaCheckpointGateway) {
                 gateway = restBinartaCheckpointGateway;
             }));
 
-            describe('initiate billing agreement', function() {
-                beforeEach(function() {
+            describe('initiate billing agreement', function () {
+                beforeEach(function () {
                     gateway.initiateBillingAgreement('p', ui);
                 });
 
-                it('performs rest request', function() {
+                it('performs rest request', function () {
                     expect(request(0).params.method).toEqual('POST');
                     expect(request(0).params.url).toEqual('http://host/api/usecase');
                     expect(request(0).params.withCredentials).toEqual(true);
@@ -33,11 +33,34 @@
                     expect(request(0).params.data.payload.paymentProvider).toEqual('p');
                 });
 
-                it('on success', function() {
+                it('on success', function () {
                     request(0).success('r');
                     expect(ui.approveBillingAgreementRequest).toEqual('r');
                 });
             });
+
+            describe('confirm billing agreement', function () {
+                beforeEach(function () {
+                    gateway.confirmBillingAgreement({
+                        paymentProvider: 'p',
+                        confirmationToken: 't'
+                    }, ui);
+                });
+
+                it('performs rest request', function () {
+                    expect(request(0).params.method).toEqual('POST');
+                    expect(request(0).params.url).toEqual('http://host/api/usecase');
+                    expect(request(0).params.withCredentials).toEqual(true);
+                    expect(request(0).params.data.headers.usecase).toEqual('create.billing.agreement');
+                    expect(request(0).params.data.payload.paymentProvider).toEqual('p');
+                    expect(request(0).params.data.payload.confirmationToken).toEqual('t');
+                });
+
+                it('on success', function () {
+                    request(0).success();
+                    expect(ui.confirmedBillingAgreementRequest).toBeTruthy();
+                });
+            })
         });
 
         function request(idx) {
@@ -50,8 +73,12 @@
     function UI() {
         var self = this;
 
-        this.approveBillingAgreement = function(request) {
+        this.approveBillingAgreement = function (request) {
             self.approveBillingAgreementRequest = request;
+        };
+
+        this.confirmedBillingAgreement = function() {
+            self.confirmedBillingAgreementRequest = true;
         }
     }
 })();

@@ -28,6 +28,21 @@
                 },
                 success: ui.approveBillingAgreement
             })
+        };
+
+        this.confirmBillingAgreement = function(ctx, ui) {
+            this.rest({
+                params: {
+                    method: 'POST',
+                    url: (this.config.baseUri || '') + 'api/usecase',
+                    withCredentials: true,
+                    data: {
+                        headers: {usecase: 'create.billing.agreement'},
+                        payload: {paymentProvider: ctx.paymentProvider, confirmationToken:ctx.confirmationToken}
+                    }
+                },
+                success: ui.confirmedBillingAgreement
+            })
         }
     }
 

@@ -50,6 +50,20 @@
                     expect(ui.receivedCanceledBillingAgreementRequest).toBeTruthy();
                 }));
             });
+
+            describe('ConfirmBillingAgreementController', function() {
+                var ctrl;
+
+                beforeEach(inject(function($controller) {
+                    ctrl = $controller('ConfirmBillingAgreementController');
+                }));
+
+                it('on execute confirm billing agreement', inject(function($location) {
+                    $location.search({token:'t'}); // TODO - as we begin supporting different payment providers we may need a strategy for this
+                    ctrl.execute();
+                    expect(ui.confirmedBillingAgreementRequest).toBeTruthy();
+                }));
+            });
         });
     });
 
@@ -63,6 +77,7 @@
 
     function ExtendBinarta(binartaProvider) {
         binartaProvider.ui.canceledBillingAgreement = ui.canceledBillingAgreement;
+        binartaProvider.ui.confirmedBillingAgreement = ui.confirmedBillingAgreement;
     }
 
     function UI() {
@@ -70,6 +85,10 @@
 
         this.canceledBillingAgreement = function() {
             self.receivedCanceledBillingAgreementRequest = true;
+        };
+
+        this.confirmedBillingAgreement = function() {
+            self.confirmedBillingAgreementRequest = true;
         }
     }
 
