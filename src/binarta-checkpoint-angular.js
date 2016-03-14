@@ -49,7 +49,7 @@
         this.execute = function () {
             binarta.checkpoint.profile.billing.confirm({
                 paymentProvider: this.paymentProvider,
-                confirmationToken: $location.search('token')
+                confirmationToken: $location.search().token
             });
         }
     }
