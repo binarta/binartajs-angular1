@@ -54,9 +54,9 @@
 
     function InstallRoutes($routeProvider) {
         $routeProvider
-            .when('/billing/agreement/confirm', {templateUrl: 'partials/checkpoint/billing-agreement-confirm.html', controller:'ConfirmBillingAgreementController as ctrl'})
-            .when('/billing/agreement/cancel', {templateUrl: 'partials/checkpoint/billing-agreement-cancel.html', controller:'CancelBillingAgreementController as ctrl'})
-            .when('/:locale/billing/agreement/confirm', {templateUrl: 'partials/checkpoint/billing-agreement-confirm.html', controller:'ConfirmBillingAgreementController as ctrl'})
-            .when('/:locale/billing/agreement/cancel', {templateUrl: 'partials/checkpoint/billing-agreement-cancel.html', controller:'CancelBillingAgreementController as ctrl'});
+            .when('/billing/agreement/confirm', {templateUrl: 'checkpoint-confirm-billing-agreement.html', controller:'ConfirmBillingAgreementController as ctrl'})
+            .when('/billing/agreement/cancel', {templateUrl: 'checkpoint-cancel-billing-agreement.html', controller:'CancelBillingAgreementController as ctrl'})
+            .when('/:locale/billing/agreement/confirm', {templateUrl: 'checkpoint-confirm-billing-agreement.html', controller:'ConfirmBillingAgreementController as ctrl'})
+            .when('/:locale/billing/agreement/cancel', {templateUrl: 'checkpoint-cancel-billing-agreement.html', controller:'CancelBillingAgreementController as ctrl'});
     }
 })();
