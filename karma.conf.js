@@ -10,7 +10,7 @@ module.exports = function(config) {
             {pattern:'bower_components/binartajs/src/checkpoint.js'},
             {pattern:'bower_components/binartajs/src/gateways.inmem.js'},
             {pattern:'src/**/*.js'},
-            {pattern:'test/**/*.js'}
+            {pattern:'test/**/binarta-angular.spec.js'}
         ],
         browsers:['PhantomJS']
     });

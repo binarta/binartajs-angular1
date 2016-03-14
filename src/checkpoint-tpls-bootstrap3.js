@@ -1,0 +1,1 @@
+angular.module("checkpoint.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("checkpoint-cancel-billing-agreement.html","<div ng-init=\"ctrl.execute();\"></div>");}]);
