@@ -35,6 +35,7 @@
         this.status = binarta.checkpoint.profile.billing.isComplete() ? 'complete' : 'incomplete';
 
         this.submit = function () {
+            this.status = 'working';
             binarta.checkpoint.profile.billing.initiate(this.paymentProvider);
         }
     }

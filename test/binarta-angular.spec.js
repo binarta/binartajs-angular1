@@ -28,16 +28,25 @@
                     expect(ctrl.status).toEqual('incomplete');
                 });
 
-                it('exposes the fact billing detaisl are complete', inject(function($controller) {
+                it('exposes the fact billing details are complete', inject(function($controller) {
                     binarta.checkpoint.profile.billing.confirm({paymentProvider:'p', confirmationToken:'t'});
                     expect($controller('SetupBillingAgreementController').status).toEqual('complete');
                 }));
 
-                it('initiate billing agreement redirects to external approval url', inject(function($window) {
-                    ctrl.paymentProvider = 'p';
-                    ctrl.submit();
-                    expect($window.location).toEqual('http://p/billing/agreement?token=t');
-                }));
+                describe('initiate billing details', function() {
+                    beforeEach(function() {
+                        ctrl.paymentProvider = 'p';
+                        ctrl.submit();
+                    });
+
+                    it('changes status to working', function() {
+                        expect(ctrl.status).toEqual('working');
+                    });
+
+                    it('redirects to external approval url', inject(function($window) {
+                        expect($window.location).toEqual('http://p/billing/agreement?token=t');
+                    }));
+                });
             });
 
             describe('CancelBillingAgreementController', function() {
