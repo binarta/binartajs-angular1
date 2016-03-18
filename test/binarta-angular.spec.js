@@ -87,12 +87,16 @@
     }
 
     function ExtendBinarta(binartaProvider) {
+        binartaProvider.ui.initiatingBillingAgreement = ui.initiatingBillingAgreement;
         binartaProvider.ui.canceledBillingAgreement = ui.canceledBillingAgreement;
         binartaProvider.ui.confirmedBillingAgreement = ui.confirmedBillingAgreement;
     }
 
     function UI() {
         var self = this;
+
+        this.initiatingBillingAgreement = function() {
+        };
 
         this.canceledBillingAgreement = function() {
             self.receivedCanceledBillingAgreementRequest = true;

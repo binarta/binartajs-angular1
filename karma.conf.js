@@ -12,6 +12,11 @@ module.exports = function(config) {
             {pattern:'src/**/*.js'},
             {pattern:'test/**/binarta-angular.spec.js'}
         ],
-        browsers:['PhantomJS']
+        browsers:['PhantomJS'],
+        reporters: ['dots', 'junit'],
+        junitReporter: {
+            outputFile: 'test-results.xml',
+            useBrowserName: false
+        }
     });
 };

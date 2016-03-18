@@ -2,7 +2,7 @@
   "name": "binartajs-angular1",
   "main": "./src/binarta-angular.js",
   "dependencies": {
-    "binartajs": "binarta/binartajs#master",
+    "binartajs": "0.0.*",
     "binarta.config.angular": "0.*.*",
     "binarta.rest.client.angular": "0.*.*",
     "angular": "1.3.*",
