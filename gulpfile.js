@@ -3,6 +3,13 @@ var gulp = require('gulp'),
     template = require('gulp-template'),
     templateCache = require('gulp-angular-templatecache');
 
+var Karma = require('karma').Server;
+function test(file) {
+    return function(done) {
+        new Karma({configFile:__dirname + '/' + file, singleRun:true}, done).start();
+    }
+}
+
 var minifyHtmlOpts = {
     empty: true,
     cdata: true,
@@ -18,4 +25,7 @@ gulp.task('checkpoint-bootstrap3', function () {
         .pipe(gulp.dest('src'));
 });
 
-gulp.task('default', ['checkpoint-bootstrap3']);
+gulp.task('test-ui-widgets', test('karma.conf.js'));
+gulp.task('test-rest-plugin', test('karma-rest.conf.js'));
+
+gulp.task('default', ['test-ui-widgets', 'test-rest-plugin', 'checkpoint-bootstrap3']);
