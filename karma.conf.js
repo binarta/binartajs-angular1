@@ -8,6 +8,7 @@ module.exports = function(config) {
             {pattern:'bower_components/angular-mocks/angular-mocks.js'},
             {pattern:'bower_components/binartajs/src/binarta.js'},
             {pattern:'bower_components/binartajs/src/checkpoint.js'},
+            {pattern:'bower_components/binartajs/src/shop.js'},
             {pattern:'bower_components/binartajs/src/gateways.inmem.js'},
             {pattern:'src/**/*.js'},
             {pattern:'test/**/binarta-angular.spec.js'}

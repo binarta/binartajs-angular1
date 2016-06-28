@@ -17,6 +17,11 @@
                 expect(binarta.checkpoint).toBeDefined();
             });
 
+            it('on profile refresh is authenticated', function() {
+                binarta.checkpoint.profile.refresh();
+                expect(binarta.checkpoint.profile.isAuthenticated()).toEqual(true);
+            });
+
             describe('SetupBillingAgreementController', function() {
                 var ctrl;
 
@@ -76,10 +81,31 @@
                 }));
             });
         });
+
+        describe('binarta-shopjs-angular1', function() {
+            it('binarta is extended with shop', function () {
+                expect(binarta.shop).toBeDefined();
+            });
+
+            describe('CheckoutController', function() {
+                var ctrl;
+
+                beforeEach(inject(function($controller) {
+                    ctrl = $controller('CheckoutController');
+                }));
+
+                it('test', function() {
+
+                });
+            });
+        });
     });
 
     installBackendStrategy('inmem');
-    angular.module('binartajs-angular1-spec', ['binarta-checkpointjs-angular1', 'binarta-checkpointjs-gateways-angular1'])
+    angular.module('binartajs-angular1-spec', [
+        'binarta-checkpointjs-angular1', 'binarta-checkpointjs-gateways-angular1',
+        'binarta-shopjs-angular1'
+    ])
         .service('$window', MockWindow)
         .config(ExtendBinarta);
 
