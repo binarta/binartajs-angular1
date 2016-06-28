@@ -5,6 +5,7 @@
             'binarta-checkpointjs-gateways-angular1'
         ])
         .provider('checkpoint', ['binartaCheckpointGatewayProvider', CheckpointProvider])
+        .component('binSignin', new SigninComponent())
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
         .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
         .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
@@ -29,6 +30,12 @@
         this.approveBillingAgreement = function (args) {
             self.window.location = args.url;
         }
+    }
+
+    function SigninComponent() {
+        this.template = ['$templateCache', function(cache) {
+            return cache.get('checkpoint-signin-form.html');
+        }];
     }
 
     function SetupBillingAgreementController(binarta) {
