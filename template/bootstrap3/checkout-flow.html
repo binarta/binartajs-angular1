@@ -1,3 +1,5 @@
 <div>
     <h1>Checkout: {{checkout.status()}}</h1>
+
+    <div ng-if="checkout.status() == 'authentication-required'" ng-include="'checkpoint-signin-form.html'"></div>
 </div>
