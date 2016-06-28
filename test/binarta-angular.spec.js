@@ -95,7 +95,7 @@
                 }));
 
                 it('test', function() {
-
+                    expect(ctrl.status()).toEqual(binarta.shop.checkout.status())
                 });
             });
         });

@@ -8,9 +8,9 @@
         .controller('CheckoutController', ['binarta', CheckoutController])
         // .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
         // .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
-        .config(['binartaProvider', 'shopProvider', ExtendBinarta]);
+        .config(['binartaProvider', 'shopProvider', ExtendBinarta])
+        .run(['shop', WireAngularDependencies]);
         // .config(['$routeProvider', InstallRoutes])
-        // .run(['checkpoint', WireAngularDependencies]);
 
     function ShopProvider(provider) {
         this.shop = new BinartaShopjs();
@@ -24,7 +24,7 @@
     }
 
     function CheckoutController(binarta) {
-        
+        this.status = binarta.shop.checkout.status;
     }
 
     function UI() {
