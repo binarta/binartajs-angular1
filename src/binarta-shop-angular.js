@@ -6,11 +6,9 @@
     ])
         .provider('shop', [/*'binartaCheckpointGatewayProvider', */ShopProvider])
         .controller('CheckoutController', ['binarta', CheckoutController])
-        // .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
-        // .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
         .config(['binartaProvider', 'shopProvider', ExtendBinarta])
+        .config(['$routeProvider', InstallRoutes])
         .run(['shop', WireAngularDependencies]);
-        // .config(['$routeProvider', InstallRoutes])
 
     function ShopProvider(provider) {
         this.shop = new BinartaShopjs();
@@ -39,23 +37,17 @@
     function WireAngularDependencies() {
     }
 
-    // function InstallRoutes($routeProvider) {
-    //     $routeProvider
-    //         .when('/billing/agreement/confirm', {
-    //             templateUrl: 'checkpoint-confirm-billing-agreement.html',
-    //             controller: 'ConfirmBillingAgreementController as ctrl'
-    //         })
-    //         .when('/billing/agreement/cancel', {
-    //             templateUrl: 'checkpoint-cancel-billing-agreement.html',
-    //             controller: 'CancelBillingAgreementController as ctrl'
-    //         })
-    //         .when('/:locale/billing/agreement/confirm', {
-    //             templateUrl: 'checkpoint-confirm-billing-agreement.html',
-    //             controller: 'ConfirmBillingAgreementController as ctrl'
-    //         })
-    //         .when('/:locale/billing/agreement/cancel', {
-    //             templateUrl: 'checkpoint-cancel-billing-agreement.html',
-    //             controller: 'CancelBillingAgreementController as ctrl'
-    //         });
-    // }
+    function InstallRoutes($routeProvider) {
+        $routeProvider
+            .when('/checkout2', {
+                templateUrl: 'checkout-flow.html',
+                controller: 'CheckoutController as checkout',
+                reloadOnSearch: false
+            })
+            .when('/:locale/checkout2', {
+                templateUrl: 'checkout-flow.html',
+                controller: 'CheckoutController as checkout',
+                reloadOnSearch: false
+            });
+    }
 })();

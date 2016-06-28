@@ -1,0 +1,1 @@
+angular.module("binarta-shopjs-tpls-angular1", []).run(["$templateCache", function($templateCache) {$templateCache.put("checkout-flow.html","<div><h1>Checkout: {{checkout.status()}}</h1></div>");}]);
