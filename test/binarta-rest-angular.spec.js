@@ -1,17 +1,24 @@
 (function () {
     describe('binartajs-rest-angular1', function () {
-        var rest, config, ui;
+        var $http, rest, config, ui, expectedHttpRequest, request, response;
 
         beforeEach(module('binartajs-rest-angular1-spec'));
-        beforeEach(inject(function (_config_, restServiceHandler) {
+        beforeEach(inject(function (_config_, restServiceHandler, $httpBackend) {
             config = _config_;
             rest = restServiceHandler;
+            $http = $httpBackend;
 
             config.namespace = 'n';
             config.baseUri = 'http://host/';
 
             ui = new UI();
+            response = jasmine.createSpyObj('response', ['success', 'rejected']);
         }));
+
+        afterEach(function () {
+            $http.verifyNoOutstandingExpectation();
+            $http.verifyNoOutstandingRequest();
+        });
 
         describe('checkpoint gateway', function () {
             var gateway;
@@ -20,21 +27,51 @@
                 gateway = restBinartaCheckpointGateway;
             }));
 
+            describe('signin', function () {
+                beforeEach(function () {
+                    request = {
+                        username: 'u',
+                        password: 'p',
+                        rememberMe: 'r'
+                    };
+                    expectedHttpRequest = $http.expectPOST('http://host/api/checkpoint', {
+                        namespace: 'n',
+                        username: 'u',
+                        password: 'p',
+                        rememberMe: 'r'
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.signin(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412);
+                    gateway.signin(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalled();
+                });
+            });
+
             describe('initiate billing agreement', function () {
                 beforeEach(function () {
                     gateway.initiateBillingAgreement('p', ui);
                 });
 
                 it('performs rest request', function () {
-                    expect(request(0).params.method).toEqual('POST');
-                    expect(request(0).params.url).toEqual('http://host/api/usecase');
-                    expect(request(0).params.withCredentials).toEqual(true);
-                    expect(request(0).params.data.headers.usecase).toEqual('initiate.billing.agreement');
-                    expect(request(0).params.data.payload.paymentProvider).toEqual('p');
+                    expect(capturedRequest(0).params.method).toEqual('POST');
+                    expect(capturedRequest(0).params.url).toEqual('http://host/api/usecase');
+                    expect(capturedRequest(0).params.withCredentials).toEqual(true);
+                    expect(capturedRequest(0).params.data.headers.usecase).toEqual('initiate.billing.agreement');
+                    expect(capturedRequest(0).params.data.payload.paymentProvider).toEqual('p');
                 });
 
                 it('on success', function () {
-                    request(0).success('r');
+                    capturedRequest(0).success('r');
                     expect(ui.approveBillingAgreementRequest).toEqual('r');
                 });
             });
@@ -48,22 +85,22 @@
                 });
 
                 it('performs rest request', function () {
-                    expect(request(0).params.method).toEqual('POST');
-                    expect(request(0).params.url).toEqual('http://host/api/usecase');
-                    expect(request(0).params.withCredentials).toEqual(true);
-                    expect(request(0).params.data.headers.usecase).toEqual('create.billing.agreement');
-                    expect(request(0).params.data.payload.paymentProvider).toEqual('p');
-                    expect(request(0).params.data.payload.confirmationToken).toEqual('t');
+                    expect(capturedRequest(0).params.method).toEqual('POST');
+                    expect(capturedRequest(0).params.url).toEqual('http://host/api/usecase');
+                    expect(capturedRequest(0).params.withCredentials).toEqual(true);
+                    expect(capturedRequest(0).params.data.headers.usecase).toEqual('create.billing.agreement');
+                    expect(capturedRequest(0).params.data.payload.paymentProvider).toEqual('p');
+                    expect(capturedRequest(0).params.data.payload.confirmationToken).toEqual('t');
                 });
 
                 it('on success', function () {
-                    request(0).success();
+                    capturedRequest(0).success();
                     expect(ui.confirmedBillingAgreementRequest).toBeTruthy();
                 });
             })
         });
 
-        function request(idx) {
+        function capturedRequest(idx) {
             return rest.calls.argsFor(idx)[0];
         }
     });
@@ -77,7 +114,7 @@
             self.approveBillingAgreementRequest = request;
         };
 
-        this.confirmedBillingAgreement = function() {
+        this.confirmedBillingAgreement = function () {
             self.confirmedBillingAgreementRequest = true;
         }
     }

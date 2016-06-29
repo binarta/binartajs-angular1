@@ -1,11 +1,12 @@
 (function () {
     angular.module('binarta-checkpointjs-angular1', [
-            'ngRoute',
-            'binartajs-angular1',
-            'binarta-checkpointjs-gateways-angular1'
-        ])
+        'ngRoute',
+        'binartajs-angular1',
+        'binarta-checkpointjs-gateways-angular1'
+    ])
         .provider('checkpoint', ['binartaCheckpointGatewayProvider', CheckpointProvider])
         .component('binSignin', new SigninComponent())
+        .controller('CheckpointController', ['binarta', CheckpointController])
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
         .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
         .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
@@ -33,9 +34,31 @@
     }
 
     function SigninComponent() {
-        this.template = ['$templateCache', function(cache) {
+        this.controller = 'CheckpointController';
+        this.template = ['$templateCache', function (cache) {
             return cache.get('checkpoint-signin-form.html');
         }];
+    }
+
+    function CheckpointController(binarta) {
+        this.submit = function () {
+            throw new Error('checkpoint.submit.requires.an.operation.mode.to.be.selected');
+        };
+
+        this.status = function () {
+            return 'idle';
+        };
+
+        this.switchToSigninMode = function () {
+            this.submit = function () {
+                $('form input[type="password"]').trigger('change');
+                binarta.checkpoint.signinForm.submit({
+                    username: this.username,
+                    password: this.password
+                });
+            };
+            this.status = binarta.checkpoint.signinForm.status;
+        };
     }
 
     function SetupBillingAgreementController(binarta) {

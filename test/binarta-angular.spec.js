@@ -4,7 +4,7 @@
     describe('binartajs-angular', function () {
         var binarta;
 
-        beforeEach(function() {
+        beforeEach(function () {
             ui = new UI();
         });
         beforeEach(module('binartajs-angular1-spec'));
@@ -12,89 +12,129 @@
             binarta = _binarta_;
         }));
 
-        describe('binarta-checkpointjs-angular1', function() {
+        describe('binarta-checkpointjs-angular1', function () {
             it('binarta is extended with checkpoint', function () {
                 expect(binarta.checkpoint).toBeDefined();
             });
 
-            it('on profile refresh is authenticated', function() {
+            it('on profile refresh is authenticated', function () {
                 binarta.checkpoint.profile.refresh();
                 expect(binarta.checkpoint.profile.isAuthenticated()).toEqual(true);
             });
 
-            describe('SetupBillingAgreementController', function() {
+            describe('CheckpointController', function () {
                 var ctrl;
 
-                beforeEach(inject(function($controller) {
+                beforeEach(inject(function ($controller) {
+                    ctrl = $controller('CheckpointController');
+                }));
+
+                it('submit is not supported before an operation mode is chosen', function() {
+                    expect(ctrl.submit).toThrowError('checkpoint.submit.requires.an.operation.mode.to.be.selected')
+                });
+
+                it('while no operation mode is selected the system is in idle state', function() {
+                    expect(ctrl.status()).toEqual('idle');
+                });
+
+                describe('when initialised for signin', function() {
+                    beforeEach(function() {
+                        ctrl.switchToSigninMode();
+                    });
+
+                    it('then system is still in idle state', function() {
+                        expect(ctrl.status()).toEqual('idle');
+                    });
+
+                    it('then form submission with invalid credentials is rejected', function () {
+                        ctrl.username = '-';
+                        ctrl.password = '-';
+                        ctrl.submit();
+                        expect(ctrl.status()).toEqual('rejected');
+                    });
+
+                    it('then form submission with valid credentials is accepted', function () {
+                        ctrl.username = 'valid';
+                        ctrl.password = 'credentials';
+                        ctrl.submit();
+                        expect(ctrl.status()).toEqual('authenticated');
+                    });
+                });
+            });
+
+            describe('SetupBillingAgreementController', function () {
+                var ctrl;
+
+                beforeEach(inject(function ($controller) {
                     ctrl = $controller('SetupBillingAgreementController')
                 }));
 
-                it('exposes the fact billing details are incomplete', function() {
+                it('exposes the fact billing details are incomplete', function () {
                     expect(ctrl.status).toEqual('incomplete');
                 });
 
-                it('exposes the fact billing details are complete', inject(function($controller) {
-                    binarta.checkpoint.profile.billing.confirm({paymentProvider:'p', confirmationToken:'t'});
+                it('exposes the fact billing details are complete', inject(function ($controller) {
+                    binarta.checkpoint.profile.billing.confirm({paymentProvider: 'p', confirmationToken: 't'});
                     expect($controller('SetupBillingAgreementController').status).toEqual('complete');
                 }));
 
-                describe('initiate billing details', function() {
-                    beforeEach(function() {
+                describe('initiate billing details', function () {
+                    beforeEach(function () {
                         ctrl.paymentProvider = 'p';
                         ctrl.submit();
                     });
 
-                    it('changes status to working', function() {
+                    it('changes status to working', function () {
                         expect(ctrl.status).toEqual('working');
                     });
 
-                    it('redirects to external approval url', inject(function($window) {
+                    it('redirects to external approval url', inject(function ($window) {
                         expect($window.location).toEqual('http://p/billing/agreement?token=t');
                     }));
                 });
             });
 
-            describe('CancelBillingAgreementController', function() {
+            describe('CancelBillingAgreementController', function () {
                 var ctrl;
 
-                beforeEach(inject(function($controller) {
+                beforeEach(inject(function ($controller) {
                     ctrl = $controller('CancelBillingAgreementController');
                 }));
 
-                it('on execute cancel billing agreement', inject(function($location) {
+                it('on execute cancel billing agreement', inject(function ($location) {
                     ctrl.execute();
                     expect(ui.receivedCanceledBillingAgreementRequest).toBeTruthy();
                 }));
             });
 
-            describe('ConfirmBillingAgreementController', function() {
+            describe('ConfirmBillingAgreementController', function () {
                 var ctrl;
 
-                beforeEach(inject(function($controller) {
+                beforeEach(inject(function ($controller) {
                     ctrl = $controller('ConfirmBillingAgreementController');
                 }));
 
-                it('on execute confirm billing agreement', inject(function($location) {
-                    $location.search({token:'t'}); // TODO - as we begin supporting different payment providers we may need a strategy for this
+                it('on execute confirm billing agreement', inject(function ($location) {
+                    $location.search({token: 't'}); // TODO - as we begin supporting different payment providers we may need a strategy for this
                     ctrl.execute();
                     expect(ui.confirmedBillingAgreementRequest).toBeTruthy();
                 }));
             });
         });
 
-        describe('binarta-shopjs-angular1', function() {
+        describe('binarta-shopjs-angular1', function () {
             it('binarta is extended with shop', function () {
                 expect(binarta.shop).toBeDefined();
             });
 
-            describe('CheckoutController', function() {
+            describe('CheckoutController', function () {
                 var ctrl;
 
-                beforeEach(inject(function($controller) {
+                beforeEach(inject(function ($controller) {
                     ctrl = $controller('CheckoutController');
                 }));
 
-                it('test', function() {
+                it('test', function () {
                     expect(ctrl.status()).toEqual(binarta.shop.checkout.status())
                 });
             });
@@ -121,14 +161,14 @@
     function UI() {
         var self = this;
 
-        this.initiatingBillingAgreement = function() {
+        this.initiatingBillingAgreement = function () {
         };
 
-        this.canceledBillingAgreement = function() {
+        this.canceledBillingAgreement = function () {
             self.receivedCanceledBillingAgreementRequest = true;
         };
 
-        this.confirmedBillingAgreement = function() {
+        this.confirmedBillingAgreement = function () {
             self.confirmedBillingAgreementRequest = true;
         }
     }
@@ -142,3 +182,10 @@
         }
     }
 })();
+
+var $ = function () {
+    return {
+        trigger: function () {
+        }
+    }
+};

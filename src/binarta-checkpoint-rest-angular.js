@@ -4,18 +4,29 @@
         .run(['restBinartaCheckpointGateway', WireAngularDependencies]);
 
     function proxy(gateway) {
-        return function() {
+        return function () {
             this.gateway = gateway;
-            this.$get = ['config', 'restServiceHandler', function(config, rest) {
+            this.$get = ['config', 'restServiceHandler', '$http', function (config, rest, $http) {
                 this.gateway.config = config;
                 this.gateway.rest = rest;
+                this.gateway.$http = $http;
                 return gateway;
             }]
         }
     }
 
     function CheckpointGateway() {
-        this.initiateBillingAgreement = function(provider, ui) {
+        this.signin = function (request, response) {
+            request.namespace = this.config.namespace;
+            this.$http({
+                method: 'POST',
+                url: this.config.baseUri + 'api/checkpoint',
+                data: request,
+                withCredentials: true
+            }).then(response.success).catch(response.rejected);
+        };
+
+        this.initiateBillingAgreement = function (provider, ui) {
             this.rest({
                 params: {
                     method: 'POST',
@@ -30,7 +41,7 @@
             })
         };
 
-        this.confirmBillingAgreement = function(ctx, ui) {
+        this.confirmBillingAgreement = function (ctx, ui) {
             this.rest({
                 params: {
                     method: 'POST',
@@ -38,7 +49,7 @@
                     withCredentials: true,
                     data: {
                         headers: {usecase: 'create.billing.agreement'},
-                        payload: {paymentProvider: ctx.paymentProvider, confirmationToken:ctx.confirmationToken}
+                        payload: {paymentProvider: ctx.paymentProvider, confirmationToken: ctx.confirmationToken}
                     }
                 },
                 success: ui.confirmedBillingAgreement
