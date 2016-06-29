@@ -5,7 +5,7 @@
         'binarta-checkpointjs-gateways-angular1'
     ])
         .provider('checkpoint', ['binartaCheckpointGatewayProvider', CheckpointProvider])
-        .component('binSignin', new SigninComponent())
+        .component('binCheckpoint', new SigninComponent())
         .controller('CheckpointController', ['binarta', CheckpointController])
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
         .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
@@ -34,6 +34,9 @@
     }
 
     function SigninComponent() {
+        this.bindings = {
+            mode: '@'
+        };
         this.controller = 'CheckpointController';
         this.template = ['$templateCache', function (cache) {
             return cache.get('checkpoint-signin-form.html');
@@ -41,23 +44,30 @@
     }
 
     function CheckpointController(binarta) {
-        this.submit = function () {
-            throw new Error('checkpoint.submit.requires.an.operation.mode.to.be.selected');
+        var self = this;
+
+        this.$onInit = function() {
+            if(this.mode == 'signin')
+                switchToSigninMode();
         };
 
-        this.status = function () {
-            return 'idle';
-        };
-
-        this.switchToSigninMode = function () {
-            this.submit = function () {
+        function switchToSigninMode() {
+            self.submit = function () {
                 $('form input[type="password"]').trigger('change');
                 binarta.checkpoint.signinForm.submit({
                     username: this.username,
                     password: this.password
                 });
             };
-            this.status = binarta.checkpoint.signinForm.status;
+            self.status = binarta.checkpoint.signinForm.status;
+        }
+
+        this.submit = function () {
+            throw new Error('checkpoint.submit.requires.an.operation.mode.to.be.selected');
+        };
+
+        this.status = function () {
+            return 'idle';
         };
     }
 

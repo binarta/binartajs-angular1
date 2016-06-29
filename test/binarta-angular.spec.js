@@ -39,7 +39,8 @@
 
                 describe('when initialised for signin', function() {
                     beforeEach(function() {
-                        ctrl.switchToSigninMode();
+                        ctrl.mode = 'signin';
+                        ctrl.$onInit();
                     });
 
                     it('then system is still in idle state', function() {
