@@ -40,12 +40,12 @@
     function InstallRoutes($routeProvider) {
         $routeProvider
             .when('/checkout2', {
-                templateUrl: 'checkout-flow.html',
+                templateUrl: 'bin-checkout-flow.html',
                 controller: 'CheckoutController as checkout',
                 reloadOnSearch: false
             })
             .when('/:locale/checkout2', {
-                templateUrl: 'checkout-flow.html',
+                templateUrl: 'bin-checkout-flow.html',
                 controller: 'CheckoutController as checkout',
                 reloadOnSearch: false
             });
