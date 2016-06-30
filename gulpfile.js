@@ -19,12 +19,23 @@ var minifyHtmlOpts = {
 };
 
 gulp.task('checkpoint-bootstrap3', function () {
-    gulp.src('template/bootstrap3/checkpoint-*.html')
+    gulp.src('template/bootstrap3/bin-checkpoint-*.html')
+        .pipe(template({shop: false}))
         .pipe(minifyHtml(minifyHtmlOpts))
         .pipe(templateCache('binarta-checkpoint-tpls-bootstrap3-angular1.js', {standalone: true, module: 'binarta-checkpointjs-tpls-angular1'}))
         .pipe(gulp.dest('src'));
+});
 
-    gulp.src('template/bootstrap3/checkout-*.html')
+gulp.task('checkpoint-shop-bootstrap3', function () {
+    gulp.src('template/bootstrap3/bin-checkpoint-*.html')
+        .pipe(template({shop: true}))
+        .pipe(minifyHtml(minifyHtmlOpts))
+        .pipe(templateCache('binarta-checkpoint-shop-tpls-bootstrap3-angular1.js', {standalone: true, module: 'binarta-checkpointjs-tpls-angular1'}))
+        .pipe(gulp.dest('src'));
+});
+
+gulp.task('shop-bootstrap3', function () {
+    gulp.src('template/bootstrap3/bin-checkout-*.html')
         .pipe(minifyHtml(minifyHtmlOpts))
         .pipe(templateCache('binarta-shop-tpls-bootstrap3-angular1.js', {standalone: true, module: 'binarta-shopjs-tpls-angular1'}))
         .pipe(gulp.dest('src'));
@@ -33,4 +44,10 @@ gulp.task('checkpoint-bootstrap3', function () {
 gulp.task('test-ui-widgets', test('karma.conf.js'));
 gulp.task('test-rest-plugin', test('karma-rest.conf.js'));
 
-gulp.task('default', ['test-ui-widgets', 'test-rest-plugin', 'checkpoint-bootstrap3']);
+gulp.task('default', [
+    'test-ui-widgets',
+    'test-rest-plugin',
+    'checkpoint-bootstrap3',
+    'checkpoint-shop-bootstrap3',
+    'shop-bootstrap3'
+]);

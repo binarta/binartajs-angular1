@@ -15,7 +15,22 @@
         }
     }
 
+    function toErrorResponse(response) {
+        return function(request) {
+            response.rejected(request.data);
+        };
+    }
+
     function CheckpointGateway() {
+        this.register = function (request, response) {
+            request.namespace = this.config.namespace;
+            this.$http({
+                method: 'PUT',
+                url: this.config.baseUri + 'api/accounts',
+                data: request
+            }).then(response.success).catch(toErrorResponse(response));
+        };
+
         this.signin = function (request, response) {
             request.namespace = this.config.namespace;
             this.$http({

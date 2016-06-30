@@ -57,6 +57,35 @@
                 });
             });
 
+            describe('register', function () {
+                beforeEach(function () {
+                    request = {
+                        username: 'u',
+                        password: 'p'
+                    };
+                    expectedHttpRequest = $http.expectPUT('http://host/api/accounts', {
+                        namespace: 'n',
+                        username: 'u',
+                        password: 'p'
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(201);
+                    gateway.register(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violation-report');
+                    gateway.register(request, response);
+                    $http.flush();
+                    // expect(response.rejected).toHaveBeenCalled();
+                    expect(response.rejected).toHaveBeenCalledWith('violation-report');
+                });
+            });
+
             describe('initiate billing agreement', function () {
                 beforeEach(function () {
                     gateway.initiateBillingAgreement('p', ui);

@@ -5,7 +5,7 @@
         'binarta-checkpointjs-gateways-angular1'
     ])
         .provider('checkpoint', ['binartaCheckpointGatewayProvider', CheckpointProvider])
-        .component('binCheckpoint', new CheckoutComponent())
+        .component('binCheckpoint', new CheckpointComponent())
         .controller('CheckpointController', ['binarta', CheckpointController])
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
         .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
@@ -33,25 +33,28 @@
         }
     }
 
-    function CheckoutComponent() {
+    function CheckpointComponent() {
         this.bindings = {
             mode: '@'
         };
         this.controller = 'CheckpointController';
         this.template = ['$templateCache', function (cache) {
-            return cache.get('bin-checkpoint-signin-form.html');
+            return cache.get('bin-checkpoint-form.html');
         }];
     }
 
     function CheckpointController(binarta) {
         var self = this;
 
-        this.$onInit = function() {
-            if(this.mode == 'signin')
-                switchToSigninMode();
+        this.$onInit = function () {
+            if (this.mode == 'signin')
+                self.switchToSigninMode();
+            if (this.mode == 'registration')
+                self.switchToRegistrationMode();
         };
 
-        function switchToSigninMode() {
+        this.switchToSigninMode = function () {
+            this.mode = 'signin';
             self.submit = function () {
                 $('form input[type="password"]').trigger('change');
                 binarta.checkpoint.signinForm.submit({
@@ -60,7 +63,24 @@
                 });
             };
             self.status = binarta.checkpoint.signinForm.status;
-        }
+            self.violationReport = emptyViolationReport;
+        };
+
+        this.switchToRegistrationMode = function () {
+            this.mode = 'registration';
+            self.submit = function () {
+                $('form input[type="password"]').trigger('change');
+                binarta.checkpoint.registrationForm.submit({
+                    email: this.email,
+                    username: this.username,
+                    password: this.password,
+                    vat: this.company == 'yes' ? this.vat : '',
+                    captcha: this.captcha
+                });
+            };
+            self.status = binarta.checkpoint.registrationForm.status;
+            self.violationReport = binarta.checkpoint.registrationForm.violationReport;
+        };
 
         this.submit = function () {
             throw new Error('checkpoint.submit.requires.an.operation.mode.to.be.selected');
@@ -69,6 +89,12 @@
         this.status = function () {
             return 'idle';
         };
+
+        function emptyViolationReport() {
+            return {};
+        }
+
+        this.violationReport = emptyViolationReport;
     }
 
     function SetupBillingAgreementController(binarta) {

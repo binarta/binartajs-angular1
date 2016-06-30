@@ -13,6 +13,12 @@
         }));
 
         describe('binarta-checkpointjs-angular1', function () {
+            var db;
+
+            beforeEach(inject(function (binartaCheckpointGateway) {
+                db = binartaCheckpointGateway;
+            }));
+
             it('binarta is extended with checkpoint', function () {
                 expect(binarta.checkpoint).toBeDefined();
             });
@@ -29,21 +35,21 @@
                     ctrl = $controller('CheckpointController');
                 }));
 
-                it('submit is not supported before an operation mode is chosen', function() {
+                it('submit is not supported before an operation mode is chosen', function () {
                     expect(ctrl.submit).toThrowError('checkpoint.submit.requires.an.operation.mode.to.be.selected')
                 });
 
-                it('while no operation mode is selected the system is in idle state', function() {
+                it('while no operation mode is selected the system is in idle state', function () {
                     expect(ctrl.status()).toEqual('idle');
                 });
 
-                describe('when initialised for signin', function() {
-                    beforeEach(function() {
+                describe('when initialised for signin', function () {
+                    beforeEach(function () {
                         ctrl.mode = 'signin';
                         ctrl.$onInit();
                     });
 
-                    it('then system is still in idle state', function() {
+                    it('then system is still in idle state', function () {
                         expect(ctrl.status()).toEqual('idle');
                     });
 
@@ -55,10 +61,48 @@
                     });
 
                     it('then form submission with valid credentials is accepted', function () {
+                        db.register({username: 'valid', password: 'credentials'}, new ExpectSuccessResponse());
+
                         ctrl.username = 'valid';
                         ctrl.password = 'credentials';
                         ctrl.submit();
+
                         expect(ctrl.status()).toEqual('authenticated');
+                    });
+
+                    it('then controller can be switched to registration mode', function () {
+                        ctrl.switchToRegistrationMode();
+                        expect(ctrl.mode).toEqual('registration');
+                    });
+                });
+
+                describe('when initialised for registration', function () {
+                    beforeEach(function () {
+                        ctrl.mode = 'registration';
+                        ctrl.$onInit();
+                    });
+
+                    it('then system is still in idle state', function () {
+                        expect(ctrl.status()).toEqual('idle');
+                    });
+
+                    it('then form submission with invalid credentials is rejected', function () {
+                        ctrl.password = 'invalid';
+                        ctrl.submit();
+                        expect(ctrl.status()).toEqual('rejected');
+                        expect(ctrl.violationReport()).toEqual({password: ['invalid']});
+                    });
+
+                    it('then form submission with valid credentials is accepted', function () {
+                        ctrl.email = 'valid';
+                        ctrl.password = 'credentials';
+                        ctrl.submit();
+                        expect(ctrl.status()).toEqual('registered');
+                    });
+
+                    it('then controller can be switched to signin mode', function () {
+                        ctrl.switchToSigninMode();
+                        expect(ctrl.mode).toEqual('signin');
                     });
                 });
             });
@@ -181,6 +225,14 @@
         function proxy(gateway) {
             return gateway;
         }
+    }
+
+    function ExpectSuccessResponse() {
+        this.success = function () {
+        };
+        this.rejected = function () {
+            throw new Error('request.rejected');
+        };
     }
 })();
 
