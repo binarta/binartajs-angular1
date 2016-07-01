@@ -1,1 +1,4 @@
-angular.module("binarta-shopjs-tpls-angular1", []).run(["$templateCache", function($templateCache) {$templateCache.put("bin-checkout-flow.html","<div><h1>Checkout: {{checkout.status()}}</h1><bin-checkpoint mode=\"signin\" ng-if=\"checkout.status() == \'authentication-required\'\"></bin-checkpoint></div>");}]);
+angular.module("binarta-shopjs-tpls-angular1", []).run(["$templateCache", function($templateCache) {$templateCache.put("bin-checkout-authentication-required.html","<div><h1>Checkout: {{checkout.status()}}</h1><bin-checkpoint mode=\"signin\" listener=\"{{::checkout.signinEventListener}}\"></bin-checkpoint></div>");
+$templateCache.put("bin-checkout-completed.html","<div><h1>Checkout: {{checkout.status()}}</h1></div>");
+$templateCache.put("bin-checkout-flow.html","<div><h1>Checkout: {{checkout.status()}}</h1><bin-checkpoint mode=\"signin\" listener=\"checkout.signinEventListener\" ng-if=\"checkout.status() == \'authentication-required\'\"></bin-checkpoint></div>");
+$templateCache.put("bin-checkout-start.html","<div ng-init=\"checkout.start()\"><h1>Checkout: {{checkout.status()}}</h1></div>");}]);

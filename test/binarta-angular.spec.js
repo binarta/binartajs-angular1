@@ -2,14 +2,15 @@
     var ui;
 
     describe('binartajs-angular', function () {
-        var binarta;
+        var binarta, $location;
 
         beforeEach(function () {
             ui = new UI();
         });
         beforeEach(module('binartajs-angular1-spec'));
-        beforeEach(inject(function (_binarta_) {
+        beforeEach(inject(function (_binarta_, _$location_) {
             binarta = _binarta_;
+            $location = _$location_
         }));
 
         describe('binarta-checkpointjs-angular1', function () {
@@ -70,6 +71,18 @@
                         expect(ctrl.status()).toEqual('authenticated');
                     });
 
+                    it('then form submission with valid credentials triggers an optional event listener', function () {
+                        db.register({username: 'valid', password: 'credentials'}, new ExpectSuccessResponse());
+                        var listener = jasmine.createSpyObj('listener', ['success']);
+
+                        ctrl.listener = listener;
+                        ctrl.username = 'valid';
+                        ctrl.password = 'credentials';
+                        ctrl.submit();
+
+                        expect(listener.success).toHaveBeenCalled();
+                    });
+
                     it('then controller can be switched to registration mode', function () {
                         ctrl.switchToRegistrationMode();
                         expect(ctrl.mode).toEqual('registration');
@@ -98,6 +111,17 @@
                         ctrl.password = 'credentials';
                         ctrl.submit();
                         expect(ctrl.status()).toEqual('registered');
+                    });
+
+                    it('then form submission with valid credentials triggers an optional event listener', function () {
+                        var listener = jasmine.createSpyObj('listener', ['success']);
+
+                        ctrl.listener = listener;
+                        ctrl.email = 'valid';
+                        ctrl.password = 'credentials';
+                        ctrl.submit();
+
+                        expect(listener.success).toHaveBeenCalled();
                     });
 
                     it('then controller can be switched to signin mode', function () {
@@ -179,8 +203,21 @@
                     ctrl = $controller('CheckoutController');
                 }));
 
-                it('test', function () {
+                it('exposed the checkout status', function () {
                     expect(ctrl.status()).toEqual(binarta.shop.checkout.status())
+                });
+
+                it('starting while idle has no effect', function() {
+                    $location.path('/checkout/start');
+                    ctrl.start();
+                    expect($location.path()).toEqual('/checkout/start');
+                });
+
+                it('starting while started redirects to the appropriate route', function() {
+                    binarta.shop.checkout.start({}, ['authentication-required']);
+                    $location.path('/checkout/start');
+                    ctrl.start();
+                    expect($location.path()).toEqual('/checkout/authentication-required');
                 });
             });
         });
@@ -192,9 +229,14 @@
         'binarta-shopjs-angular1'
     ])
         .service('$window', MockWindow)
+        .factory('i18nLocation', MockI18nLocationFactory)
         .config(ExtendBinarta);
 
     function MockWindow() {
+    }
+
+    function MockI18nLocationFactory($location) {
+        return $location;
     }
 
     function ExtendBinarta(binartaProvider) {

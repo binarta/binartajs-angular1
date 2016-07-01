@@ -5,7 +5,7 @@
         // 'binarta-checkpointjs-gateways-angular1'
     ])
         .provider('shop', [/*'binartaCheckpointGatewayProvider', */ShopProvider])
-        .controller('CheckoutController', ['binarta', CheckoutController])
+        .controller('CheckoutController', ['binarta', 'i18nLocation', CheckoutController])
         .config(['binartaProvider', 'shopProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['shop', WireAngularDependencies]);
@@ -21,8 +21,15 @@
         }]
     }
 
-    function CheckoutController(binarta) {
+    function CheckoutController(binarta, i18nLocation) {
+        var self = this;
+        
         this.status = binarta.shop.checkout.status;
+
+        this.start = function() {
+            if(self.status() != 'idle')
+                i18nLocation.path('/checkout/' + self.status());
+        }
     }
 
     function UI() {
@@ -44,10 +51,34 @@
                 controller: 'CheckoutController as checkout',
                 reloadOnSearch: false
             })
+            .when('/checkout/start', {
+                templateUrl: 'bin-checkout-start.html',
+                controller: 'CheckoutController as checkout'
+            })
+            .when('/checkout/authentication-required', {
+                templateUrl: 'bin-checkout-authentication-required.html',
+                controller: 'CheckoutController as checkout'
+            })
+            .when('/checkout/completed', {
+                templateUrl: 'bin-checkout-completed.html',
+                controller: 'CheckoutController as checkout'
+            })
             .when('/:locale/checkout2', {
                 templateUrl: 'bin-checkout-flow.html',
                 controller: 'CheckoutController as checkout',
                 reloadOnSearch: false
+            })
+            .when('/:locale/checkout/start', {
+                templateUrl: 'bin-checkout-start.html',
+                controller: 'CheckoutController as checkout'
+            })
+            .when('/:locale/checkout/authentication-required', {
+                templateUrl: 'bin-checkout-authentication-required.html',
+                controller: 'CheckoutController as checkout'
+            })
+            .when('/:locale/checkout/completed', {
+                templateUrl: 'bin-checkout-completed.html',
+                controller: 'CheckoutController as checkout'
             });
     }
 })();

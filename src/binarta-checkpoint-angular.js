@@ -35,7 +35,8 @@
 
     function CheckpointComponent() {
         this.bindings = {
-            mode: '@'
+            mode: '@',
+            listener: '@'
         };
         this.controller = 'CheckpointController';
         this.template = ['$templateCache', function (cache) {
@@ -60,7 +61,7 @@
                 binarta.checkpoint.signinForm.submit({
                     username: this.username,
                     password: this.password
-                });
+                }, self.listener);
             };
             self.status = binarta.checkpoint.signinForm.status;
             self.violationReport = emptyViolationReport;
@@ -76,7 +77,7 @@
                     password: this.password,
                     vat: this.company == 'yes' ? this.vat : '',
                     captcha: this.captcha
-                });
+                }, self.listener);
             };
             self.status = binarta.checkpoint.registrationForm.status;
             self.violationReport = binarta.checkpoint.registrationForm.violationReport;
