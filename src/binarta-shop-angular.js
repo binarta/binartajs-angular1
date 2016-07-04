@@ -1,18 +1,16 @@
 (function () {
     angular.module('binarta-shopjs-angular1', [
         'ngRoute',
-        'binartajs-angular1'//,
-        // 'binarta-checkpointjs-gateways-angular1'
+        'binartajs-angular1'
     ])
-        .provider('shop', [/*'binartaCheckpointGatewayProvider', */ShopProvider])
-        .controller('CheckoutController', ['binarta', 'i18nLocation', CheckoutController])
+        .provider('shop', [ShopProvider])
+        .controller('CheckoutController', ['binarta', 'i18nLocation', '$location', CheckoutController])
         .config(['binartaProvider', 'shopProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['shop', WireAngularDependencies]);
 
     function ShopProvider(provider) {
         this.shop = new BinartaShopjs();
-        // this.checkpoint.gateway = provider.gateway;
         this.ui = new UI();
         this.$get = ['$window', '$location', function ($window, $location) {
             this.ui.window = $window;
@@ -21,11 +19,20 @@
         }]
     }
 
-    function CheckoutController(binarta, i18nLocation) {
+    function CheckoutController(binarta, i18nLocation, $location) {
         var self = this;
         
         this.checkpointListener = new CheckpointListener();
         this.status = binarta.shop.checkout.status;
+
+        this.$onInit = function() {
+            try {
+                var p = /.*\/checkout\/([\w-]+)/.exec($location.path());
+                if(p)
+                    binarta.shop.checkout.jumpTo(p[1]);
+            } catch(ignored) {
+            }
+        };
 
         this.start = function() {
             if(self.status() != 'idle')
@@ -46,7 +53,6 @@
 
     function ExtendBinarta(binarta, shopProvider) {
         binarta.addSubSystems({shop: shopProvider.shop});
-        // binarta.ui.approveBillingAgreement = shopProvider.ui.approveBillingAgreement;
     }
 
     function WireAngularDependencies() {

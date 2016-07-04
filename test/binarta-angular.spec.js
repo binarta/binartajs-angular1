@@ -230,6 +230,32 @@
                     expect(ctrl.status()).toEqual('completed');
                     expect($location.path()).toEqual('/checkout/completed');
                 });
+
+                describe('restoring checkout state from location', function() {
+                    it('ignore non checkout locations', function() {
+                        $location.path('/');
+                        ctrl.$onInit();
+                        expect(binarta.shop.checkout.status()).toEqual('idle');
+                    });
+
+                    it('ignore unknown states', function() {
+                        $location.path('/checkout/unknown');
+                        ctrl.$onInit();
+                        expect(binarta.shop.checkout.status()).toEqual('idle');
+                    });
+
+                    it('simple state', function() {
+                        $location.path('/checkout/completed');
+                        ctrl.$onInit();
+                        expect(binarta.shop.checkout.status()).toEqual('completed');
+                    });
+
+                    it('state with dashes', function() {
+                        $location.path('/checkout/authentication-required');
+                        ctrl.$onInit();
+                        expect(binarta.shop.checkout.status()).toEqual('authentication-required');
+                    });
+                });
             });
         });
     });
