@@ -1,5 +1,5 @@
 <div>
     <h1>Checkout: {{checkout.status()}}</h1>
 
-    <bin-checkpoint mode="signin" listener="{{::checkout.signinEventListener}}"></bin-checkpoint>
+    <bin-checkpoint mode="signin" listener="::checkout.checkpointListener"></bin-checkpoint>
 </div>

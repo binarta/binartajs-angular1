@@ -16,7 +16,7 @@
     }
 
     function toErrorResponse(response) {
-        return function(request) {
+        return function (request) {
             response.rejected(request.data);
         };
     }
@@ -28,7 +28,7 @@
                 method: 'PUT',
                 url: this.config.baseUri + 'api/accounts',
                 data: request
-            }).then(response.success).catch(toErrorResponse(response));
+            }).then(response.success, toErrorResponse(response));
         };
 
         this.signin = function (request, response) {
@@ -38,7 +38,18 @@
                 url: this.config.baseUri + 'api/checkpoint',
                 data: request,
                 withCredentials: true
-            }).then(response.success).catch(response.rejected);
+            }).then(response.success, response.rejected);
+        };
+
+        this.fetchAccountMetadata = function (response) {
+            this.$http({
+                method: 'GET',
+                url: this.config.baseUri + 'api/account/metadata',
+                withCredentials: true,
+                headers: {'X-Namespace': this.config.namespace}
+            }).then(function (it) {
+                response.activeAccountMetadata(it.data)
+            }, response.unauthenticated);
         };
 
         this.initiateBillingAgreement = function (provider, ui) {

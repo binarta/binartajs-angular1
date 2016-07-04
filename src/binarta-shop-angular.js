@@ -24,11 +24,19 @@
     function CheckoutController(binarta, i18nLocation) {
         var self = this;
         
+        this.checkpointListener = new CheckpointListener();
         this.status = binarta.shop.checkout.status;
 
         this.start = function() {
             if(self.status() != 'idle')
                 i18nLocation.path('/checkout/' + self.status());
+        };
+
+        function CheckpointListener() {
+            this.success = function() {
+                binarta.shop.checkout.retry();
+                self.start();
+            }
         }
     }
 
@@ -46,11 +54,6 @@
 
     function InstallRoutes($routeProvider) {
         $routeProvider
-            .when('/checkout2', {
-                templateUrl: 'bin-checkout-flow.html',
-                controller: 'CheckoutController as checkout',
-                reloadOnSearch: false
-            })
             .when('/checkout/start', {
                 templateUrl: 'bin-checkout-start.html',
                 controller: 'CheckoutController as checkout'
@@ -62,11 +65,6 @@
             .when('/checkout/completed', {
                 templateUrl: 'bin-checkout-completed.html',
                 controller: 'CheckoutController as checkout'
-            })
-            .when('/:locale/checkout2', {
-                templateUrl: 'bin-checkout-flow.html',
-                controller: 'CheckoutController as checkout',
-                reloadOnSearch: false
             })
             .when('/:locale/checkout/start', {
                 templateUrl: 'bin-checkout-start.html',

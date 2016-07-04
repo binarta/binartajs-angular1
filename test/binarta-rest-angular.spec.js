@@ -12,7 +12,12 @@
             config.baseUri = 'http://host/';
 
             ui = new UI();
-            response = jasmine.createSpyObj('response', ['success', 'rejected']);
+            response = jasmine.createSpyObj('response', [
+                'success',
+                'rejected',
+                'unauthenticated',
+                'activeAccountMetadata'
+            ]);
         }));
 
         afterEach(function () {
@@ -81,8 +86,29 @@
                     expectedHttpRequest.respond(412, 'violation-report');
                     gateway.register(request, response);
                     $http.flush();
-                    // expect(response.rejected).toHaveBeenCalled();
                     expect(response.rejected).toHaveBeenCalledWith('violation-report');
+                });
+            });
+
+            describe('fetchAccountMetadata', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectGET('http://host/api/account/metadata', function(headers) {
+                        return headers['X-Namespace'] == config.namespace;
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'metadata');
+                    gateway.fetchAccountMetadata(response);
+                    $http.flush();
+                    expect(response.activeAccountMetadata).toHaveBeenCalledWith('metadata');
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.fetchAccountMetadata(response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
                 });
             });
 

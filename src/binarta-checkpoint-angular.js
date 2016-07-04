@@ -36,7 +36,7 @@
     function CheckpointComponent() {
         this.bindings = {
             mode: '@',
-            listener: '@'
+            listener: '<'
         };
         this.controller = 'CheckpointController';
         this.template = ['$templateCache', function (cache) {

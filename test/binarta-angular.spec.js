@@ -219,6 +219,17 @@
                     ctrl.start();
                     expect($location.path()).toEqual('/checkout/authentication-required');
                 });
+
+                it('retry authentication-required using checkpoint listener', function() {
+                    binarta.shop.checkout.start({}, ['authentication-required', 'completed']);
+                    binarta.checkpoint.registrationForm.submit({username:'u', password:'p'});
+                    binarta.checkpoint.profile.refresh();
+
+                    ctrl.checkpointListener.success();
+
+                    expect(ctrl.status()).toEqual('completed');
+                    expect($location.path()).toEqual('/checkout/completed');
+                });
             });
         });
     });
