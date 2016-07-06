@@ -4,10 +4,12 @@
         'binartajs-angular1'
     ])
         .provider('shop', [ShopProvider])
-        .controller('CheckoutController', ['binarta', 'i18nLocation', '$location', CheckoutController])
+        .service('CheckoutController.decorator', CheckoutControllerDecorator)
+        .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', CheckoutController])
         .config(['binartaProvider', 'shopProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
-        .run(['shop', WireAngularDependencies]);
+        .run(['shop', WireAngularDependencies])
+        .run(['binarta', 'CheckoutController.decorator', InstallCheckpointListener]);
 
     function ShopProvider(provider) {
         this.shop = new BinartaShopjs();
@@ -19,32 +21,39 @@
         }]
     }
 
-    function CheckoutController(binarta, i18nLocation, $location) {
+    function CheckoutControllerDecorator() {
+        var decorators = [];
+
+        this.add = function (it) {
+            decorators.push(it);
+        };
+
+        this.decorate = function (ctrl) {
+            decorators.forEach(function(it) {
+                it(ctrl);
+            });
+        }
+    }
+
+    function CheckoutController(binarta, decorator, i18nLocation, $location) {
         var self = this;
-        
-        this.checkpointListener = new CheckpointListener();
+        decorator.decorate(self);
+
         this.status = binarta.shop.checkout.status;
 
-        this.$onInit = function() {
+        this.$onInit = function () {
             try {
                 var p = /.*\/checkout\/([\w-]+)/.exec($location.path());
-                if(p)
+                if (p)
                     binarta.shop.checkout.jumpTo(p[1]);
-            } catch(ignored) {
+            } catch (ignored) {
             }
         };
 
-        this.start = function() {
-            if(self.status() != 'idle')
+        this.start = function () {
+            if (self.status() != 'idle')
                 i18nLocation.path('/checkout/' + self.status());
         };
-
-        function CheckpointListener() {
-            this.success = function() {
-                binarta.shop.checkout.retry();
-                self.start();
-            }
-        }
     }
 
     function UI() {
@@ -56,6 +65,19 @@
     }
 
     function WireAngularDependencies() {
+    }
+
+    function InstallCheckpointListener(binarta, decorator) {
+        decorator.add(function (ctrl) {
+            ctrl.checkpointListener = new CheckpointListener(binarta, ctrl);
+        });
+
+        function CheckpointListener(binarta, ctrl) {
+            this.success = function () {
+                binarta.shop.checkout.retry();
+                ctrl.start();
+            }
+        }
     }
 
     function InstallRoutes($routeProvider) {

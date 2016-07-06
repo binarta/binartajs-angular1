@@ -203,8 +203,8 @@
                     ctrl = $controller('CheckoutController');
                 }));
 
-                it('exposed the checkout status', function () {
-                    expect(ctrl.status()).toEqual(binarta.shop.checkout.status())
+                it('exposes the checkout status', function () {
+                    expect(ctrl.status()).toEqual(binarta.shop.checkout.status());
                 });
 
                 it('starting while idle has no effect', function() {
@@ -256,6 +256,13 @@
                         expect(binarta.shop.checkout.status()).toEqual('authentication-required');
                     });
                 });
+
+                it('supports decorators', inject(['$controller', 'CheckoutController.decorator', function($controller, decorator) {
+                    decorator.add(function(ctrl) {
+                        ctrl.decoratedAttribute = 'd';
+                    });
+                    expect($controller('CheckoutController').decoratedAttribute).toEqual('d');
+                }]));
             });
         });
     });
