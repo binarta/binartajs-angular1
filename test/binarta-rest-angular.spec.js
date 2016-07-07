@@ -92,7 +92,7 @@
 
             describe('fetchAccountMetadata', function () {
                 beforeEach(function () {
-                    expectedHttpRequest = $http.expectGET('http://host/api/account/metadata', function(headers) {
+                    expectedHttpRequest = $http.expectGET('http://host/api/account/metadata', function (headers) {
                         return headers['X-Namespace'] == config.namespace;
                     });
                 });
@@ -155,12 +155,51 @@
             })
         });
 
+        describe('shop gateway', function () {
+            var gateway;
+
+            beforeEach(inject(function (restBinartaShopGateway) {
+                gateway = restBinartaShopGateway;
+            }));
+
+            describe('submit order', function () {
+                beforeEach(function () {
+                    request = {
+                        provider: 'p'
+                    };
+                    expectedHttpRequest = $http.expectPUT('http://host/api/entity/purchase-order', {
+                        provider: 'p'
+                    }, function (headers) {
+                        return true;
+                        // return headers['Accept-Language'] == '???'; // TODO - can we find a nice way to expose the chosen language?
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(201);
+                    gateway.submitOrder(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violation-report');
+                    gateway.submitOrder(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violation-report');
+                });
+            })
+        });
+
         function capturedRequest(idx) {
             return rest.calls.argsFor(idx)[0];
         }
     });
 
-    angular.module('binartajs-rest-angular1-spec', ['binarta-checkpointjs-rest-angular1']);
+    angular.module('binartajs-rest-angular1-spec', [
+        'binarta-checkpointjs-rest-angular1',
+        'binarta-shopjs-rest-angular1'
+    ]);
 
     function UI() {
         var self = this;

@@ -1,18 +1,21 @@
 (function () {
     angular.module('binarta-shopjs-angular1', [
         'ngRoute',
-        'binartajs-angular1'
+        'binartajs-angular1',
+        'binarta-shopjs-gateways-angular1'
     ])
-        .provider('shop', [ShopProvider])
+        .provider('shop', ['binartaShopGatewayProvider', ShopProvider])
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
         .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', CheckoutController])
         .config(['binartaProvider', 'shopProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['shop', WireAngularDependencies])
-        .run(['binarta', 'CheckoutController.decorator', InstallCheckpointListener]);
+        .run(['binarta', 'CheckoutController.decorator', InstallCheckpointListener])
+        .run(['binarta', 'CheckoutController.decorator', InstallSummarySupport]);
 
     function ShopProvider(provider) {
         this.shop = new BinartaShopjs();
+        this.shop.gateway = provider.gateway;
         this.ui = new UI();
         this.$get = ['$window', '$location', function ($window, $location) {
             this.ui.window = $window;
@@ -80,6 +83,20 @@
         }
     }
 
+    function InstallSummarySupport(binarta, decorator) {
+        decorator.add(function(ctrl) {
+            ctrl.confirm = function() {
+                binarta.shop.checkout.confirm(function() {
+                    ctrl.start();
+                });
+            };
+
+            ctrl.violationReport = function() {
+                return binarta.shop.checkout.violationReport();
+            }
+        });
+    }
+
     function InstallRoutes($routeProvider) {
         $routeProvider
             .when('/checkout/start', {
@@ -88,6 +105,10 @@
             })
             .when('/checkout/authentication-required', {
                 templateUrl: 'bin-checkout-authentication-required.html',
+                controller: 'CheckoutController as checkout'
+            })
+            .when('/checkout/summary', {
+                templateUrl: 'bin-checkout-summary.html',
                 controller: 'CheckoutController as checkout'
             })
             .when('/checkout/completed', {
@@ -100,6 +121,10 @@
             })
             .when('/:locale/checkout/authentication-required', {
                 templateUrl: 'bin-checkout-authentication-required.html',
+                controller: 'CheckoutController as checkout'
+            })
+            .when('/:locale/checkout/summary', {
+                templateUrl: 'bin-checkout-summary.html',
                 controller: 'CheckoutController as checkout'
             })
             .when('/:locale/checkout/completed', {

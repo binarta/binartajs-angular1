@@ -263,6 +263,24 @@
                     });
                     expect($controller('CheckoutController').decoratedAttribute).toEqual('d');
                 }]));
+
+                it('on summary step order confirmation can be rejected', function() {
+                    binarta.shop.checkout.start({provider:'with-insufficient-funds'}, ['summary', 'completed']);
+
+                    ctrl.confirm();
+
+                    expect(ctrl.status()).toEqual('summary');
+                    expect(ctrl.violationReport()).toEqual('violation-report');
+                });
+
+                it('on summary step order confirmation success', function() {
+                    binarta.shop.checkout.start({provider:'with-sufficient-funds'}, ['summary', 'completed']);
+
+                    ctrl.confirm();
+
+                    expect(ctrl.status()).toEqual('completed');
+                    expect($location.path()).toEqual('/checkout/completed');
+                });
             });
         });
     });
@@ -270,7 +288,7 @@
     installBackendStrategy('inmem');
     angular.module('binartajs-angular1-spec', [
         'binarta-checkpointjs-angular1', 'binarta-checkpointjs-gateways-angular1',
-        'binarta-shopjs-angular1'
+        'binarta-shopjs-angular1', 'binarta-shopjs-gateways-angular1'
     ])
         .service('$window', MockWindow)
         .factory('i18nLocation', MockI18nLocationFactory)
@@ -307,6 +325,8 @@
     function installBackendStrategy(strategy) {
         angular.module('binarta-checkpointjs-gateways-angular1', ['binarta-checkpointjs-' + strategy + '-angular1'])
             .provider('binartaCheckpointGateway', [strategy + 'BinartaCheckpointGatewayProvider', proxy]);
+        angular.module('binarta-shopjs-gateways-angular1', ['binarta-shopjs-' + strategy + '-angular1'])
+            .provider('binartaShopGateway', [strategy + 'BinartaShopGatewayProvider', proxy]);
 
         function proxy(gateway) {
             return gateway;
