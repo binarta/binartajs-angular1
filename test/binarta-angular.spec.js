@@ -10,7 +10,9 @@
         beforeEach(module('binartajs-angular1-spec'));
         beforeEach(inject(function (_binarta_, _$location_) {
             binarta = _binarta_;
-            $location = _$location_
+            $location = _$location_;
+
+            binarta.checkpoint.profile.signout();
         }));
 
         describe('binarta-checkpointjs-angular1', function () {
@@ -25,6 +27,7 @@
             });
 
             it('on profile refresh is authenticated', function () {
+                binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
                 binarta.checkpoint.profile.refresh();
                 expect(binarta.checkpoint.profile.isAuthenticated()).toEqual(true);
             });
