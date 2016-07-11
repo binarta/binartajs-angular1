@@ -1,7 +1,8 @@
 (function () {
     angular.module('binarta-shopjs-rest-angular1', ['config'])
         .provider('restBinartaShopGateway', proxy(new ShopGateway()))
-        .run(['restBinartaShopGateway', WireAngularDependencies]);
+        .factory('binartaShopGatewayIsInitialised', ['$q', GatewayIsInitialisedFactory])
+        .run(['restBinartaShopGateway', 'binartaShopGatewayIsInitialised', WireAngularDependencies]);
 
     function proxy(gateway) {
         return function () {
@@ -32,6 +33,11 @@
         };
     }
 
-    function WireAngularDependencies() {
+    function GatewayIsInitialisedFactory($q) {
+        return $q.defer();
+    }
+
+    function WireAngularDependencies(gateway, isInitialised) {
+        isInitialised.resolve();
     }
 })();

@@ -1,7 +1,8 @@
 (function () {
-    angular.module('binarta-checkpointjs-rest-angular1', ['config', 'rest.client'])
+    angular.module('binarta-checkpointjs-rest-angular1', ['config', 'rest.client', 'binartajs-angular1'])
         .provider('restBinartaCheckpointGateway', proxy(new CheckpointGateway()))
-        .run(['restBinartaCheckpointGateway', WireAngularDependencies]);
+        .factory('binartaCheckpointGatewayIsInitialised', ['$q', GatewayIsInitialisedFactory])
+        .run(['restBinartaCheckpointGateway', 'binartaCheckpointGatewayIsInitialised', WireAngularDependencies]);
 
     function proxy(gateway) {
         return function () {
@@ -85,6 +86,11 @@
         }
     }
 
-    function WireAngularDependencies() {
+    function GatewayIsInitialisedFactory($q) {
+        return $q.defer();
+    }
+
+    function WireAngularDependencies(gateway, isInitialised) {
+        isInitialised.resolve();
     }
 })();

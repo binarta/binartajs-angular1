@@ -15,6 +15,16 @@
             binarta.checkpoint.profile.signout();
         }));
 
+        it('binarta is initialised promise only resolves when gateways are initialised', inject(function($rootScope, binartaIsInitialised, binartaGatewaysAreInitialised) {
+            var initialisedBinarta;
+            binartaGatewaysAreInitialised.resolve();
+            binartaIsInitialised.then(function(binarta) {
+                initialisedBinarta = binarta;
+            });
+            $rootScope.$digest();
+            expect(initialisedBinarta).toEqual(binarta);
+        }));
+
         describe('binarta-checkpointjs-angular1', function () {
             var db;
 
