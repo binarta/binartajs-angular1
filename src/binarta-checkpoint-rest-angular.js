@@ -22,41 +22,43 @@
     }
 
     function CheckpointGateway() {
+        var self = this;
+        
         this.register = function (request, response) {
             request.namespace = this.config.namespace;
-            this.$http({
+            self.$http({
                 method: 'PUT',
-                url: this.config.baseUri + 'api/accounts',
+                url: self.config.baseUri + 'api/accounts',
                 data: request
             }).then(response.success, toErrorResponse(response));
         };
 
         this.signin = function (request, response) {
             request.namespace = this.config.namespace;
-            this.$http({
+            self.$http({
                 method: 'POST',
-                url: this.config.baseUri + 'api/checkpoint',
+                url: self.config.baseUri + 'api/checkpoint',
                 data: request,
                 withCredentials: true
             }).then(response.success, response.rejected);
         };
 
         this.fetchAccountMetadata = function (response) {
-            this.$http({
+            self.$http({
                 method: 'GET',
-                url: this.config.baseUri + 'api/account/metadata',
+                url: self.config.baseUri + 'api/account/metadata',
                 withCredentials: true,
-                headers: {'X-Namespace': this.config.namespace}
+                headers: {'X-Namespace': self.config.namespace}
             }).then(function (it) {
                 response.activeAccountMetadata(it.data)
             }, response.unauthenticated);
         };
 
         this.initiateBillingAgreement = function (provider, ui) {
-            this.rest({
+            self.rest({
                 params: {
                     method: 'POST',
-                    url: (this.config.baseUri || '') + 'api/usecase',
+                    url: (self.config.baseUri || '') + 'api/usecase',
                     withCredentials: true,
                     data: {
                         headers: {usecase: 'initiate.billing.agreement'},
@@ -68,10 +70,10 @@
         };
 
         this.confirmBillingAgreement = function (ctx, ui) {
-            this.rest({
+            self.rest({
                 params: {
                     method: 'POST',
-                    url: (this.config.baseUri || '') + 'api/usecase',
+                    url: (self.config.baseUri || '') + 'api/usecase',
                     withCredentials: true,
                     data: {
                         headers: {usecase: 'create.billing.agreement'},

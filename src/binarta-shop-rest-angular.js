@@ -21,10 +21,12 @@
     }
 
     function ShopGateway() {
+        var self = this;
+
         this.submitOrder = function (request, response) {
-            this.$http({
+            self.$http({
                 method: 'PUT',
-                url: this.config.baseUri + 'api/entity/purchase-order',
+                url: self.config.baseUri + 'api/entity/purchase-order',
                 data: request
             }).then(response.success, toErrorResponse(response));
         };
