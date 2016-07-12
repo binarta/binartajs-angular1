@@ -162,6 +162,32 @@
                 gateway = restBinartaShopGateway;
             }));
 
+            describe('preview order', function () {
+                beforeEach(function () {
+                    request = {
+                        items: [
+                            {id: 'i'}
+                        ]
+                    };
+                    expectedHttpRequest = $http.expectPOST('http://host/api/echo/purchase-order', {
+                        namespace: 'n',
+                        items: [
+                            {id: 'i'}
+                        ]
+                    }, function (headers) {
+                        return true;
+                        // return headers['Accept-Language'] == '???'; // TODO - can we find a nice way to expose the chosen language?
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'previewed-order');
+                    gateway.previewOrder(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('previewed-order');
+                });
+            });
+
             describe('submit order', function () {
                 beforeEach(function () {
                     request = {

@@ -39,9 +39,7 @@
             listener: '<'
         };
         this.controller = 'CheckpointController';
-        this.template = ['$templateCache', function (cache) {
-            return cache.get('bin-checkpoint-form.html');
-        }];
+        this.templateUrl = 'bin-checkpoint-form.html';
     }
 
     function CheckpointController(binarta) {

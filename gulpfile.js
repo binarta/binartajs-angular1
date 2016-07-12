@@ -35,7 +35,7 @@ gulp.task('checkpoint-shop-bootstrap3', function () {
 });
 
 gulp.task('shop-bootstrap3', function () {
-    gulp.src('template/bootstrap3/bin-checkout-*.html')
+    gulp.src('template/bootstrap3/bin-shop-*.html')
         .pipe(minifyHtml(minifyHtmlOpts))
         .pipe(templateCache('binarta-shop-tpls-bootstrap3-angular1.js', {standalone: true, module: 'binarta-shopjs-tpls-angular1'}))
         .pipe(gulp.dest('src'));

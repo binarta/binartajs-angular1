@@ -24,10 +24,23 @@
     function ShopGateway() {
         var self = this;
 
+        this.previewOrder = function (request, response) {
+            request.namespace = this.config.namespace;
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/echo/purchase-order',
+                withCredentials: true,
+                data: request
+            }).then(function (it) {
+                response.success(it.data);
+            });
+        };
+
         this.submitOrder = function (request, response) {
             self.$http({
                 method: 'PUT',
                 url: self.config.baseUri + 'api/entity/purchase-order',
+                withCredentials: true,
                 data: request
             }).then(response.success, toErrorResponse(response));
         };

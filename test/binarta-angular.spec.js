@@ -15,10 +15,10 @@
             binarta.checkpoint.profile.signout();
         }));
 
-        it('binarta is initialised promise only resolves when gateways are initialised', inject(function($rootScope, binartaIsInitialised, binartaGatewaysAreInitialised) {
+        it('binarta is initialised promise only resolves when gateways are initialised', inject(function ($rootScope, binartaIsInitialised, binartaGatewaysAreInitialised) {
             var initialisedBinarta;
             binartaGatewaysAreInitialised.resolve();
-            binartaIsInitialised.then(function(binarta) {
+            binartaIsInitialised.then(function (binarta) {
                 initialisedBinarta = binarta;
             });
             $rootScope.$digest();
@@ -220,22 +220,26 @@
                     expect(ctrl.status()).toEqual(binarta.shop.checkout.status());
                 });
 
-                it('starting while idle has no effect', function() {
+                it('exposes the checkout order', function () {
+                    expect(ctrl.order()).toEqual(binarta.shop.checkout.context().order);
+                });
+
+                it('starting while idle has no effect', function () {
                     $location.path('/checkout/start');
                     ctrl.start();
                     expect($location.path()).toEqual('/checkout/start');
                 });
 
-                it('starting while started redirects to the appropriate route', function() {
+                it('starting while started redirects to the appropriate route', function () {
                     binarta.shop.checkout.start({}, ['authentication-required']);
                     $location.path('/checkout/start');
                     ctrl.start();
                     expect($location.path()).toEqual('/checkout/authentication-required');
                 });
 
-                it('retry authentication-required using checkpoint listener', function() {
+                it('retry authentication-required using checkpoint listener', function () {
                     binarta.shop.checkout.start({}, ['authentication-required', 'completed']);
-                    binarta.checkpoint.registrationForm.submit({username:'u', password:'p'});
+                    binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
                     binarta.checkpoint.profile.refresh();
 
                     ctrl.checkpointListener.success();
@@ -244,41 +248,41 @@
                     expect($location.path()).toEqual('/checkout/completed');
                 });
 
-                describe('restoring checkout state from location', function() {
-                    it('ignore non checkout locations', function() {
+                describe('restoring checkout state from location', function () {
+                    it('ignore non checkout locations', function () {
                         $location.path('/');
                         ctrl.$onInit();
                         expect(binarta.shop.checkout.status()).toEqual('idle');
                     });
 
-                    it('ignore unknown states', function() {
+                    it('ignore unknown states', function () {
                         $location.path('/checkout/unknown');
                         ctrl.$onInit();
                         expect(binarta.shop.checkout.status()).toEqual('idle');
                     });
 
-                    it('simple state', function() {
+                    it('simple state', function () {
                         $location.path('/checkout/completed');
                         ctrl.$onInit();
                         expect(binarta.shop.checkout.status()).toEqual('completed');
                     });
 
-                    it('state with dashes', function() {
+                    it('state with dashes', function () {
                         $location.path('/checkout/authentication-required');
                         ctrl.$onInit();
                         expect(binarta.shop.checkout.status()).toEqual('authentication-required');
                     });
                 });
 
-                it('supports decorators', inject(['$controller', 'CheckoutController.decorator', function($controller, decorator) {
-                    decorator.add(function(ctrl) {
+                it('supports decorators', inject(['$controller', 'CheckoutController.decorator', function ($controller, decorator) {
+                    decorator.add(function (ctrl) {
                         ctrl.decoratedAttribute = 'd';
                     });
                     expect($controller('CheckoutController').decoratedAttribute).toEqual('d');
                 }]));
 
-                it('on summary step order confirmation can be rejected', function() {
-                    binarta.shop.checkout.start({provider:'with-insufficient-funds'}, ['summary', 'completed']);
+                it('on summary step order confirmation can be rejected', function () {
+                    binarta.shop.checkout.start({provider: 'with-insufficient-funds'}, ['summary', 'completed']);
 
                     ctrl.confirm();
 
@@ -286,14 +290,32 @@
                     expect(ctrl.violationReport()).toEqual('violation-report');
                 });
 
-                it('on summary step order confirmation success', function() {
-                    binarta.shop.checkout.start({provider:'with-sufficient-funds'}, ['summary', 'completed']);
+                it('on summary step order confirmation success', function () {
+                    binarta.shop.checkout.start({provider: 'with-sufficient-funds'}, ['summary', 'completed']);
 
                     ctrl.confirm();
 
                     expect(ctrl.status()).toEqual('completed');
                     expect($location.path()).toEqual('/checkout/completed');
                 });
+            });
+
+            describe('BasketController', function () {
+                var ctrl;
+
+                beforeEach(inject(function ($controller) {
+                    ctrl = $controller('BinartaBasketController');
+                    ctrl.order = {items: [{id: 'i', quantity: 1}]};
+                    ctrl.$onInit();
+                }));
+
+                it('exposes the previewed order', function () {
+                    expect(ctrl.preview).toEqual(ctrl.order);
+                });
+
+                it('exposes the viewport', inject(function(viewport) {
+                    expect(ctrl.viewport).toEqual(viewport);
+                }));
             });
         });
     });
@@ -305,6 +327,7 @@
     ])
         .service('$window', MockWindow)
         .factory('i18nLocation', MockI18nLocationFactory)
+        .service('viewport', MockViewport)
         .config(ExtendBinarta);
 
     function MockWindow() {
@@ -312,6 +335,9 @@
 
     function MockI18nLocationFactory($location) {
         return $location;
+    }
+
+    function MockViewport() {
     }
 
     function ExtendBinarta(binartaProvider) {
