@@ -116,6 +116,7 @@
     function InstallSummarySupport(binarta, decorator) {
         decorator.add(function (ctrl) {
             ctrl.confirm = function () {
+                console.log('CheckoutController.confirm()');
                 binarta.shop.checkout.confirm(function () {
                     ctrl.start();
                 });
@@ -141,6 +142,10 @@
                 templateUrl: 'bin-shop-checkout-summary.html',
                 controller: 'CheckoutController as checkout'
             })
+            .when('/checkout/setup-payment-provider', {
+                templateUrl: 'bin-shop-checkout-setup-payment-provider.html',
+                controller: 'CheckoutController as checkout'
+            })
             .when('/checkout/completed', {
                 templateUrl: 'bin-shop-checkout-completed.html',
                 controller: 'CheckoutController as checkout'
@@ -155,6 +160,10 @@
             })
             .when('/:locale/checkout/summary', {
                 templateUrl: 'bin-shop-checkout-summary.html',
+                controller: 'CheckoutController as checkout'
+            })
+            .when('/:locale/checkout/setup-payment-provider', {
+                templateUrl: 'bin-shop-checkout-setup-payment-provider.html',
                 controller: 'CheckoutController as checkout'
             })
             .when('/:locale/checkout/completed', {
