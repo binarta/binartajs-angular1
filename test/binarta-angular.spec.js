@@ -239,6 +239,14 @@
                     expect(ctrl.status()).toEqual('completed');
                     expect($location.path()).toEqual('/checkout/completed');
                 });
+
+                // describe('on setup payment provider step', function() {
+                //     it('initiate billing agreement', inject(function($window) {
+                //         binarta.shop.checkout.start({provider: 'p'}, ['setup-payment-provider', 'completed']);
+                //         ctrl.setup();
+                //         expect($window.location).toEqual('http://p/billing/agreement?token=t');
+                //     }));
+                // });
             });
 
             describe('BasketController', function () {
@@ -257,6 +265,26 @@
                 it('exposes the viewport', inject(function(viewport) {
                     expect(ctrl.viewport).toEqual(viewport);
                 }));
+            });
+
+            describe('SetupPaymentProviderController', function() {
+                var ctrl;
+
+                beforeEach(inject(function($controller) {
+                    ctrl = $controller('SetupPaymentProviderController');
+                }));
+                
+                describe('setup billing agreement', function() {
+                    beforeEach(function() {
+                        ctrl.provider = 'p';
+                        ctrl.method = 'billing-agreement';
+                    });
+
+                    it('test', inject(function($window) {
+                        ctrl.$onInit();
+                        expect($window.location).toEqual('http://p/billing/agreement?token=t');
+                    }));
+                });
             });
 
             describe('SetupBillingAgreementController', function () {

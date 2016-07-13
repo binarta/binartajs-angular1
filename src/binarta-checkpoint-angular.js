@@ -24,10 +24,6 @@
 
     function UI() {
         var self = this;
-
-        this.approveBillingAgreement = function (args) {
-            self.window.location = args.url;
-        }
     }
 
     function CheckpointComponent() {
@@ -95,7 +91,6 @@
 
     function ExtendBinarta(binarta, checkpointProvider) {
         binarta.addSubSystems({checkpoint: checkpointProvider.checkpoint});
-        binarta.ui.approveBillingAgreement = checkpointProvider.ui.approveBillingAgreement;
     }
 
     function WireAngularDependencies() {

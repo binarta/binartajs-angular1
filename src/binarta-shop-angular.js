@@ -9,6 +9,8 @@
         .controller('BinartaBasketController', ['binarta', 'viewport', BinartaBasketController])
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
         .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', CheckoutController])
+        .component('binSetupPaymentProvider', new SetupPaymentProviderComponent())
+        .controller('SetupPaymentProviderController', ['binarta', SetupPaymentProviderController])
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
         .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
         .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
@@ -16,7 +18,8 @@
         .config(['$routeProvider', InstallRoutes])
         .run(['shop', WireAngularDependencies])
         .run(['binarta', 'CheckoutController.decorator', InstallCheckpointListener])
-        .run(['binarta', 'CheckoutController.decorator', InstallSummarySupport]);
+        .run(['binarta', 'CheckoutController.decorator', InstallSummarySupport])
+        .run(['binarta', 'CheckoutController.decorator', InstallPaymentProviderSetupSupport]);
 
     function ShopProvider(gatewayProvider, checkpointProvider) {
         this.shop = new BinartaShopjs(checkpointProvider.checkpoint);
@@ -92,6 +95,23 @@
         };
     }
 
+    function SetupPaymentProviderComponent() {
+        this.bindings = {
+            provider: '@',
+            method: '@'
+        };
+        this.controller = 'SetupPaymentProviderController';
+        this.templateUrl = 'bin-shop-setup-payment-provider.html';
+    }
+
+    function SetupPaymentProviderController(binarta) {
+        var self = this;
+
+        this.$onInit = function() {
+            binarta.checkpoint.profile.billing.initiate(self.provider);
+        }
+    }
+
     function SetupBillingAgreementController(binarta) {
         this.status = binarta.checkpoint.profile.billing.isComplete() ? 'complete' : 'incomplete';
 
@@ -118,10 +138,15 @@
 
     function UI() {
         var self = this;
+
+        this.approveBillingAgreement = function (args) {
+            self.window.location = args.url;
+        }
     }
 
     function ExtendBinarta(binarta, shopProvider) {
         binarta.addSubSystems({shop: shopProvider.shop});
+        binarta.ui.approveBillingAgreement = shopProvider.ui.approveBillingAgreement;
     }
 
     function WireAngularDependencies() {
@@ -143,7 +168,6 @@
     function InstallSummarySupport(binarta, decorator) {
         decorator.add(function (ctrl) {
             ctrl.confirm = function () {
-                console.log('CheckoutController.confirm()');
                 binarta.shop.checkout.confirm(function () {
                     ctrl.start();
                 });
@@ -152,6 +176,14 @@
             ctrl.violationReport = function () {
                 return binarta.shop.checkout.violationReport();
             }
+        });
+    }
+
+    function InstallPaymentProviderSetupSupport(binarta, decorator) {
+        decorator.add(function (ctrl) {
+            ctrl.setup = function () {
+                binarta.shop.checkout.setup();
+            };
         });
     }
 
