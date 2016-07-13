@@ -7,9 +7,6 @@
         .provider('checkpoint', ['binartaCheckpointGatewayProvider', CheckpointProvider])
         .component('binCheckpoint', new CheckpointComponent())
         .controller('CheckpointController', ['binarta', CheckpointController])
-        .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
-        .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
-        .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
         .config(['binartaProvider', 'checkpointProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['checkpoint', WireAngularDependencies]);
@@ -94,30 +91,6 @@
         }
 
         this.violationReport = emptyViolationReport;
-    }
-
-    function SetupBillingAgreementController(binarta) {
-        this.status = binarta.checkpoint.profile.billing.isComplete() ? 'complete' : 'incomplete';
-
-        this.submit = function () {
-            this.status = 'working';
-            binarta.checkpoint.profile.billing.initiate(this.paymentProvider);
-        }
-    }
-
-    function CancelBillingAgreementController(binarta) {
-        this.execute = function () {
-            binarta.checkpoint.profile.billing.cancel();
-        }
-    }
-
-    function ConfirmBillingAgreementController(binarta, $location) {
-        this.execute = function () {
-            binarta.checkpoint.profile.billing.confirm({
-                paymentProvider: this.paymentProvider,
-                confirmationToken: $location.search().token
-            });
-        }
     }
 
     function ExtendBinarta(binarta, checkpointProvider) {

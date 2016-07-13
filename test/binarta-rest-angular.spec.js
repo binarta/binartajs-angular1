@@ -111,48 +111,6 @@
                     expect(response.unauthenticated).toHaveBeenCalled();
                 });
             });
-
-            describe('initiate billing agreement', function () {
-                beforeEach(function () {
-                    gateway.initiateBillingAgreement('p', ui);
-                });
-
-                it('performs rest request', function () {
-                    expect(capturedRequest(0).params.method).toEqual('POST');
-                    expect(capturedRequest(0).params.url).toEqual('http://host/api/usecase');
-                    expect(capturedRequest(0).params.withCredentials).toEqual(true);
-                    expect(capturedRequest(0).params.data.headers.usecase).toEqual('initiate.billing.agreement');
-                    expect(capturedRequest(0).params.data.payload.paymentProvider).toEqual('p');
-                });
-
-                it('on success', function () {
-                    capturedRequest(0).success('r');
-                    expect(ui.approveBillingAgreementRequest).toEqual('r');
-                });
-            });
-
-            describe('confirm billing agreement', function () {
-                beforeEach(function () {
-                    gateway.confirmBillingAgreement({
-                        paymentProvider: 'p',
-                        confirmationToken: 't'
-                    }, ui);
-                });
-
-                it('performs rest request', function () {
-                    expect(capturedRequest(0).params.method).toEqual('POST');
-                    expect(capturedRequest(0).params.url).toEqual('http://host/api/usecase');
-                    expect(capturedRequest(0).params.withCredentials).toEqual(true);
-                    expect(capturedRequest(0).params.data.headers.usecase).toEqual('create.billing.agreement');
-                    expect(capturedRequest(0).params.data.payload.paymentProvider).toEqual('p');
-                    expect(capturedRequest(0).params.data.payload.confirmationToken).toEqual('t');
-                });
-
-                it('on success', function () {
-                    capturedRequest(0).success();
-                    expect(ui.confirmedBillingAgreementRequest).toBeTruthy();
-                });
-            })
         });
 
         describe('shop gateway', function () {
@@ -214,7 +172,49 @@
                     $http.flush();
                     expect(response.rejected).toHaveBeenCalledWith('violation-report');
                 });
-            })
+            });
+
+            describe('initiate billing agreement', function () {
+                beforeEach(function () {
+                    gateway.initiateBillingAgreement('p', ui);
+                });
+
+                it('performs rest request', function () {
+                    expect(capturedRequest(0).params.method).toEqual('POST');
+                    expect(capturedRequest(0).params.url).toEqual('http://host/api/usecase');
+                    expect(capturedRequest(0).params.withCredentials).toEqual(true);
+                    expect(capturedRequest(0).params.data.headers.usecase).toEqual('initiate.billing.agreement');
+                    expect(capturedRequest(0).params.data.payload.paymentProvider).toEqual('p');
+                });
+
+                it('on success', function () {
+                    capturedRequest(0).success('r');
+                    expect(ui.approveBillingAgreementRequest).toEqual('r');
+                });
+            });
+
+            describe('confirm billing agreement', function () {
+                beforeEach(function () {
+                    gateway.confirmBillingAgreement({
+                        paymentProvider: 'p',
+                        confirmationToken: 't'
+                    }, ui);
+                });
+
+                it('performs rest request', function () {
+                    expect(capturedRequest(0).params.method).toEqual('POST');
+                    expect(capturedRequest(0).params.url).toEqual('http://host/api/usecase');
+                    expect(capturedRequest(0).params.withCredentials).toEqual(true);
+                    expect(capturedRequest(0).params.data.headers.usecase).toEqual('create.billing.agreement');
+                    expect(capturedRequest(0).params.data.payload.paymentProvider).toEqual('p');
+                    expect(capturedRequest(0).params.data.payload.confirmationToken).toEqual('t');
+                });
+
+                it('on success', function () {
+                    capturedRequest(0).success();
+                    expect(ui.confirmedBillingAgreementRequest).toBeTruthy();
+                });
+            });
         });
 
         function capturedRequest(idx) {

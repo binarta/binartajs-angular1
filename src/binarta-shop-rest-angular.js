@@ -1,5 +1,5 @@
 (function () {
-    angular.module('binarta-shopjs-rest-angular1', ['config'])
+    angular.module('binarta-shopjs-rest-angular1', ['config', 'rest.client'])
         .provider('restBinartaShopGateway', proxy(new ShopGateway()))
         .factory('binartaShopGatewayIsInitialised', ['$q', GatewayIsInitialisedFactory])
         .run(['restBinartaShopGateway', 'binartaShopGatewayIsInitialised', WireAngularDependencies]);
@@ -7,8 +7,9 @@
     function proxy(gateway) {
         return function () {
             this.gateway = gateway;
-            this.$get = ['config', '$http', function (config, $http) {
+            this.$get = ['config', 'restServiceHandler', '$http', function (config, rest, $http) {
                 this.gateway.config = config;
+                this.gateway.rest = rest;
                 this.gateway.$http = $http;
                 return gateway;
             }]
@@ -43,6 +44,36 @@
                 withCredentials: true,
                 data: request
             }).then(response.success, toErrorResponse(response));
+        };
+
+        this.initiateBillingAgreement = function (provider, ui) {
+            self.rest({
+                params: {
+                    method: 'POST',
+                    url: (self.config.baseUri || '') + 'api/usecase',
+                    withCredentials: true,
+                    data: {
+                        headers: {usecase: 'initiate.billing.agreement'},
+                        payload: {paymentProvider: provider}
+                    }
+                },
+                success: ui.approveBillingAgreement
+            })
+        };
+
+        this.confirmBillingAgreement = function (ctx, ui) {
+            self.rest({
+                params: {
+                    method: 'POST',
+                    url: (self.config.baseUri || '') + 'api/usecase',
+                    withCredentials: true,
+                    data: {
+                        headers: {usecase: 'create.billing.agreement'},
+                        payload: {paymentProvider: ctx.paymentProvider, confirmationToken: ctx.confirmationToken}
+                    }
+                },
+                success: ui.confirmedBillingAgreement
+            })
         };
     }
 

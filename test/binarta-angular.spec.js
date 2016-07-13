@@ -143,65 +143,6 @@
                     });
                 });
             });
-
-            describe('SetupBillingAgreementController', function () {
-                var ctrl;
-
-                beforeEach(inject(function ($controller) {
-                    ctrl = $controller('SetupBillingAgreementController')
-                }));
-
-                it('exposes the fact billing details are incomplete', function () {
-                    expect(ctrl.status).toEqual('incomplete');
-                });
-
-                it('exposes the fact billing details are complete', inject(function ($controller) {
-                    binarta.checkpoint.profile.billing.confirm({paymentProvider: 'p', confirmationToken: 't'});
-                    expect($controller('SetupBillingAgreementController').status).toEqual('complete');
-                }));
-
-                describe('initiate billing details', function () {
-                    beforeEach(function () {
-                        ctrl.paymentProvider = 'p';
-                        ctrl.submit();
-                    });
-
-                    it('changes status to working', function () {
-                        expect(ctrl.status).toEqual('working');
-                    });
-
-                    it('redirects to external approval url', inject(function ($window) {
-                        expect($window.location).toEqual('http://p/billing/agreement?token=t');
-                    }));
-                });
-            });
-
-            describe('CancelBillingAgreementController', function () {
-                var ctrl;
-
-                beforeEach(inject(function ($controller) {
-                    ctrl = $controller('CancelBillingAgreementController');
-                }));
-
-                it('on execute cancel billing agreement', inject(function ($location) {
-                    ctrl.execute();
-                    expect(ui.receivedCanceledBillingAgreementRequest).toBeTruthy();
-                }));
-            });
-
-            describe('ConfirmBillingAgreementController', function () {
-                var ctrl;
-
-                beforeEach(inject(function ($controller) {
-                    ctrl = $controller('ConfirmBillingAgreementController');
-                }));
-
-                it('on execute confirm billing agreement', inject(function ($location) {
-                    $location.search({token: 't'}); // TODO - as we begin supporting different payment providers we may need a strategy for this
-                    ctrl.execute();
-                    expect(ui.confirmedBillingAgreementRequest).toBeTruthy();
-                }));
-            });
         });
 
         describe('binarta-shopjs-angular1', function () {
@@ -315,6 +256,65 @@
 
                 it('exposes the viewport', inject(function(viewport) {
                     expect(ctrl.viewport).toEqual(viewport);
+                }));
+            });
+
+            describe('SetupBillingAgreementController', function () {
+                var ctrl;
+
+                beforeEach(inject(function ($controller) {
+                    ctrl = $controller('SetupBillingAgreementController')
+                }));
+
+                it('exposes the fact billing details are incomplete', function () {
+                    expect(ctrl.status).toEqual('incomplete');
+                });
+
+                it('exposes the fact billing details are complete', inject(function ($controller) {
+                    binarta.checkpoint.profile.billing.confirm({paymentProvider: 'p', confirmationToken: 't'});
+                    expect($controller('SetupBillingAgreementController').status).toEqual('complete');
+                }));
+
+                describe('initiate billing details', function () {
+                    beforeEach(function () {
+                        ctrl.paymentProvider = 'p';
+                        ctrl.submit();
+                    });
+
+                    it('changes status to working', function () {
+                        expect(ctrl.status).toEqual('working');
+                    });
+
+                    it('redirects to external approval url', inject(function ($window) {
+                        expect($window.location).toEqual('http://p/billing/agreement?token=t');
+                    }));
+                });
+            });
+
+            describe('CancelBillingAgreementController', function () {
+                var ctrl;
+
+                beforeEach(inject(function ($controller) {
+                    ctrl = $controller('CancelBillingAgreementController');
+                }));
+
+                it('on execute cancel billing agreement', inject(function ($location) {
+                    ctrl.execute();
+                    expect(ui.receivedCanceledBillingAgreementRequest).toBeTruthy();
+                }));
+            });
+
+            describe('ConfirmBillingAgreementController', function () {
+                var ctrl;
+
+                beforeEach(inject(function ($controller) {
+                    ctrl = $controller('ConfirmBillingAgreementController');
+                }));
+
+                it('on execute confirm billing agreement', inject(function ($location) {
+                    $location.search({token: 't'}); // TODO - as we begin supporting different payment providers we may need a strategy for this
+                    ctrl.execute();
+                    expect(ui.confirmedBillingAgreementRequest).toBeTruthy();
                 }));
             });
         });

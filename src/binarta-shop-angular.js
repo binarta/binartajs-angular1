@@ -4,20 +4,23 @@
         'binartajs-angular1',
         'binarta-shopjs-gateways-angular1'
     ])
-        .provider('shop', ['binartaShopGatewayProvider', ShopProvider])
+        .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', ShopProvider])
         .component('binBasket', new BasketComponent())
         .controller('BinartaBasketController', ['binarta', 'viewport', BinartaBasketController])
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
         .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', CheckoutController])
+        .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
+        .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
+        .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
         .config(['binartaProvider', 'shopProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['shop', WireAngularDependencies])
         .run(['binarta', 'CheckoutController.decorator', InstallCheckpointListener])
         .run(['binarta', 'CheckoutController.decorator', InstallSummarySupport]);
 
-    function ShopProvider(provider) {
-        this.shop = new BinartaShopjs();
-        this.shop.gateway = provider.gateway;
+    function ShopProvider(gatewayProvider, checkpointProvider) {
+        this.shop = new BinartaShopjs(checkpointProvider.checkpoint);
+        this.shop.gateway = gatewayProvider.gateway;
         this.ui = new UI();
         this.$get = ['$window', '$location', function ($window, $location) {
             this.ui.window = $window;
@@ -87,6 +90,30 @@
                 cache.order = binarta.shop.checkout.context().order;
             return cache.order;
         };
+    }
+
+    function SetupBillingAgreementController(binarta) {
+        this.status = binarta.checkpoint.profile.billing.isComplete() ? 'complete' : 'incomplete';
+
+        this.submit = function () {
+            this.status = 'working';
+            binarta.checkpoint.profile.billing.initiate(this.paymentProvider);
+        }
+    }
+
+    function CancelBillingAgreementController(binarta) {
+        this.execute = function () {
+            binarta.checkpoint.profile.billing.cancel();
+        }
+    }
+
+    function ConfirmBillingAgreementController(binarta, $location) {
+        this.execute = function () {
+            binarta.checkpoint.profile.billing.confirm({
+                paymentProvider: this.paymentProvider,
+                confirmationToken: $location.search().token
+            });
+        }
     }
 
     function UI() {

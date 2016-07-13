@@ -54,36 +54,6 @@
                 response.activeAccountMetadata(it.data)
             }, response.unauthenticated);
         };
-
-        this.initiateBillingAgreement = function (provider, ui) {
-            self.rest({
-                params: {
-                    method: 'POST',
-                    url: (self.config.baseUri || '') + 'api/usecase',
-                    withCredentials: true,
-                    data: {
-                        headers: {usecase: 'initiate.billing.agreement'},
-                        payload: {paymentProvider: provider}
-                    }
-                },
-                success: ui.approveBillingAgreement
-            })
-        };
-
-        this.confirmBillingAgreement = function (ctx, ui) {
-            self.rest({
-                params: {
-                    method: 'POST',
-                    url: (self.config.baseUri || '') + 'api/usecase',
-                    withCredentials: true,
-                    data: {
-                        headers: {usecase: 'create.billing.agreement'},
-                        payload: {paymentProvider: ctx.paymentProvider, confirmationToken: ctx.confirmationToken}
-                    }
-                },
-                success: ui.confirmedBillingAgreement
-            })
-        }
     }
 
     function GatewayIsInitialisedFactory($q) {
