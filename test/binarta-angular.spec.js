@@ -240,13 +240,30 @@
                     expect($location.path()).toEqual('/checkout/completed');
                 });
 
-                it('on setup payment provider retry will redeliver the order and proceed to next step', function() {
+                it('on setup payment provider retry will redeliver the order and proceed to next step', function () {
                     binarta.shop.checkout.start({provider: 'with-sufficient-funds'}, ['setup-payment-provider', 'completed']);
 
                     ctrl.retry();
 
                     expect(ctrl.status()).toEqual('completed');
                     expect($location.path()).toEqual('/checkout/completed');
+                });
+            });
+
+            describe('CheckoutRoadmapController', function () {
+                var ctrl;
+
+                beforeEach(inject(function ($controller) {
+                    binarta.shop.checkout.start({}, ['summary', 'completed']);
+                    ctrl = $controller('CheckoutRoadmapController');
+                    ctrl.$onInit();
+                }));
+
+                it('exposes current roadmap', function () {
+                    expect(ctrl.roadmap).toEqual([
+                        {name: 'summary', locked: false, unlocked: true},
+                        {name: 'completed', locked: true, unlocked: false}
+                    ]);
                 });
             });
 
@@ -263,23 +280,23 @@
                     expect(ctrl.preview).toEqual(ctrl.order);
                 });
 
-                it('exposes the viewport', inject(function(viewport) {
+                it('exposes the viewport', inject(function (viewport) {
                     expect(ctrl.viewport).toEqual(viewport);
                 }));
             });
 
-            describe('SetupPaymentProviderController', function() {
+            describe('SetupPaymentProviderController', function () {
                 var ctrl;
 
-                beforeEach(inject(function($controller, $location) {
+                beforeEach(inject(function ($controller, $location) {
                     ctrl = $controller('SetupPaymentProviderController');
                     $location.path('/custom/page');
                 }));
-                
-                describe('setup billing agreement', function() {
+
+                describe('setup billing agreement', function () {
                     var onConfirmed;
 
-                    beforeEach(function() {
+                    beforeEach(function () {
                         onConfirmed = jasmine.createSpy('on-confirmed');
 
                         ctrl.provider = 'p';
@@ -287,35 +304,35 @@
                         ctrl.onConfirmed = onConfirmed;
                     });
 
-                    describe('when initiating', function() {
-                        beforeEach(function() {
+                    describe('when initiating', function () {
+                        beforeEach(function () {
                             ctrl.$onInit();
                         });
 
-                        it('redirects to payment provider', inject(function($window) {
+                        it('redirects to payment provider', inject(function ($window) {
                             expect($window.location).toEqual('http://p/billing/agreement?token=t');
                         }));
 
-                        it('stores current route in session storage', function() {
+                        it('stores current route in session storage', function () {
                             expect(sessionStorage.binartaJSSetupBillingAgreementReturnUrl).toEqual('/custom/page');
                         });
 
-                        it('on confirmed callback is not executed', function() {
+                        it('on confirmed callback is not executed', function () {
                             expect(onConfirmed).not.toHaveBeenCalled();
                         });
                     });
 
-                    describe('when confirmed', function() {
-                        beforeEach(function() {
-                            binarta.checkpoint.profile.billing.confirm({token:'t'});
+                    describe('when confirmed', function () {
+                        beforeEach(function () {
+                            binarta.checkpoint.profile.billing.confirm({token: 't'});
                             ctrl.$onInit();
                         });
 
-                        it('does not redirect to payment provider', inject(function($window) {
+                        it('does not redirect to payment provider', inject(function ($window) {
                             expect($window.location).toBeUndefined();
                         }));
 
-                        it('execute confirmation listener', function() {
+                        it('execute confirmation listener', function () {
                             expect(onConfirmed).toHaveBeenCalled();
                         });
                     });
@@ -415,7 +432,7 @@
     function ExtendBinarta(binartaProvider, shopProvider) {
         binartaProvider.ui.initiatingBillingAgreement = ui.initiatingBillingAgreement;
         binartaProvider.ui.canceledBillingAgreement = ui.canceledBillingAgreement;
-        binartaProvider.ui.confirmedBillingAgreement = function() {
+        binartaProvider.ui.confirmedBillingAgreement = function () {
             ui.confirmedBillingAgreement();
             shopProvider.ui.confirmedBillingAgreement();
         };

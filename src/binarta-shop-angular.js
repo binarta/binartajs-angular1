@@ -9,6 +9,8 @@
         .controller('BinartaBasketController', ['binarta', 'viewport', BinartaBasketController])
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
         .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', CheckoutController])
+        .component('binCheckoutRoadmap', new CheckoutRoadmapComponent())
+        .controller('CheckoutRoadmapController', ['binarta', CheckoutRoadmapController])
         .component('binSetupPaymentProvider', new SetupPaymentProviderComponent())
         .controller('SetupPaymentProviderController', ['binarta', '$location', SetupPaymentProviderController])
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
@@ -93,6 +95,19 @@
                 cache.order = binarta.shop.checkout.context().order;
             return cache.order;
         };
+    }
+    
+    function CheckoutRoadmapComponent() {
+        this.controller = 'CheckoutRoadmapController';
+        this.templateUrl = 'bin-shop-checkout-roadmap.html';
+    }
+
+    function CheckoutRoadmapController(binarta) {
+        var self = this;
+
+        this.$onInit = function() {
+            self.roadmap = binarta.shop.checkout.roadmap();
+        }
     }
 
     function SetupPaymentProviderComponent() {

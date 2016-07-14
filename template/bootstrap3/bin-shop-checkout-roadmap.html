@@ -1,0 +1,10 @@
+<div>
+    <h1>roadmap</h1>
+    <ol>
+        <li ng-repeat="step in ::$ctrl.roadmap" i18n code="shop.checkout.step.{{step.name}}" default="{{step.name}}">
+            {{var}}
+            <span ng-if="step.locked">(locked)</span>
+            <span ng-if="step.unlocked">(unlocked)</span>
+        </li>
+    </ol>
+</div>
