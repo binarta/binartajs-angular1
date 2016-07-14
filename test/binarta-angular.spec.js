@@ -240,13 +240,14 @@
                     expect($location.path()).toEqual('/checkout/completed');
                 });
 
-                // describe('on setup payment provider step', function() {
-                //     it('initiate billing agreement', inject(function($window) {
-                //         binarta.shop.checkout.start({provider: 'p'}, ['setup-payment-provider', 'completed']);
-                //         ctrl.setup();
-                //         expect($window.location).toEqual('http://p/billing/agreement?token=t');
-                //     }));
-                // });
+                it('on setup payment provider retry will redeliver the order and proceed to next step', function() {
+                    binarta.shop.checkout.start({provider: 'with-sufficient-funds'}, ['setup-payment-provider', 'completed']);
+
+                    ctrl.retry();
+
+                    expect(ctrl.status()).toEqual('completed');
+                    expect($location.path()).toEqual('/checkout/completed');
+                });
             });
 
             describe('BasketController', function () {
@@ -270,20 +271,54 @@
             describe('SetupPaymentProviderController', function() {
                 var ctrl;
 
-                beforeEach(inject(function($controller) {
+                beforeEach(inject(function($controller, $location) {
                     ctrl = $controller('SetupPaymentProviderController');
+                    $location.path('/custom/page');
                 }));
                 
                 describe('setup billing agreement', function() {
+                    var onConfirmed;
+
                     beforeEach(function() {
+                        onConfirmed = jasmine.createSpy('on-confirmed');
+
                         ctrl.provider = 'p';
                         ctrl.method = 'billing-agreement';
+                        ctrl.onConfirmed = onConfirmed;
                     });
 
-                    it('test', inject(function($window) {
-                        ctrl.$onInit();
-                        expect($window.location).toEqual('http://p/billing/agreement?token=t');
-                    }));
+                    describe('when initiating', function() {
+                        beforeEach(function() {
+                            ctrl.$onInit();
+                        });
+
+                        it('redirects to payment provider', inject(function($window) {
+                            expect($window.location).toEqual('http://p/billing/agreement?token=t');
+                        }));
+
+                        it('stores current route in session storage', function() {
+                            expect(sessionStorage.binartaJSSetupBillingAgreementReturnUrl).toEqual('/custom/page');
+                        });
+
+                        it('on confirmed callback is not executed', function() {
+                            expect(onConfirmed).not.toHaveBeenCalled();
+                        });
+                    });
+
+                    describe('when confirmed', function() {
+                        beforeEach(function() {
+                            binarta.checkpoint.profile.billing.confirm({token:'t'});
+                            ctrl.$onInit();
+                        });
+
+                        it('does not redirect to payment provider', inject(function($window) {
+                            expect($window.location).toBeUndefined();
+                        }));
+
+                        it('execute confirmation listener', function() {
+                            expect(onConfirmed).toHaveBeenCalled();
+                        });
+                    });
                 });
             });
 
@@ -337,12 +372,21 @@
 
                 beforeEach(inject(function ($controller) {
                     ctrl = $controller('ConfirmBillingAgreementController');
+                    sessionStorage.setItem('binartaJSSetupBillingAgreementReturnUrl', '');
                 }));
 
                 it('on execute confirm billing agreement', inject(function ($location) {
-                    $location.search({token: 't'}); // TODO - as we begin supporting different payment providers we may need a strategy for this
+                    $location.path('/billing/agreement/confirm').search({token: 't'}); // TODO - as we begin supporting different payment providers we may need a strategy for this
                     ctrl.execute();
                     expect(ui.confirmedBillingAgreementRequest).toBeTruthy();
+                    expect($location.path()).toEqual('/billing/agreement/confirm');
+                }));
+
+                it('on execute if a return url is stored in session storage then return to it', inject(function ($location) {
+                    sessionStorage.setItem('binartaJSSetupBillingAgreementReturnUrl', '/custom/page');
+                    $location.path('/billing/agreement/confirm').search({token: 't'});
+                    ctrl.execute();
+                    expect($location.path()).toEqual('/custom/page');
                 }));
             });
         });
@@ -368,10 +412,13 @@
     function MockViewport() {
     }
 
-    function ExtendBinarta(binartaProvider) {
+    function ExtendBinarta(binartaProvider, shopProvider) {
         binartaProvider.ui.initiatingBillingAgreement = ui.initiatingBillingAgreement;
         binartaProvider.ui.canceledBillingAgreement = ui.canceledBillingAgreement;
-        binartaProvider.ui.confirmedBillingAgreement = ui.confirmedBillingAgreement;
+        binartaProvider.ui.confirmedBillingAgreement = function() {
+            ui.confirmedBillingAgreement();
+            shopProvider.ui.confirmedBillingAgreement();
+        };
     }
 
     function UI() {

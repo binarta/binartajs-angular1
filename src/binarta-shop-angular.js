@@ -10,7 +10,7 @@
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
         .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', CheckoutController])
         .component('binSetupPaymentProvider', new SetupPaymentProviderComponent())
-        .controller('SetupPaymentProviderController', ['binarta', SetupPaymentProviderController])
+        .controller('SetupPaymentProviderController', ['binarta', '$location', SetupPaymentProviderController])
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
         .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
         .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
@@ -98,17 +98,23 @@
     function SetupPaymentProviderComponent() {
         this.bindings = {
             provider: '@',
-            method: '@'
+            method: '@',
+            onConfirmed: '<'
         };
         this.controller = 'SetupPaymentProviderController';
         this.templateUrl = 'bin-shop-setup-payment-provider.html';
     }
 
-    function SetupPaymentProviderController(binarta) {
+    function SetupPaymentProviderController(binarta, $location) {
         var self = this;
 
-        this.$onInit = function() {
-            binarta.checkpoint.profile.billing.initiate(self.provider);
+        this.$onInit = function () {
+            if (binarta.checkpoint.profile.billing.isComplete()) {
+                self.onConfirmed();
+            } else {
+                sessionStorage.setItem('binartaJSSetupBillingAgreementReturnUrl', $location.path());
+                binarta.checkpoint.profile.billing.initiate(self.provider);
+            }
         }
     }
 
@@ -141,12 +147,19 @@
 
         this.approveBillingAgreement = function (args) {
             self.window.location = args.url;
+        };
+
+        this.confirmedBillingAgreement = function () {
+            var returnUrl = sessionStorage.getItem('binartaJSSetupBillingAgreementReturnUrl');
+            if (returnUrl)
+                self.location.path(returnUrl);
         }
     }
 
     function ExtendBinarta(binarta, shopProvider) {
         binarta.addSubSystems({shop: shopProvider.shop});
         binarta.ui.approveBillingAgreement = shopProvider.ui.approveBillingAgreement;
+        binarta.ui.confirmedBillingAgreement = shopProvider.ui.confirmedBillingAgreement;
     }
 
     function WireAngularDependencies() {
@@ -183,6 +196,11 @@
         decorator.add(function (ctrl) {
             ctrl.setup = function () {
                 binarta.shop.checkout.setup();
+            };
+            ctrl.retry = function() {
+                binarta.shop.checkout.retry(function() {
+                    ctrl.start();
+                });
             };
         });
     }
