@@ -109,6 +109,7 @@
 
         this.$onInit = function() {
             self.roadmap = binarta.shop.checkout.roadmap();
+            self.currentStep = binarta.shop.checkout.status();
         }
     }
 

@@ -265,6 +265,10 @@
                         {name: 'completed', locked: true, unlocked: false}
                     ]);
                 });
+
+                it('exposes current step', function() {
+                    expect(ctrl.currentStep).toEqual('summary');
+                });
             });
 
             describe('BasketController', function () {

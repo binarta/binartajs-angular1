@@ -2,9 +2,9 @@
     <h1>roadmap</h1>
     <ol>
         <li ng-repeat="step in ::$ctrl.roadmap" i18n code="shop.checkout.step.{{step.name}}" default="{{step.name}}">
-            {{var}}
-            <span ng-if="step.locked">(locked)</span>
-            <span ng-if="step.unlocked">(unlocked)</span>
+            <span ng-if="step.locked">{{var}} (locked)</span>
+            <a ng-if="step.unlocked" href="{{'/checkout/' + step.name | i18nRoute}}">{{var}} (unlocked)</a>
+            <span ng-if="step.name == $ctrl.currentStep">(current)</span>
         </li>
     </ol>
 </div>
