@@ -83,9 +83,11 @@
             }
         };
 
-        this.start = function () {
+        this.start = function (replace) {
             if (self.status() != 'idle')
                 i18nLocation.path('/checkout/' + self.status());
+            if(replace)
+                $location.replace();
         };
 
         this.status = binarta.shop.checkout.status;
