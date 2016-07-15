@@ -19,9 +19,9 @@
         .config(['binartaProvider', 'shopProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['shop', WireAngularDependencies])
-        .run(['binarta', 'CheckoutController.decorator', InstallCheckpointListener])
+        .run(['binarta', 'CheckoutController.decorator', '$location', InstallCheckpointListener])
         .run(['binarta', 'CheckoutController.decorator', InstallSummarySupport])
-        .run(['binarta', 'CheckoutController.decorator', InstallPaymentProviderSetupSupport]);
+        .run(['binarta', 'CheckoutController.decorator', '$location', InstallPaymentProviderSetupSupport]);
 
     function ShopProvider(gatewayProvider, checkpointProvider) {
         this.shop = new BinartaShopjs(checkpointProvider.checkpoint);
@@ -180,7 +180,7 @@
     function WireAngularDependencies() {
     }
 
-    function InstallCheckpointListener(binarta, decorator) {
+    function InstallCheckpointListener(binarta, decorator, $location) {
         decorator.add(function (ctrl) {
             ctrl.checkpointListener = new CheckpointListener(binarta, ctrl);
         });
@@ -189,6 +189,7 @@
             this.success = function () {
                 binarta.shop.checkout.retry();
                 ctrl.start();
+                $location.replace();
             }
         }
     }
@@ -207,7 +208,7 @@
         });
     }
 
-    function InstallPaymentProviderSetupSupport(binarta, decorator) {
+    function InstallPaymentProviderSetupSupport(binarta, decorator, $location) {
         decorator.add(function (ctrl) {
             ctrl.setup = function () {
                 binarta.shop.checkout.setup();
@@ -215,6 +216,7 @@
             ctrl.retry = function() {
                 binarta.shop.checkout.retry(function() {
                     ctrl.start();
+                    $location.replace();
                 });
             };
         });
