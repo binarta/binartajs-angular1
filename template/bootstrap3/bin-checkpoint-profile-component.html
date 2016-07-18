@@ -1,0 +1,52 @@
+<div class="panel panel-default panel-profile">
+    <div class="panel-heading" i18n code="profile.panel.title" read-only>
+        <i class="fa fa-user fa-fw"></i> {{::var}}
+        <button ng-if="$ctrl.status() == 'idle'" ng-click="$ctrl.edit()">edit</button>
+    </div>
+    <div class="panel-body" ng-if="$ctrl.status() == 'idle'">
+        <label i18n code="customer.profile.email.label" read-only>{{::var}}</label>
+        <div>{{::$ctrl.email()}}</div>
+        <%if(shop) {%>
+        <hr>
+        <label i18n code="customer.profile.vat.label" read-only>{{::var}}</label>
+        <div>{{::$ctrl.vat() || '/'}}</div>
+        <%}%>
+    </div>
+    <form class="panel-body form-horizontal" name="customerProfileForm" ng-submit="$ctrl.update()" ng-if="$ctrl.status() == 'editing'">
+        <div class="form-group" ng-class="{'has-error': $ctrl.violationReport().vat}">
+            <label class="control-label col-xs-5 text-right" for="vat"
+                   i18n code="customer.profile.vat.label" default="VAT" read-only>
+                {{var}}
+            </label>
+
+            <div class="col-xs-7">
+                <input id="vat" class="form-control" ng-model="$ctrl.form.vat" placeholder="BE1234">
+
+                <p class="help-block" i18n code="customer.profile.vat.info">
+                    <small><i class="fa fa-info-circle fa-fw"></i> {{var}}</small>
+                </p>
+
+                <p class="help-block" ng-repeat="v in $ctrl.violationReport().vat"
+                   i18n code="customer.profile.vat.{{::v}}" default="VAT {{::v}}"
+                   read-only>
+                    {{::var}}
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-xs-12">
+                <div class="pull-right">
+                    <button type="submit" class="btn btn-success" ng-disabled="$ctrl.status() == 'working' || customerProfileForm.$pristine">
+                        <span ng-show="$ctrl.status() == 'working'"><i class="fa fa-spinner fa-spin fa-fw"></i></span>
+                        <span ng-hide="$ctrl.status() == 'working'"><i class="fa fa-check fa-fw"></i></span>
+                        <span class="inline" i18n code="save.button" default="Save">{{var}}</span>
+                    </button>
+                    <button type="button" class="btn btn-danger" ng-click="$ctrl.cancel()" ng-disabled="working">
+                        <i class="fa fa-times fa-fw"></i>
+                        <span class="inline" i18n code="cancel.button" default="Cancel">{{var}}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

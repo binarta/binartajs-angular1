@@ -120,6 +120,47 @@
                 gateway = restBinartaShopGateway;
             }));
 
+            describe('fetch billing profile', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectGET('http://host/api/customer');
+                });
+
+                it('unauthenticated', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.fetchBillingProfile(response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'billing-profile');
+                    gateway.fetchBillingProfile(response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('billing-profile');
+                });
+            });
+
+            describe('update billing profile', function () {
+                beforeEach(function () {
+                    request = {vat: 'BE1234567890'};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/customer', {vat: 'BE1234567890'});
+                });
+
+                it('unauthenticated', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.updateBillingProfile(request, response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.updateBillingProfile(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
             describe('preview order', function () {
                 beforeEach(function () {
                     request = {

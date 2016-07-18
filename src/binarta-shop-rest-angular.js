@@ -18,12 +18,34 @@
 
     function toErrorResponse(response) {
         return function (request) {
-            response.rejected(request.data);
+            if (request.status == 401)
+                response.unauthenticated();
+            if (request.status == 412)
+                response.rejected(request.data);
         };
     }
 
     function ShopGateway() {
         var self = this;
+
+        this.fetchBillingProfile = function (response) {
+            self.$http({
+                method: 'GET',
+                url: self.config.baseUri + 'api/customer',
+                withCredentials: true
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.updateBillingProfile = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/customer',
+                withCredentials: true,
+                data: request
+            }).then(response.success, toErrorResponse(response));
+        };
 
         this.previewOrder = function (request, response) {
             request.namespace = this.config.namespace;

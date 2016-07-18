@@ -266,7 +266,7 @@
                     ]);
                 });
 
-                it('exposes current step', function() {
+                it('exposes current step', function () {
                     expect(ctrl.currentStep).toEqual('summary');
                 });
             });
@@ -409,6 +409,53 @@
                     ctrl.execute();
                     expect($location.path()).toEqual('/custom/page');
                 }));
+            });
+
+            describe('UserProfileController', function () {
+                var ctrl;
+
+                beforeEach(inject(function ($controller) {
+                    binarta.checkpoint.registrationForm.submit({email: 'e', password: 'p'});
+                    binarta.checkpoint.profile.refresh();
+                    ctrl = $controller('UserProfileController');
+                }));
+
+                it('expose email', function () {
+                    expect(ctrl.email()).toEqual('e');
+                });
+
+                it('expose VAT number', function () {
+                    expect(ctrl.vat()).toEqual('BE1234567890');
+                });
+
+                it('expose profile status', function () {
+                    expect(ctrl.status()).toEqual('idle');
+                });
+
+                describe('when in edit mode', function () {
+                    beforeEach(function () {
+                        ctrl.edit();
+                    });
+
+                    it('expose updated status', function () {
+                        expect(ctrl.status()).toEqual('editing');
+                    });
+
+                    it('expose update request as form', function () {
+                        expect(ctrl.form).toEqual({vat: 'BE1234567890'});
+                    });
+
+                    it('update the profile', function() {
+                        ctrl.form.vat = 'BE0987654321';
+                        ctrl.update();
+                        expect(ctrl.vat()).toEqual('BE0987654321');
+                    });
+
+                    it('cancel editing', function() {
+                        ctrl.cancel();
+                        expect(ctrl.status()).toEqual('idle');
+                    });
+                });
             });
         });
     });

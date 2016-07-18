@@ -7,6 +7,9 @@
         .provider('checkpoint', ['binartaCheckpointGatewayProvider', CheckpointProvider])
         .component('binCheckpoint', new CheckpointComponent())
         .controller('CheckpointController', ['binarta', CheckpointController])
+        .component('binUserProfile', new UserProfileComponent())
+        .service('UserProfileController.decorator', UserProfileControllerDecorator)
+        .controller('UserProfileController', ['binarta', 'UserProfileController.decorator', UserProfileController])
         .config(['binartaProvider', 'checkpointProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['checkpoint', WireAngularDependencies]);
@@ -87,6 +90,46 @@
         }
 
         this.violationReport = emptyViolationReport;
+    }
+
+    function UserProfileComponent() {
+        this.controller = 'UserProfileController';
+        this.templateUrl = 'bin-checkpoint-profile-component.html';
+    }
+
+    function UserProfileControllerDecorator() {
+        var decorators = [];
+
+        this.add = function (it) {
+            decorators.push(it);
+        };
+
+        this.decorate = function (ctrl) {
+            decorators.forEach(function (it) {
+                it(ctrl);
+            });
+        }
+    }
+
+    function UserProfileController(binarta, decorator) {
+        var self = this;
+        decorator.decorate(self);
+
+        this.status = binarta.checkpoint.profile.status;
+        this.email = binarta.checkpoint.profile.email;
+
+        this.edit = function() {
+            binarta.checkpoint.profile.edit();
+            self.form = binarta.checkpoint.profile.updateRequest();
+        };
+
+        this.update = function() {
+            binarta.checkpoint.profile.update();
+        };
+
+        this.cancel = function() {
+            binarta.checkpoint.profile.cancel();
+        }
     }
 
     function ExtendBinarta(binarta, checkpointProvider) {

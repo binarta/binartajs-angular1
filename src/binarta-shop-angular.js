@@ -21,7 +21,8 @@
         .run(['shop', WireAngularDependencies])
         .run(['binarta', 'CheckoutController.decorator', '$location', InstallCheckpointListener])
         .run(['binarta', 'CheckoutController.decorator', InstallSummarySupport])
-        .run(['binarta', 'CheckoutController.decorator', '$location', InstallPaymentProviderSetupSupport]);
+        .run(['binarta', 'CheckoutController.decorator', '$location', InstallPaymentProviderSetupSupport])
+        .run(['binarta', 'UserProfileController.decorator', InstallProfileExtensions]);
 
     function ShopProvider(gatewayProvider, checkpointProvider) {
         this.shop = new BinartaShopjs(checkpointProvider.checkpoint);
@@ -159,7 +160,7 @@
             });
         }
     }
-
+    
     function UI() {
         var self = this;
 
@@ -222,6 +223,12 @@
                     $location.replace();
                 });
             };
+        });
+    }
+
+    function InstallProfileExtensions(binarta, decorator) {
+        decorator.add(function (ctrl) {
+            ctrl.vat = binarta.checkpoint.profile.billing.vatNumber;
         });
     }
 
