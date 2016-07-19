@@ -47,6 +47,34 @@
             }).then(response.success, toErrorResponse(response));
         };
 
+        this.fetchAddresses = function(response) {
+            self.$http({
+                method: 'GET',
+                url: self.config.baseUri + 'api/query/customer-address/listByPrincipal',
+                withCredentials: true
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.addAddress = function (request, response) {
+            self.$http({
+                method: 'PUT',
+                url: self.config.baseUri + 'api/entity/customer-address',
+                withCredentials: true,
+                data: request
+            }).then(response.success, toErrorResponse(response));
+        };
+
+        this.updateAddress = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/entity/customer-address',
+                withCredentials: true,
+                data: request
+            }).then(response.success, toErrorResponse(response));
+        };
+
         this.previewOrder = function (request, response) {
             request.namespace = this.config.namespace;
             self.$http({

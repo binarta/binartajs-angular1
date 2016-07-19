@@ -1,0 +1,13 @@
+<div class="panel panel-default panel-address">
+    <div class="panel-heading" i18n code="shop.{{$ctrl.label}}.address.panel.title" read-only>
+        <i class="fa fa-home fa-fw"></i> {{::var}}
+    </div>
+    <div class="panel-body">
+        <address>
+            <strong>{{::$ctrl.addressee()}}</strong><br>
+            {{::$ctrl.street()}} {{::$ctrl.number()}}<br>
+            {{::$ctrl.zip()}} {{::$ctrl.city()}}<br>
+            {{::$ctrl.country() | toCountryName}}
+        </address>
+    </div>
+</div>

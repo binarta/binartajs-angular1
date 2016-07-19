@@ -442,16 +442,81 @@
                     });
 
                     it('expose update request as form', function () {
-                        expect(ctrl.form).toEqual({vat: 'BE1234567890'});
+                        expect(ctrl.form).toEqual({vat: 'BE1234567890', address: {}});
                     });
 
-                    it('update the profile', function() {
+                    it('update the profile', function () {
                         ctrl.form.vat = 'BE0987654321';
                         ctrl.update();
                         expect(ctrl.vat()).toEqual('BE0987654321');
                     });
 
-                    it('cancel editing', function() {
+                    it('cancel editing', function () {
+                        ctrl.cancel();
+                        expect(ctrl.status()).toEqual('idle');
+                    });
+                });
+            });
+
+            describe('AddressController', function () {
+                var ctrl;
+
+                beforeEach(inject(function ($controller) {
+                    binarta.checkpoint.profile.edit();
+                    binarta.checkpoint.profile.updateRequest().address.label = 'home';
+                    binarta.checkpoint.profile.updateRequest().address.addressee = 'John Doe';
+                    binarta.checkpoint.profile.updateRequest().address.street = 'Johny Lane';
+                    binarta.checkpoint.profile.updateRequest().address.number = '1';
+                    binarta.checkpoint.profile.updateRequest().address.zip = '1000';
+                    binarta.checkpoint.profile.updateRequest().address.city = 'Johnyville';
+                    binarta.checkpoint.profile.updateRequest().address.country = 'BE';
+                    binarta.checkpoint.profile.update();
+                    ctrl = $controller('BinartaAddressController');
+                    ctrl.label = 'home';
+                }));
+
+                it('expose address status', function () {
+                    expect(ctrl.status()).toEqual('idle');
+                });
+
+                it('expose attributes', function () {
+                    expect(ctrl.addressee()).toEqual('John Doe');
+                    expect(ctrl.street()).toEqual('Johny Lane');
+                    expect(ctrl.number()).toEqual('1');
+                    expect(ctrl.zip()).toEqual('1000');
+                    expect(ctrl.city()).toEqual('Johnyville');
+                    expect(ctrl.country()).toEqual('BE');
+                });
+
+                describe('when in edit mode', function () {
+                    beforeEach(function () {
+                        ctrl.edit();
+                    });
+
+                    it('expose updated status', function () {
+                        expect(ctrl.status()).toEqual('editing');
+                    });
+
+                    it('expose update request as form', function () {
+                        expect(ctrl.form).toEqual({
+                            id: {label: 'home'},
+                            label: 'home',
+                            addressee: 'John Doe',
+                            street: 'Johny Lane',
+                            number: '1',
+                            zip: '1000',
+                            city: 'Johnyville',
+                            country: 'BE'
+                        });
+                    });
+
+                    it('update the address', function () {
+                        ctrl.form.addressee = 'Jane Smith';
+                        ctrl.update();
+                        expect(ctrl.addressee()).toEqual('Jane Smith');
+                    });
+
+                    it('cancel editing', function () {
                         ctrl.cancel();
                         expect(ctrl.status()).toEqual('idle');
                     });

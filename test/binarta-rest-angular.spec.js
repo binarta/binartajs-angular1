@@ -161,6 +161,82 @@
                 });
             });
 
+            describe('fetch addresses', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectGET('http://host/api/query/customer-address/listByPrincipal');
+                });
+
+                it('unauthenticated', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.fetchAddresses(response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'addresses');
+                    gateway.fetchAddresses(response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('addresses');
+                });
+            });
+
+            describe('add address', function () {
+                beforeEach(function () {
+                    request = 'address';
+                    expectedHttpRequest = $http.expectPUT('http://host/api/entity/customer-address', 'address');
+                });
+
+                it('unauthenticated', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.addAddress(request, response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violation-report');
+                    gateway.addAddress(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violation-report');
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(201);
+                    gateway.addAddress(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('update address', function () {
+                beforeEach(function () {
+                    request = 'address';
+                    expectedHttpRequest = $http.expectPOST('http://host/api/entity/customer-address', 'address');
+                });
+
+                it('unauthenticated', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.updateAddress(request, response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violation-report');
+                    gateway.updateAddress(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violation-report');
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.updateAddress(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
             describe('preview order', function () {
                 beforeEach(function () {
                     request = {

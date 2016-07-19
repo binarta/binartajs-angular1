@@ -7,6 +7,8 @@
         .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', ShopProvider])
         .component('binBasket', new BasketComponent())
         .controller('BinartaBasketController', ['binarta', 'viewport', BinartaBasketController])
+        .component('binAddress', new AddressComponent())
+        .controller('BinartaAddressController', ['binarta', BinartaAddressController])
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
         .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', CheckoutController])
         .component('binCheckoutRoadmap', new CheckoutRoadmapComponent())
@@ -56,6 +58,67 @@
         }
     }
 
+    function AddressComponent() {
+        this.bindings = {
+            label: '@'
+        };
+        this.controller = 'BinartaAddressController';
+        this.templateUrl = 'bin-shop-address.html';
+    }
+
+    function BinartaAddressController(binarta) {
+        var self = this;
+
+        function address() {
+            return binarta.checkpoint.profile.addresses().reduce(function (p, c) {
+                if (c.label == self.label)
+                    return c;
+                return p;
+            }, {});
+        }
+
+        this.status = function() {
+            return address().status();
+        };
+
+        this.edit = function() {
+            address().edit();
+            self.form = address().updateRequest();
+        };
+
+        this.update = function() {
+            address().update();
+        };
+
+        this.cancel = function() {
+            address().cancel();
+        };
+
+        this.addressee = function () {
+            return address().addressee;
+        };
+
+        this.street = function () {
+            return address().street;
+        };
+
+        this.number = function () {
+            return address().number;
+        };
+
+        this.zip = function () {
+            return address().zip;
+        };
+
+        this.city = function () {
+            return address().city;
+        };
+
+        this.country = function () {
+            return address().country;
+        }
+    }
+
     function CheckoutControllerDecorator() {
         var decorators = [];
 
@@ -87,7 +150,7 @@
         this.start = function (replace) {
             if (self.status() != 'idle')
                 i18nLocation.path('/checkout/' + self.status());
-            if(replace)
+            if (replace)
                 $location.replace();
         };
 
@@ -99,7 +162,7 @@
             return cache.order;
         };
     }
-    
+
     function CheckoutRoadmapComponent() {
         this.controller = 'CheckoutRoadmapController';
         this.templateUrl = 'bin-shop-checkout-roadmap.html';
@@ -108,7 +171,7 @@
     function CheckoutRoadmapController(binarta) {
         var self = this;
 
-        this.$onInit = function() {
+        this.$onInit = function () {
             self.roadmap = binarta.shop.checkout.roadmap();
             self.currentStep = binarta.shop.checkout.status();
         }
@@ -160,7 +223,7 @@
             });
         }
     }
-    
+
     function UI() {
         var self = this;
 
@@ -217,8 +280,8 @@
             ctrl.setup = function () {
                 binarta.shop.checkout.setup();
             };
-            ctrl.retry = function() {
-                binarta.shop.checkout.retry(function() {
+            ctrl.retry = function () {
+                binarta.shop.checkout.retry(function () {
                     ctrl.start();
                     $location.replace();
                 });
@@ -234,6 +297,9 @@
 
     function InstallRoutes($routeProvider) {
         $routeProvider
+            .when('/basket', {
+                templateUrl: 'bin-shop-basket-details.html'
+            })
             .when('/checkout/start', {
                 templateUrl: 'bin-shop-checkout-start.html',
                 controller: 'CheckoutController as checkout'
@@ -253,6 +319,9 @@
             .when('/checkout/completed', {
                 templateUrl: 'bin-shop-checkout-completed.html',
                 controller: 'CheckoutController as checkout'
+            })
+            .when('/:locale/basket', {
+                templateUrl: 'bin-shop-basket-details.html'
             })
             .when('/:locale/checkout/start', {
                 templateUrl: 'bin-shop-checkout-start.html',
