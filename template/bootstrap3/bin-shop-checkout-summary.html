@@ -5,22 +5,23 @@
         <div class="container">
             <div class="row">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
-                    <div class="panel panel-default panel-profile">
-                        <div class="panel-heading" i18n code="shop.profile.panel.title" read-only>
-                            <i class="fa fa-user fa-fw"></i> {{::var}}
-                        </div>
-                        <div class="panel-body" ng-controller="AccountMetadataController">
-                            <label i18n code="customer.profile.email.label" read-only>{{::var}}</label>
-                            <div>
-                                {{::metadata.email}}
-                            </div>
-                            <hr>
-                            <label i18n code="customer.profile.vat.label" read-only>{{::var}}</label>
-                            <div ng-controller="CustomerProfileController" ng-init="init()">
-                                {{vat || '/'}}
-                            </div>
-                        </div>
-                    </div>
+                    <!--<div class="panel panel-default panel-profile">-->
+                        <!--<div class="panel-heading" i18n code="shop.profile.panel.title" read-only>-->
+                            <!--<i class="fa fa-user fa-fw"></i> {{::var}}-->
+                        <!--</div>-->
+                        <!--<div class="panel-body" ng-controller="AccountMetadataController">-->
+                            <!--<label i18n code="customer.profile.email.label" read-only>{{::var}}</label>-->
+                            <!--<div>-->
+                                <!--{{::metadata.email}}-->
+                            <!--</div>-->
+                            <!--<hr>-->
+                            <!--<label i18n code="customer.profile.vat.label" read-only>{{::var}}</label>-->
+                            <!--<div ng-controller="CustomerProfileController" ng-init="init()">-->
+                                <!--{{vat || '/'}}-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <bin-user-profile></bin-user-profile>
                 </div>
             </div>
             <div class="row" ng-controller="AddressSelectionController">

@@ -263,6 +263,40 @@
                 });
             });
 
+            describe('validate order', function () {
+                beforeEach(function () {
+                    request = {
+                        items: [
+                            {id: 'i'}
+                        ]
+                    };
+                    expectedHttpRequest = $http.expectPOST('http://host/api/validate/purchase-order', {
+                        namespace: 'n',
+                        reportType: 'complex',
+                        items: [
+                            {id: 'i'}
+                        ]
+                    }, function (headers) {
+                        return true;
+                        // return headers['Accept-Language'] == '???'; // TODO - can we find a nice way to expose the chosen language?
+                    });
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violation-report');
+                    gateway.validateOrder(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violation-report');
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.validateOrder(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
             describe('submit order', function () {
                 beforeEach(function () {
                     request = {

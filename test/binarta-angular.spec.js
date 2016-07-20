@@ -13,6 +13,7 @@
             $location = _$location_;
 
             binarta.checkpoint.profile.signout();
+            binarta.shop.basket.clear();
         }));
 
         it('binarta is initialised promise only resolves when gateways are initialised', inject(function ($rootScope, binartaIsInitialised, binartaGatewaysAreInitialised) {
@@ -276,17 +277,172 @@
 
                 beforeEach(inject(function ($controller) {
                     ctrl = $controller('BinartaBasketController');
-                    ctrl.order = {items: [{id: 'i', quantity: 1}]};
-                    ctrl.$onInit();
                 }));
-
-                it('exposes the previewed order', function () {
-                    expect(ctrl.preview).toEqual(ctrl.order);
-                });
 
                 it('exposes the viewport', inject(function (viewport) {
                     expect(ctrl.viewport).toEqual(viewport);
                 }));
+
+                describe('in summary mode', function () {
+                    beforeEach(function () {
+                        ctrl.mode = 'summary';
+                        ctrl.order = {items: [{id: 'i', quantity: 1}]};
+                        ctrl.$onInit();
+                    });
+
+                    it('exposes the previewed order', function () {
+                        expect(ctrl.preview).toEqual(ctrl.order);
+                    });
+                });
+
+                describe('in detailed mode', function () {
+                    beforeEach(function () {
+                        ctrl.mode = 'detailed';
+                        binarta.shop.basket.add({
+                            item: {id: 'i', price: 100, quantity: 1}
+                        });
+                        ctrl.$onInit();
+                    });
+
+                    it('exposes the previewed order', function () {
+                        expect(ctrl.preview.items[0].id).toEqual('i');
+                        expect(ctrl.preview.items[0].quantity).toEqual(1);
+                    });
+
+                    describe('on checkout', function () {
+                        beforeEach(function () {
+                            ctrl.checkout();
+                        });
+
+                        it('then checkout is started with the previewed order', function () {
+                            expect(binarta.shop.checkout.context().order).toEqual(JSON.parse(JSON.stringify(binarta.shop.basket.toOrder())));
+                        });
+
+                        it('then checkout status is set to the first step', function () {
+                            expect(binarta.shop.checkout.status()).toEqual('authentication-required');
+                        });
+
+                        it('then roadmap is set', function () {
+                            expect(binarta.shop.checkout.roadmap().map(function (it) {
+                                return it.name;
+                            })).toEqual([
+                                'summary',
+                                'completed'
+                            ]);
+                        });
+
+                        it('then the user is redirected to the checkout page', function () {
+                            expect($location.path()).toEqual('/checkout/start');
+                        });
+                    });
+
+                    it('$onInit installs a basket event listener', function() {
+                        expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeFalsy();
+                    });
+
+                    it('$onDestroy will remove basket event listener', function() {
+                        ctrl.$onDestroy();
+                        expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
+                    });
+                });
+
+                [
+                    'link',
+                    'minimal-link'
+                ].forEach(function (mode) {
+                    describe('in ' + mode + ' mode', function () {
+                        beforeEach(function () {
+                            ctrl.mode = mode;
+                            binarta.shop.basket.add({
+                                item: {id: 'i', price: 100, quantity: 1}
+                            });
+                            ctrl.$onInit();
+                        });
+
+                        it('preview exposes the order from the basket', function () {
+                            expect(ctrl.preview.items[0].id).toEqual('i');
+                        });
+                        
+                        it('increment item quantity', function() {
+                            ctrl.preview.items[0].incrementQuantity();
+                            ctrl.preview.items[0].incrementQuantity();
+                            expect(ctrl.preview.quantity).toEqual(3);
+                            expect(binarta.shop.basket.toOrder().quantity).toEqual(3);
+                        });
+
+                        it('decrement item quantity', function() {
+                            ctrl.preview.items[0].incrementQuantity();
+                            ctrl.preview.items[0].incrementQuantity();
+
+                            ctrl.preview.items[0].decrementQuantity();
+                            expect(ctrl.preview.quantity).toEqual(2);
+                            expect(binarta.shop.basket.toOrder().quantity).toEqual(2);
+
+                            ctrl.preview.items[0].decrementQuantity();
+                            expect(ctrl.preview.quantity).toEqual(1);
+                            expect(binarta.shop.basket.toOrder().quantity).toEqual(1);
+                        });
+
+                        it('update to a specific quantity', function() {
+                            ctrl.preview.items[0].quantity = 10;
+
+                            ctrl.preview.items[0].update();
+
+                            expect(ctrl.preview.quantity).toEqual(10);
+                            expect(binarta.shop.basket.toOrder().quantity).toEqual(10);
+                        });
+
+                        it('remove an item from the basket', function() {
+                            ctrl.preview.items[0].remove();
+
+                            expect(ctrl.preview.quantity).toEqual(0);
+                            expect(binarta.shop.basket.toOrder().items.length).toEqual(0);
+                        });
+
+                        it('$onInit installs a basket event listener', function() {
+                            expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeFalsy();
+                        });
+
+                        it('$onDestroy will remove basket event listener', function() {
+                            ctrl.$onDestroy();
+                            expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
+                        });
+                    });
+                });
+
+                describe('in add-to-basket-button mode', function() {
+                    beforeEach(function() {
+                        ctrl.mode = 'add-to-basket-button';
+                        ctrl.$onInit();
+                    });
+
+                    it('$onInit does not install a basket event listener', function() {
+                        expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
+                    });
+
+                    describe('when adding an item to the basket', function() {
+                        var ctrl2;
+
+                        beforeEach(inject(function($controller) {
+                            ctrl2 = $controller('BinartaBasketController');
+                            ctrl2.mode = 'detailed';
+                            ctrl2.$onInit();
+                        }));
+
+                        beforeEach(function() {
+                            ctrl.item = {id:'i', price:100};
+                            ctrl.addToBasket();
+                        });
+
+                        it('the item is added to the basket', function() {
+                            expect(binarta.shop.basket.toOrder().quantity).toEqual(1);
+                        });
+
+                        it('other basket controllers reflect the addition', function() {
+                            expect(ctrl2.preview.quantity).toEqual(1);
+                        });
+                    });
+                });
             });
 
             describe('SetupPaymentProviderController', function () {

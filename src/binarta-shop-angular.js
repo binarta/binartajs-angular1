@@ -6,7 +6,7 @@
     ])
         .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', ShopProvider])
         .component('binBasket', new BasketComponent())
-        .controller('BinartaBasketController', ['binarta', 'viewport', BinartaBasketController])
+        .controller('BinartaBasketController', ['binarta', 'viewport', 'i18nLocation', BinartaBasketController])
         .component('binAddress', new AddressComponent())
         .controller('BinartaAddressController', ['binarta', BinartaAddressController])
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
@@ -24,7 +24,8 @@
         .run(['binarta', 'CheckoutController.decorator', '$location', InstallCheckpointListener])
         .run(['binarta', 'CheckoutController.decorator', InstallSummarySupport])
         .run(['binarta', 'CheckoutController.decorator', '$location', InstallPaymentProviderSetupSupport])
-        .run(['binarta', 'UserProfileController.decorator', InstallProfileExtensions]);
+        .run(['binarta', 'UserProfileController.decorator', InstallProfileExtensions])
+        .run(['binartaIsInitialised', 'shop', InitCaches]);
 
     function ShopProvider(gatewayProvider, checkpointProvider) {
         this.shop = new BinartaShopjs(checkpointProvider.checkpoint);
@@ -40,21 +41,59 @@
     function BasketComponent() {
         this.bindings = {
             order: '<',
+            item: '<',
             mode: '@'
         };
         this.controller = 'BinartaBasketController';
         this.templateUrl = 'bin-shop-basket.html';
     }
 
-    function BinartaBasketController(binarta, viewport) {
+    function BinartaBasketController(binarta, viewport, $location) {
+        var eventListener = new BasketEventListener();
         var self = this;
+
         this.viewport = viewport;
+        this.quantity = 1;
 
         this.$onInit = function () {
-            binarta.shop.previewOrder(this.order, function (order) {
-                console.log('preview(' + JSON.stringify(order) + ')');
-                self.preview = order;
-            })
+            if (['summary', 'detailed', 'link', 'minimal-link'].indexOf(self.mode) > -1) {
+                if (self.mode == 'summary')
+                    binarta.shop.previewOrder(this.order, function (order) {
+                        self.preview = order;
+                    });
+                if (['detailed', 'link', 'minimal-link'].indexOf(self.mode) > -1) {
+                    binarta.shop.basket.eventRegistry.add(eventListener);
+                    refreshFromBasket();
+                }
+            }
+        };
+
+        this.$onDestroy = function () {
+            binarta.shop.basket.eventRegistry.remove(eventListener);
+        };
+
+        this.addToBasket = function () {
+            binarta.shop.basket.add({item: {id: self.item.id, price: self.item.price, quantity: self.quantity}});
+        };
+
+        this.checkout = function () {
+            binarta.shop.checkout.start(binarta.shop.basket.toOrder(), [
+                'authentication-required',
+                'summary',
+                'setup-payment-provider',
+                'completed'
+            ]);
+            $location.path('/checkout/start');
+        };
+
+        function BasketEventListener() {
+            this.itemAdded = refreshFromBasket;
+            this.itemUpdated = refreshFromBasket;
+            this.itemRemoved = refreshFromBasket;
+        }
+
+        function refreshFromBasket() {
+            self.preview = binarta.shop.basket.toOrder();
         }
     }
 
@@ -77,20 +116,20 @@
             }, {});
         }
 
-        this.status = function() {
+        this.status = function () {
             return address().status();
         };
 
-        this.edit = function() {
+        this.edit = function () {
             address().edit();
             self.form = address().updateRequest();
         };
 
-        this.update = function() {
+        this.update = function () {
             address().update();
         };
 
-        this.cancel = function() {
+        this.cancel = function () {
             address().cancel();
         };
 
@@ -295,11 +334,15 @@
         });
     }
 
+    function InitCaches(binartaIsInitialised, shop) {
+        binartaIsInitialised.then(function () {
+            shop.basket.refresh();
+        });
+    }
+
     function InstallRoutes($routeProvider) {
         $routeProvider
-            .when('/basket', {
-                templateUrl: 'bin-shop-basket-details.html'
-            })
+            .when('/basket', {templateUrl: 'bin-shop-basket-details.html'})
             .when('/checkout/start', {
                 templateUrl: 'bin-shop-checkout-start.html',
                 controller: 'CheckoutController as checkout'
@@ -320,9 +363,7 @@
                 templateUrl: 'bin-shop-checkout-completed.html',
                 controller: 'CheckoutController as checkout'
             })
-            .when('/:locale/basket', {
-                templateUrl: 'bin-shop-basket-details.html'
-            })
+            .when('/:locale/basket', {templateUrl: 'bin-shop-basket-details.html'})
             .when('/:locale/checkout/start', {
                 templateUrl: 'bin-shop-checkout-start.html',
                 controller: 'CheckoutController as checkout'

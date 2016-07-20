@@ -13,7 +13,7 @@
 
         <div class="item-remove" i18n code="shop.remove.item.confirm" read-only>
             <button class="btn btn-danger btn-sm" type="button"
-                    ng-click-confirm="remove(item)"
+                    ng-click-confirm="item.remove()"
                     confirm-message="{{::var}}">
                 <i class="fa fa-times"></i>
             </button>
@@ -22,13 +22,13 @@
         <form ng-submit="update(item)">
             <div class="form-group">
                 <div class="input-group">
-                    <input type="number" min="1" class="form-control" ng-model="item.quantity" ng-change="update(item)">
+                    <input type="number" min="1" class="form-control" ng-model="item.quantity" ng-change="item.update()">
                         <span class="input-group-btn">
-                            <button class="btn btn-default" type="button" ng-click="increaseQuantity(item)"
+                            <button class="btn btn-default" type="button" ng-click="item.incrementQuantity()"
                                     ng-disabled="working">
                                 <i class="fa fa-plus"></i>
                             </button>
-                            <button class="btn btn-default" type="button" ng-click="decreaseQuantity(item)"
+                            <button class="btn btn-default" type="button" ng-click="item.decrementQuantity()"
                                     ng-disabled="item.quantity < 2 || working">
                                 <i class="fa fa-minus"></i>
                             </button>

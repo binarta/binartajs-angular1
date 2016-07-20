@@ -87,6 +87,17 @@
             });
         };
 
+        this.validateOrder = function (request, response) {
+            request.namespace = this.config.namespace;
+            request.reportType = 'complex';
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/validate/purchase-order',
+                withCredentials: true,
+                data: request
+            }).then(response.success, toErrorResponse(response));
+        };
+
         this.submitOrder = function (request, response) {
             self.$http({
                 method: 'PUT',
