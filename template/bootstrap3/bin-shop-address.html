@@ -1,13 +1,89 @@
 <div class="panel panel-default panel-address">
-    <div class="panel-heading" i18n code="shop.{{$ctrl.label}}.address.panel.title" read-only>
+    <div class="panel-heading" i18n code="shop.{{$ctrl.purpose}}.address.panel.title" read-only>
         <i class="fa fa-home fa-fw"></i> {{::var}}
+        <button class="btn btn-default btn-sm" ng-if="$ctrl.mode == 'selection' && $ctrl.profileStatus() == 'idle' && $ctrl.addresses().length > 0"
+                ng-click="$ctrl.new()" i18n code="shop.new.button" read-only>
+            <i class="fa fa-plus fa-fw"></i> {{::var}}
+        </button>
     </div>
-    <div class="panel-body">
+    <div class="panel-body" ng-if="$ctrl.mode == 'selection'">
+        <form ng-if="$ctrl.addresses().length == 0">
+            <div class="form-group text-center">
+                <button class="btn btn-default" i18n code="shop.new.button" read-only>
+                    <i class="fa fa-plus fa-fw"></i> {{::var}}
+                </button>
+            </div>
+        </form>
+        <form ng-if="$ctrl.isSelectingAddress()">
+            <div class="form-group" ng-if="$ctrl.addresses().length > 0">
+                <select class="form-control" ng-model="$ctrl.label"
+                        ng-options="a.label as a.label for a in $ctrl.addresses()"
+                        ng-change="$ctrl.select($ctrl.label)">
+                </select>
+            </div>
+            <div class="form-group" ng-if="$ctrl.profileStatus() == 'idle' && $ctrl.addressee()">
+                <hr>
+                <button class="btn btn-default btn-sm pull-right" ng-click="$ctrl.edit()" i18n code="shop.edit.button" read-only>
+                    <i class="fa fa-pencil fa-fw"></i> {{::var}}
+                </button>
+
+                <address>
+                    <strong>{{$ctrl.addressee()}}</strong><br>
+                    {{$ctrl.street()}} {{$ctrl.number()}}<br>
+                    {{$ctrl.zip()}} {{$ctrl.city()}}<br>
+                    {{$ctrl.country() | toCountryName}}
+                </address>
+            </div>
+        </form>
+        <form ng-if="$ctrl.addressStatus() == 'idle' && ($ctrl.profileStatus() == 'editing' || $ctrl.profileStatus() == 'working')" ng-submit="$ctrl.create()">
+            <ng-include src="'bin-shop-address-form.html'"></ng-include>
+            <div class="form-group">
+                <div class="pull-right">
+                    <button type="submit" class="btn btn-success"
+                            ng-disabled="$ctrl.profileStatus() == 'working'"
+                            i18n code="shop.save.button" read-only>
+                        <span ng-show="working"><i class="fa fa-spinner fa-spin fa-fw"></i></span>
+                        <span ng-hide="working"><i class="fa fa-check fa-fw"></i></span>
+                        {{::var}}
+                    </button>
+
+                    <button type="button" class="btn btn-default" ng-click="$ctrl.cancelNewAddress()"
+                            ng-disabled="$ctrl.profileStatus() == 'working'"
+                            i18n code="shop.cancel.button" read-only>
+                        <i class="fa fa-times fa-fw"></i>
+                        {{::var}}
+                    </button>
+                </div>
+            </div>
+        </form>
+        <form ng-if="$ctrl.isEditingAddress()" ng-submit="$ctrl.update()">
+            <ng-include src="'bin-shop-address-form.html'"></ng-include>
+            <div class="form-group">
+                <div class="pull-right">
+                    <button type="submit" class="btn btn-success"
+                            ng-disabled="$ctrl.addressStatus() == 'working'"
+                            i18n code="shop.save.button" read-only>
+                        <span ng-show="working"><i class="fa fa-spinner fa-spin fa-fw"></i></span>
+                        <span ng-hide="working"><i class="fa fa-check fa-fw"></i></span>
+                        {{::var}}
+                    </button>
+
+                    <button type="button" class="btn btn-default" ng-click="$ctrl.cancel()"
+                            ng-disabled="$ctrl.addressStatus() == 'working'"
+                            i18n code="shop.cancel.button" read-only>
+                        <i class="fa fa-times fa-fw"></i>
+                        {{::var}}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="panel-body" ng-if="$ctrl.mode == 'display'">
         <address>
-            <strong>{{::$ctrl.addressee()}}</strong><br>
-            {{::$ctrl.street()}} {{::$ctrl.number()}}<br>
-            {{::$ctrl.zip()}} {{::$ctrl.city()}}<br>
-            {{::$ctrl.country() | toCountryName}}
+            <strong>{{$ctrl.addressee()}}</strong><br>
+            {{$ctrl.street()}} {{$ctrl.number()}}<br>
+            {{$ctrl.zip()}} {{$ctrl.city()}}<br>
+            {{$ctrl.country() | toCountryName}}
         </address>
     </div>
 </div>

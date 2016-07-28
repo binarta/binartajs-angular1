@@ -211,8 +211,11 @@
 
             describe('update address', function () {
                 beforeEach(function () {
-                    request = 'address';
-                    expectedHttpRequest = $http.expectPOST('http://host/api/entity/customer-address', 'address');
+                    request = {label:'l'};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/entity/customer-address', {
+                        context:'update',
+                        label:'l'
+                    });
                 });
 
                 it('unauthenticated', function () {

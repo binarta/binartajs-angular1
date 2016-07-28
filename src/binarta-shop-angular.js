@@ -10,7 +10,7 @@
         .component('binAddress', new AddressComponent())
         .controller('BinartaAddressController', ['binarta', BinartaAddressController])
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
-        .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', CheckoutController])
+        .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', '$scope', CheckoutController])
         .component('binCheckoutRoadmap', new CheckoutRoadmapComponent())
         .controller('CheckoutRoadmapController', ['binarta', CheckoutRoadmapController])
         .component('binSetupPaymentProvider', new SetupPaymentProviderComponent())
@@ -22,6 +22,7 @@
         .config(['$routeProvider', InstallRoutes])
         .run(['shop', WireAngularDependencies])
         .run(['binarta', 'CheckoutController.decorator', '$location', InstallCheckpointListener])
+        .run(['binarta', 'CheckoutController.decorator', InstallAddressSelectionSupport])
         .run(['binarta', 'CheckoutController.decorator', InstallSummarySupport])
         .run(['binarta', 'CheckoutController.decorator', '$location', InstallPaymentProviderSetupSupport])
         .run(['binarta', 'UserProfileController.decorator', InstallProfileExtensions])
@@ -77,8 +78,10 @@
         };
 
         this.checkout = function () {
+            binarta.shop.checkout.cancel();
             binarta.shop.checkout.start(binarta.shop.basket.toOrder(), [
                 'authentication-required',
+                'address-selection',
                 'summary',
                 'setup-payment-provider',
                 'completed'
@@ -99,38 +102,98 @@
 
     function AddressComponent() {
         this.bindings = {
-            label: '@'
+            mode: '@',
+            purpose: '@',
+            onSelect: '<',
+            default: '<',
+            label: '@',
+            generateLabel: '@'
         };
         this.controller = 'BinartaAddressController';
         this.templateUrl = 'bin-shop-address.html';
     }
 
     function BinartaAddressController(binarta) {
-        var self = this;
+        var $ctrl = this;
 
-        function address() {
-            return binarta.checkpoint.profile.addresses().reduce(function (p, c) {
-                if (c.label == self.label)
-                    return c;
-                return p;
-            }, {});
-        }
+        this.mode = 'display';
 
-        this.status = function () {
-            return address().status();
+        this.$onInit = function () {
+            if ($ctrl.default && $ctrl.default.label)
+                $ctrl.select($ctrl.default.label);
+        };
+
+        this.$onChanges = function (args) {
+            if (!$ctrl.divergedFromDefault && args.default && args.default.currentValue)
+                $ctrl.select(args.default.currentValue.label);
+        };
+
+        this.select = function (label) {
+            if($ctrl.default && $ctrl.default.label != label)
+                $ctrl.divergedFromDefault = true;
+            $ctrl.label = label || $ctrl.default.label;
+            if ($ctrl.onSelect)
+                $ctrl.onSelect(address());
+        };
+
+        this.profileStatus = function () {
+            return binarta.checkpoint.profile.status();
+        };
+
+        this.addressStatus = function () {
+            return $ctrl.label ? address().status() : 'awaiting-selection';
+        };
+
+        this.new = function () {
+            binarta.checkpoint.profile.edit();
+            $ctrl.form = binarta.checkpoint.profile.updateRequest().address;
+        };
+
+        this.create = function () {
+            binarta.checkpoint.profile.update();
+        };
+
+        this.cancelNewAddress = function () {
+            binarta.checkpoint.profile.cancel();
+        };
+
+        this.violationReport = function () {
+            return binarta.checkpoint.profile.violationReport().address;
         };
 
         this.edit = function () {
             address().edit();
-            self.form = address().updateRequest();
+            $ctrl.form = address().updateRequest();
+            $ctrl.editingAddress = true;
+        };
+
+        this.isSelectingAddress = function() {
+            return ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection' || !$ctrl.editingAddress) && $ctrl.profileStatus() == 'idle';
+        };
+        
+        this.isEditingAddress = function() {
+            return $ctrl.editingAddress && ($ctrl.addressStatus() == 'editing' || $ctrl.addressStatus() == 'working');
         };
 
         this.update = function () {
-            address().update();
+            if($ctrl.generateLabel)
+                $ctrl.form.generateLabel = true;
+            address().update(function() {
+                $ctrl.editingAddress = false;
+                $ctrl.select($ctrl.form.label);
+            });
         };
 
         this.cancel = function () {
             address().cancel();
+        };
+
+        this.addresses = function () {
+            return binarta.checkpoint.profile.addresses();
+        };
+
+        this.countries = function () {
+            return binarta.checkpoint.profile.supportedCountries();
         };
 
         this.addressee = function () {
@@ -155,6 +218,16 @@
 
         this.country = function () {
             return address().country;
+        };
+
+        function address() {
+            return binarta.checkpoint.profile.addresses().reduce(function (p, c) {
+                if (c.label == $ctrl.label)
+                    return c;
+                return p;
+            }, {status:function() {
+                return 'awaiting-selection';
+            }});
         }
     }
 
@@ -172,12 +245,14 @@
         }
     }
 
-    function CheckoutController(binarta, decorator, i18nLocation, $location) {
+    function CheckoutController(binarta, decorator, i18nLocation, $location, $scope) {
         var self = this;
         var cache = {};
+        var eventListener = new EventListener(i18nLocation);
         decorator.decorate(self);
 
         this.$onInit = function () {
+            binarta.shop.checkout.eventRegistry.add(eventListener);
             try {
                 var p = /.*\/checkout\/([\w-]+)/.exec($location.path());
                 if (p)
@@ -185,6 +260,10 @@
             } catch (ignored) {
             }
         };
+        this.$onDestroy = function () {
+            binarta.shop.checkout.eventRegistry.remove(eventListener);
+        };
+        $scope.$on('$destroy', self.$onDestroy);
 
         this.start = function (replace) {
             if (self.status() != 'idle')
@@ -200,6 +279,12 @@
                 cache.order = binarta.shop.checkout.context().order;
             return cache.order;
         };
+
+        function EventListener($location) {
+            this.goto = function (step) {
+                $location.path('/checkout/' + self.status());
+            }
+        }
     }
 
     function CheckoutRoadmapComponent() {
@@ -300,6 +385,24 @@
         }
     }
 
+    function InstallAddressSelectionSupport(binarta, decorator) {
+        decorator.add(function (ctrl) {
+            ctrl.addresses = {};
+            ctrl.setBillingAddress = function (it) {
+                ctrl.addresses.billing = it;
+            };
+            ctrl.setShippingAddress = function (it) {
+                ctrl.addresses.shipping = it;
+            };
+            ctrl.isAwaitingSelection = function() {
+                return !ctrl.addresses.billing;
+            };
+            ctrl.selectAddresses = function () {
+                binarta.shop.checkout.selectAddresses(ctrl.addresses);
+            };
+        });
+    }
+
     function InstallSummarySupport(binarta, decorator) {
         decorator.add(function (ctrl) {
             ctrl.confirm = function () {
@@ -351,6 +454,10 @@
                 templateUrl: 'bin-shop-checkout-authentication-required.html',
                 controller: 'CheckoutController as checkout'
             })
+            .when('/checkout/address-selection', {
+                templateUrl: 'bin-shop-checkout-address-selection.html',
+                controller: 'CheckoutController as checkout'
+            })
             .when('/checkout/summary', {
                 templateUrl: 'bin-shop-checkout-summary.html',
                 controller: 'CheckoutController as checkout'
@@ -370,6 +477,10 @@
             })
             .when('/:locale/checkout/authentication-required', {
                 templateUrl: 'bin-shop-checkout-authentication-required.html',
+                controller: 'CheckoutController as checkout'
+            })
+            .when('/:locale/checkout/address-selection', {
+                templateUrl: 'bin-shop-checkout-address-selection.html',
                 controller: 'CheckoutController as checkout'
             })
             .when('/:locale/checkout/summary', {

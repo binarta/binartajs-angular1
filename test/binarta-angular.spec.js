@@ -154,8 +154,8 @@
             describe('CheckoutController', function () {
                 var ctrl;
 
-                beforeEach(inject(function ($controller) {
-                    ctrl = $controller('CheckoutController');
+                beforeEach(inject(function ($controller, $rootScope) {
+                    ctrl = $controller('CheckoutController', {$scope: $rootScope.$new()});
                 }));
 
                 it('exposes the checkout status', function () {
@@ -216,12 +216,49 @@
                     });
                 });
 
-                it('supports decorators', inject(['$controller', 'CheckoutController.decorator', function ($controller, decorator) {
+                it('supports decorators', inject(['$controller', '$rootScope', 'CheckoutController.decorator', function ($controller, $rootScope, decorator) {
                     decorator.add(function (ctrl) {
                         ctrl.decoratedAttribute = 'd';
                     });
-                    expect($controller('CheckoutController').decoratedAttribute).toEqual('d');
+                    expect($controller('CheckoutController', {$scope: $rootScope.$new()}).decoratedAttribute).toEqual('d');
                 }]));
+
+                describe('on address selection step', function () {
+                    beforeEach(function () {
+                        binarta.shop.checkout.start({}, ['address-selection', 'completed']);
+                        ctrl.$onInit();
+                    });
+
+                    it('set billing address updates the exposed addresses context', function () {
+                        ctrl.setBillingAddress({label: 'b', addressee: 'a'});
+                        expect(ctrl.addresses.billing).toEqual({label: 'b', addressee: 'a'});
+                    });
+
+                    it('set shipping address updates the exposed addresses context', function () {
+                        ctrl.setShippingAddress({label: 's', addressee: 'a'});
+                        expect(ctrl.addresses.shipping).toEqual({label: 's', addressee: 'a'});
+                    });
+
+                    it('when selecting addresses then proceed to next step', function () {
+                        ctrl.addresses.billing = {label: 'b', addressee: 'a'};
+                        ctrl.selectAddresses();
+                        expect($location.path()).toEqual('/checkout/completed');
+                    });
+
+                    it('when no address is selected then is awaiting selection flag is set to true', function() {
+                        expect(ctrl.isAwaitingSelection()).toBeTruthy();
+                    });
+
+                    it('when billing address is selected then is awaiting selection flag is set to false', function() {
+                        ctrl.setBillingAddress({label: 'b', addressee: 'a'});
+                        expect(ctrl.isAwaitingSelection()).toBeFalsy();
+                    });
+
+                    it('when shipping address is selected then is awaiting selection flag is set to true', function() {
+                        ctrl.setShippingAddress({label: 's', addressee: 'a'});
+                        expect(ctrl.isAwaitingSelection()).toBeTruthy();
+                    });
+                });
 
                 it('on summary step order confirmation can be rejected', function () {
                     binarta.shop.checkout.start({provider: 'with-insufficient-funds'}, ['summary', 'completed']);
@@ -326,6 +363,7 @@
                             expect(binarta.shop.checkout.roadmap().map(function (it) {
                                 return it.name;
                             })).toEqual([
+                                'address-selection',
                                 'summary',
                                 'completed'
                             ]);
@@ -336,11 +374,17 @@
                         });
                     });
 
-                    it('$onInit installs a basket event listener', function() {
+                    it('checkout will cancel an existing checkout', function () {
+                        binarta.shop.checkout.start({}, ['summary', 'completed']);
+                        ctrl.checkout();
+                        expect(binarta.shop.checkout.status()).toEqual('authentication-required');
+                    });
+
+                    it('$onInit installs a basket event listener', function () {
                         expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeFalsy();
                     });
 
-                    it('$onDestroy will remove basket event listener', function() {
+                    it('$onDestroy will remove basket event listener', function () {
                         ctrl.$onDestroy();
                         expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
                     });
@@ -362,15 +406,15 @@
                         it('preview exposes the order from the basket', function () {
                             expect(ctrl.preview.items[0].id).toEqual('i');
                         });
-                        
-                        it('increment item quantity', function() {
+
+                        it('increment item quantity', function () {
                             ctrl.preview.items[0].incrementQuantity();
                             ctrl.preview.items[0].incrementQuantity();
                             expect(ctrl.preview.quantity).toEqual(3);
                             expect(binarta.shop.basket.toOrder().quantity).toEqual(3);
                         });
 
-                        it('decrement item quantity', function() {
+                        it('decrement item quantity', function () {
                             ctrl.preview.items[0].incrementQuantity();
                             ctrl.preview.items[0].incrementQuantity();
 
@@ -383,7 +427,7 @@
                             expect(binarta.shop.basket.toOrder().quantity).toEqual(1);
                         });
 
-                        it('update to a specific quantity', function() {
+                        it('update to a specific quantity', function () {
                             ctrl.preview.items[0].quantity = 10;
 
                             ctrl.preview.items[0].update();
@@ -392,53 +436,53 @@
                             expect(binarta.shop.basket.toOrder().quantity).toEqual(10);
                         });
 
-                        it('remove an item from the basket', function() {
+                        it('remove an item from the basket', function () {
                             ctrl.preview.items[0].remove();
 
                             expect(ctrl.preview.quantity).toEqual(0);
                             expect(binarta.shop.basket.toOrder().items.length).toEqual(0);
                         });
 
-                        it('$onInit installs a basket event listener', function() {
+                        it('$onInit installs a basket event listener', function () {
                             expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeFalsy();
                         });
 
-                        it('$onDestroy will remove basket event listener', function() {
+                        it('$onDestroy will remove basket event listener', function () {
                             ctrl.$onDestroy();
                             expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
                         });
                     });
                 });
 
-                describe('in add-to-basket-button mode', function() {
-                    beforeEach(function() {
+                describe('in add-to-basket-button mode', function () {
+                    beforeEach(function () {
                         ctrl.mode = 'add-to-basket-button';
                         ctrl.$onInit();
                     });
 
-                    it('$onInit does not install a basket event listener', function() {
+                    it('$onInit does not install a basket event listener', function () {
                         expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
                     });
 
-                    describe('when adding an item to the basket', function() {
+                    describe('when adding an item to the basket', function () {
                         var ctrl2;
 
-                        beforeEach(inject(function($controller) {
+                        beforeEach(inject(function ($controller) {
                             ctrl2 = $controller('BinartaBasketController');
                             ctrl2.mode = 'detailed';
                             ctrl2.$onInit();
                         }));
 
-                        beforeEach(function() {
-                            ctrl.item = {id:'i', price:100};
+                        beforeEach(function () {
+                            ctrl.item = {id: 'i', price: 100};
                             ctrl.addToBasket();
                         });
 
-                        it('the item is added to the basket', function() {
+                        it('the item is added to the basket', function () {
                             expect(binarta.shop.basket.toOrder().quantity).toEqual(1);
                         });
 
-                        it('other basket controllers reflect the addition', function() {
+                        it('other basket controllers reflect the addition', function () {
                             expect(ctrl2.preview.quantity).toEqual(1);
                         });
                     });
@@ -628,53 +672,172 @@
                     binarta.checkpoint.profile.updateRequest().address.country = 'BE';
                     binarta.checkpoint.profile.update();
                     ctrl = $controller('BinartaAddressController');
-                    ctrl.label = 'home';
+                    ctrl.onSelect = jasmine.createSpy('on-select');
                 }));
 
+                it('mode defaults to display', function() {
+                    expect(ctrl.mode).toEqual('display');
+                });
+
+                it('expose profile status', function () {
+                    expect(ctrl.profileStatus()).toEqual('idle');
+                });
+
                 it('expose address status', function () {
-                    expect(ctrl.status()).toEqual('idle');
+                    expect(ctrl.addressStatus()).toEqual('awaiting-selection');
                 });
 
-                it('expose attributes', function () {
-                    expect(ctrl.addressee()).toEqual('John Doe');
-                    expect(ctrl.street()).toEqual('Johny Lane');
-                    expect(ctrl.number()).toEqual('1');
-                    expect(ctrl.zip()).toEqual('1000');
-                    expect(ctrl.city()).toEqual('Johnyville');
-                    expect(ctrl.country()).toEqual('BE');
+                it('expose all addresses', function () {
+                    expect(ctrl.addresses().map(function (it) {
+                        return it.label;
+                    })).toEqual(['home']);
                 });
 
-                describe('when in edit mode', function () {
+                it('when selecting an address then the selection listener is triggered', function () {
+                    ctrl.select('home');
+                    expect(ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
+                });
+
+                describe('when a specific address is selected', function () {
                     beforeEach(function () {
-                        ctrl.edit();
+                        ctrl.select('home');
                     });
 
-                    it('expose updated status', function () {
-                        expect(ctrl.status()).toEqual('editing');
+                    it('expose address status', function () {
+                        expect(ctrl.addressStatus()).toEqual('idle');
                     });
 
-                    it('expose update request as form', function () {
-                        expect(ctrl.form).toEqual({
-                            id: {label: 'home'},
-                            label: 'home',
-                            addressee: 'John Doe',
-                            street: 'Johny Lane',
-                            number: '1',
-                            zip: '1000',
-                            city: 'Johnyville',
-                            country: 'BE'
+                    it('expose attributes', function () {
+                        expect(ctrl.addressee()).toEqual('John Doe');
+                        expect(ctrl.street()).toEqual('Johny Lane');
+                        expect(ctrl.number()).toEqual('1');
+                        expect(ctrl.zip()).toEqual('1000');
+                        expect(ctrl.city()).toEqual('Johnyville');
+                        expect(ctrl.country()).toEqual('BE');
+                    });
+
+                    it('expose countries', function () {
+                        expect(ctrl.countries().length > 0).toBeTruthy();
+                    });
+
+                    describe('when in edit mode', function () {
+                        beforeEach(function () {
+                            ctrl.edit();
+                        });
+
+                        it('expose updated status', function () {
+                            expect(ctrl.addressStatus()).toEqual('editing');
+                        });
+
+                        it('expose update request as form', function () {
+                            expect(ctrl.form).toEqual({
+                                id: {label: 'home'},
+                                label: 'home',
+                                addressee: 'John Doe',
+                                street: 'Johny Lane',
+                                number: '1',
+                                zip: '1000',
+                                city: 'Johnyville',
+                                country: 'BE'
+                            });
+                        });
+
+                        it('update the address', function () {
+                            ctrl.form.addressee = 'Jane Smith';
+                            ctrl.update();
+                            expect(ctrl.addressee()).toEqual('Jane Smith');
+                        });
+
+                        it('regenerate the address label on update', function() {
+                            ctrl.generateLabel = true;
+
+                            ctrl.update();
+
+                            expect(ctrl.form.label).toEqual('(1000) Johny Lane 1');
+                            expect(ctrl.addressee()).toEqual('John Doe');
+                        });
+
+                        it('cancel editing', function () {
+                            ctrl.cancel();
+                            expect(ctrl.addressStatus()).toEqual('idle');
                         });
                     });
+                });
 
-                    it('update the address', function () {
-                        ctrl.form.addressee = 'Jane Smith';
-                        ctrl.update();
-                        expect(ctrl.addressee()).toEqual('Jane Smith');
+                describe('when specifying a default address', function () {
+                    beforeEach(function () {
+                        ctrl.default = {label: 'home'};
+                        ctrl.$onInit();
                     });
 
-                    it('cancel editing', function () {
-                        ctrl.cancel();
-                        expect(ctrl.status()).toEqual('idle');
+                    it('then the corresponding address is selected', function () {
+                        expect(ctrl.label).toEqual('home');
+                    });
+
+                    it('then the selection listener is triggered', function () {
+                        expect(ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
+                    });
+
+                    it('when the default address is changed then the selected address also changes', function () {
+                        ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
+                        expect(ctrl.label).toEqual('work');
+                    });
+
+                    it('when something other than the default address is changed then the selected address remains as is', function () {
+                        ctrl.$onChanges({purpose: {currentValue: '-'}});
+                        expect(ctrl.label).toEqual('home');
+                    });
+
+                    it('when selecting null then fallback to default label', function() {
+                        ctrl.select(null);
+                        expect(ctrl.label).toEqual('home');
+                    });
+
+                    it('when a selection is made changes to the default address are ignored', function () {
+                        ctrl.select('neighbour');
+                        ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
+                        expect(ctrl.label).toEqual('neighbour');
+                    });
+                });
+
+                describe('when entering create a new address mode', function () {
+                    beforeEach(function () {
+                        ctrl.new();
+                    });
+
+                    it('then profile status changes to editing', function () {
+                        expect(ctrl.profileStatus()).toEqual('editing');
+                    });
+
+                    it('then expose profile update request', function () {
+                        expect(ctrl.form).toEqual(binarta.checkpoint.profile.updateRequest().address);
+                    });
+
+                    it('when creating a new address then the address is added to the profile', function () {
+                        ctrl.form.label = 'work';
+                        ctrl.form.addressee = 'John Doe';
+                        ctrl.form.street = 'Johny Lane';
+                        ctrl.form.number = '1';
+                        ctrl.form.zip = '1000';
+                        ctrl.form.city = 'Johnyville';
+                        ctrl.form.country = 'BE';
+
+                        ctrl.create();
+
+                        expect(binarta.checkpoint.profile.addresses().map(function (it) {
+                            return it.label
+                        })).toEqual(['home', 'work']);
+                    });
+
+                    it('when create address is rejected then expose the violation report', function () {
+                        ctrl.form.label = 'invalid';
+                        ctrl.create();
+                        expect(ctrl.violationReport()).toEqual({label: ['invalid']});
+                    });
+
+                    it('then it can be canceled', function() {
+                        ctrl.cancelNewAddress();
+                        expect(ctrl.profileStatus()).toEqual('idle');
                     });
                 });
             });

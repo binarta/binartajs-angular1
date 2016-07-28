@@ -5,107 +5,67 @@
         <div class="container">
             <div class="row">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
-                    <!--<div class="panel panel-default panel-profile">-->
-                        <!--<div class="panel-heading" i18n code="shop.profile.panel.title" read-only>-->
-                            <!--<i class="fa fa-user fa-fw"></i> {{::var}}-->
-                        <!--</div>-->
-                        <!--<div class="panel-body" ng-controller="AccountMetadataController">-->
-                            <!--<label i18n code="customer.profile.email.label" read-only>{{::var}}</label>-->
-                            <!--<div>-->
-                                <!--{{::metadata.email}}-->
-                            <!--</div>-->
-                            <!--<hr>-->
-                            <!--<label i18n code="customer.profile.vat.label" read-only>{{::var}}</label>-->
-                            <!--<div ng-controller="CustomerProfileController" ng-init="init()">-->
-                                <!--{{vat || '/'}}-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    <!--</div>-->
                     <bin-user-profile></bin-user-profile>
                 </div>
             </div>
-            <div class="row" ng-controller="AddressSelectionController">
+            <div class="row">
                 <div class="col-xs-12 col-sm-5 col-sm-offset-1 col-lg-4 col-lg-offset-2">
-                    <div class="panel panel-default panel-address">
-                        <div class="panel-heading" i18n code="shop.billing.address.panel.title" read-only>
-                            <i class="fa fa-home fa-fw"></i> {{::var}}
-                        </div>
-                        <div class="panel-body">
-                            <address ng-init="view('billing')">
-                                <strong>{{::billing.addressee}}</strong><br>
-                                {{::billing.street}} {{::billing.number}}<br>
-                                {{::billing.zip}} {{::billing.city}}<br>
-                                {{::billing.country | toCountryName}}
-                            </address>
-                        </div>
-                    </div>
+                    <bin-address purpose="billing" label="{{::checkout.order().billing.label}}"></bin-address>
                 </div>
                 <div class="col-xs-12 col-sm-5 col-lg-4">
-                    <div class="panel panel-default panel-address">
-                        <div class="panel-heading" i18n code="shop.shipping.address.panel.title" read-only>
-                            <i class="fa fa-home fa-fw"></i> {{::var}}
-                        </div>
-                        <div class="panel-body">
-                            <address ng-init="view('shipping')">
-                                <strong>{{::shipping.addressee}}</strong><br>
-                                {{::shipping.street}} {{::shipping.number}}<br>
-                                {{::shipping.zip}} {{::shipping.city}}<br>
-                                {{::shipping.country | toCountryName}}
-                            </address>
-                        </div>
-                    </div>
+                    <bin-address purpose="shipping" label="{{::checkout.order().shipping.label}}"></bin-address>
                 </div>
             </div>
             <div class="row">
-                <bin-basket order="checkout.order()"></bin-basket>
+                <bin-basket mode="summary" order="checkout.order()"></bin-basket>
             </div>
-            <div class="row">
-                <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" i18n code="shop.basket.panel.title" read-only>
-                            <i class="fa fa-shopping-cart fa-fw"></i> {{::var}}
-                        </div>
-                        <div class="panel-body">
-                            <div ng-controller="ViewBasketController">
-                                <div class="row" ng-repeat="item in ::items track by item.id">
-                                    <div class="col-xs-8" i18n code="{{::item.id}}" read-only>
-                                        {{::var}} ({{::item.quantity}})
-                                    </div>
-                                    <div class="col-xs-4 text-right" ng-bind="::item.presentableSubTotal"></div>
-                                    <div class="col-xs-12">
-                                        <hr>
-                                    </div>
-                                </div>
+            <!--<div class="row">-->
+                <!--<div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">-->
+                    <!--<div class="panel panel-default">-->
+                        <!--<div class="panel-heading" i18n code="shop.basket.panel.title" read-only>-->
+                            <!--<i class="fa fa-shopping-cart fa-fw"></i> {{::var}}-->
+                        <!--</div>-->
+                        <!--<div class="panel-body">-->
+                            <!--<div ng-controller="ViewBasketController">-->
+                                <!--<div class="row" ng-repeat="item in ::items track by item.id">-->
+                                    <!--<div class="col-xs-8" i18n code="{{::item.id}}" read-only>-->
+                                        <!--{{::var}} ({{::item.quantity}})-->
+                                    <!--</div>-->
+                                    <!--<div class="col-xs-4 text-right" ng-bind="::item.presentableSubTotal"></div>-->
+                                    <!--<div class="col-xs-12">-->
+                                        <!--<hr>-->
+                                    <!--</div>-->
+                                <!--</div>-->
 
-                                <div class="bin-basket-prices text-right">
-                                    <div class="row">
-                                        <div class="col-xs-8 col-sm-10" i18n code="shop.prices.subtotal.label" read-only>
-                                            <strong>{{::var}}</strong>
-                                        </div>
-                                        <div class="col-xs-4 col-sm-2" ng-bind="::presentableItemTotal"></div>
-                                    </div>
-                                    <div class="row" ng-repeat="item in additionalCharges">
-                                        <div class="col-xs-8 col-sm-10"
-                                             i18n code="shop.prices.{{::item.label}}.label" default="{{::item.label}}"
-                                             read-only>
-                                            <strong>{{::var}}</strong>
-                                        </div>
-                                        <div class="col-xs-4 col-sm-2" ng-bind="::item.presentableValue"></div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-xs-8 col-sm-10" i18n code="shop.prices.total.label" read-only>
-                                            <strong>{{::var}}</strong>
-                                        </div>
-                                        <div class="col-xs-4 col-sm-2">
-                                            <div class="basket-total-price" ng-bind="::presentablePrice"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                <!--<div class="bin-basket-prices text-right">-->
+                                    <!--<div class="row">-->
+                                        <!--<div class="col-xs-8 col-sm-10" i18n code="shop.prices.subtotal.label" read-only>-->
+                                            <!--<strong>{{::var}}</strong>-->
+                                        <!--</div>-->
+                                        <!--<div class="col-xs-4 col-sm-2" ng-bind="::presentableItemTotal"></div>-->
+                                    <!--</div>-->
+                                    <!--<div class="row" ng-repeat="item in additionalCharges">-->
+                                        <!--<div class="col-xs-8 col-sm-10"-->
+                                             <!--i18n code="shop.prices.{{::item.label}}.label" default="{{::item.label}}"-->
+                                             <!--read-only>-->
+                                            <!--<strong>{{::var}}</strong>-->
+                                        <!--</div>-->
+                                        <!--<div class="col-xs-4 col-sm-2" ng-bind="::item.presentableValue"></div>-->
+                                    <!--</div>-->
+                                    <!--<div class="row">-->
+                                        <!--<div class="col-xs-8 col-sm-10" i18n code="shop.prices.total.label" read-only>-->
+                                            <!--<strong>{{::var}}</strong>-->
+                                        <!--</div>-->
+                                        <!--<div class="col-xs-4 col-sm-2">-->
+                                            <!--<div class="basket-total-price" ng-bind="::presentablePrice"></div>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
             <div class="row">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
                     <div class="panel panel-default">

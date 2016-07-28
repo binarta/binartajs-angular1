@@ -1,0 +1,32 @@
+<div ng-init="checkout.$onInit()">
+    <h1>Checkout: {{checkout.status()}}</h1>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-5 col-sm-offset-1 col-lg-4 col-lg-offset-2">
+                <bin-address purpose="billing" mode="selection" on-select="checkout.setBillingAddress" generate-label="true"></bin-address>
+            </div>
+
+            <div class="col-xs-12 col-sm-5 col-lg-4">
+                <bin-address purpose="shipping" mode="selection" default="checkout.addresses.billing" on-select="checkout.setShippingAddress"  generate-label="true"></bin-address>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
+                <hr>
+                <a ng-href="#!{{localePrefix}}/basket" class="btn btn-default"
+                   i18n code="shop.back.button" read-only>
+                    <i class="fa fa-caret-left fa-fw"></i> {{::var}}
+                </a>
+
+                <button class="btn btn-success pull-right"
+                        i18n code="shop.continue.button" read-only
+                        ng-click="checkout.selectAddresses()"
+                        ng-disabled="checkout.isAwaitingSelection()">
+                    <i class="fa fa-caret-right fa-fw"></i> {{::var}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

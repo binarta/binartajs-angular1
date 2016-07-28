@@ -67,6 +67,7 @@
         };
 
         this.updateAddress = function (request, response) {
+            request.context = 'update';
             self.$http({
                 method: 'POST',
                 url: self.config.baseUri + 'api/entity/customer-address',
