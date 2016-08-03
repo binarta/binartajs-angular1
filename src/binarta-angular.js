@@ -1,6 +1,6 @@
 (function () {
     angular.module('binartajs-angular1', [])
-        .provider('binarta', BinartaProvider)
+        .provider('binarta', [BinartaProvider])
         .factory('binartaGatewaysAreInitialised', ['$q', GatewaysAreInitialisedFactory])
         .factory('binartaIsInitialised', ['$q', 'binarta', 'binartaGatewaysAreInitialised', IsInitialisedFactory]);
 

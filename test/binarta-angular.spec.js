@@ -26,6 +26,30 @@
             expect(initialisedBinarta).toEqual(binarta);
         }));
 
+        describe('binarta-applicationjs-angular1', function() {
+            var $rootScope, binartaApplicationIsInitialised, binartaGatewaysAreInitialised;
+            var isApplicationInitialisedListener;
+
+            beforeEach(inject(function(_$rootScope_, _binartaApplicationIsInitialised_, _binartaGatewaysAreInitialised_) {
+                $rootScope = _$rootScope_;
+                binartaApplicationIsInitialised = _binartaApplicationIsInitialised_;
+                binartaGatewaysAreInitialised = _binartaGatewaysAreInitialised_;
+
+                isApplicationInitialisedListener = jasmine.createSpy('is-application-initialised');
+                binartaApplicationIsInitialised.then(isApplicationInitialisedListener);
+            }));
+
+            it('application is not initialised before the binarta gateways are initialised', function() {
+                expect(isApplicationInitialisedListener).not.toHaveBeenCalled();
+            });
+
+            it('when binarta gateways are initialised the application is also initialised', function() {
+                binartaGatewaysAreInitialised.resolve();
+                $rootScope.$digest();
+                expect(isApplicationInitialisedListener).toHaveBeenCalled();
+            });
+        });
+
         describe('binarta-checkpointjs-angular1', function () {
             var db;
 
@@ -245,16 +269,16 @@
                         expect($location.path()).toEqual('/checkout/completed');
                     });
 
-                    it('when no address is selected then is awaiting selection flag is set to true', function() {
+                    it('when no address is selected then is awaiting selection flag is set to true', function () {
                         expect(ctrl.isAwaitingSelection()).toBeTruthy();
                     });
 
-                    it('when billing address is selected then is awaiting selection flag is set to false', function() {
+                    it('when billing address is selected then is awaiting selection flag is set to false', function () {
                         ctrl.setBillingAddress({label: 'b', addressee: 'a'});
                         expect(ctrl.isAwaitingSelection()).toBeFalsy();
                     });
 
-                    it('when shipping address is selected then is awaiting selection flag is set to true', function() {
+                    it('when shipping address is selected then is awaiting selection flag is set to true', function () {
                         ctrl.setShippingAddress({label: 's', addressee: 'a'});
                         expect(ctrl.isAwaitingSelection()).toBeTruthy();
                     });
@@ -675,7 +699,7 @@
                     ctrl.onSelect = jasmine.createSpy('on-select');
                 }));
 
-                it('mode defaults to display', function() {
+                it('mode defaults to display', function () {
                     expect(ctrl.mode).toEqual('display');
                 });
 
@@ -748,7 +772,7 @@
                             expect(ctrl.addressee()).toEqual('Jane Smith');
                         });
 
-                        it('regenerate the address label on update', function() {
+                        it('regenerate the address label on update', function () {
                             ctrl.generateLabel = true;
 
                             ctrl.update();
@@ -788,7 +812,7 @@
                         expect(ctrl.label).toEqual('home');
                     });
 
-                    it('when selecting null then fallback to default label', function() {
+                    it('when selecting null then fallback to default label', function () {
                         ctrl.select(null);
                         expect(ctrl.label).toEqual('home');
                     });
@@ -835,7 +859,7 @@
                         expect(ctrl.violationReport()).toEqual({label: ['invalid']});
                     });
 
-                    it('then it can be canceled', function() {
+                    it('then it can be canceled', function () {
                         ctrl.cancelNewAddress();
                         expect(ctrl.profileStatus()).toEqual('idle');
                     });
@@ -846,8 +870,9 @@
 
     installBackendStrategy('inmem');
     angular.module('binartajs-angular1-spec', [
-        'binarta-checkpointjs-angular1', 'binarta-checkpointjs-gateways-angular1',
-        'binarta-shopjs-angular1', 'binarta-shopjs-gateways-angular1'
+        'binarta-applicationjs-angular1',
+        'binarta-checkpointjs-angular1',
+        'binarta-shopjs-angular1'
     ])
         .service('$window', MockWindow)
         .factory('i18nLocation', MockI18nLocationFactory)
@@ -889,6 +914,8 @@
     }
 
     function installBackendStrategy(strategy) {
+        angular.module('binarta-applicationjs-gateways-angular1', ['binarta-applicationjs-' + strategy + '-angular1'])
+            .provider('binartaApplicationGateway', [strategy + 'BinartaApplicationGatewayProvider', proxy]);
         angular.module('binarta-checkpointjs-gateways-angular1', ['binarta-checkpointjs-' + strategy + '-angular1'])
             .provider('binartaCheckpointGateway', [strategy + 'BinartaCheckpointGatewayProvider', proxy]);
         angular.module('binarta-shopjs-gateways-angular1', ['binarta-shopjs-' + strategy + '-angular1'])

@@ -25,6 +25,27 @@
             $http.verifyNoOutstandingRequest();
         });
 
+        describe('application gateway', function () {
+            var gateway;
+
+            beforeEach(inject(function (restBinartaApplicationGateway) {
+                gateway = restBinartaApplicationGateway;
+            }));
+
+            describe('fetchApplicationProfile', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectGET('http://host/api/application/n/data/common');
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'application-profile');
+                    gateway.fetchApplicationProfile(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('application-profile');
+                });
+            });
+        });
+
         describe('checkpoint gateway', function () {
             var gateway;
 
@@ -211,10 +232,10 @@
 
             describe('update address', function () {
                 beforeEach(function () {
-                    request = {label:'l'};
+                    request = {label: 'l'};
                     expectedHttpRequest = $http.expectPOST('http://host/api/entity/customer-address', {
-                        context:'update',
-                        label:'l'
+                        context: 'update',
+                        label: 'l'
                     });
                 });
 
@@ -376,7 +397,13 @@
         }
     });
 
+    angular.module('binarta-applicationjs-gateways-angular1', ['binarta-applicationjs-rest-angular1'])
+        .provider('binartaApplicationGateway', ['restBinartaApplicationGatewayProvider', function (it) {
+            return it;
+        }]);
+
     angular.module('binartajs-rest-angular1-spec', [
+        'binarta-applicationjs-rest-angular1',
         'binarta-checkpointjs-rest-angular1',
         'binarta-shopjs-rest-angular1'
     ]);

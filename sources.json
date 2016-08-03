@@ -1,6 +1,8 @@
 {
   "default": {
     "binartajs-angular1": "bower_components/binartajs-angular1/src/binarta-angular.js",
+    "binarta-applicationjs-angular1": "bower_components/binartajs-angular1/src/binarta-application-angular.js",
+    "binarta-applicationjs-rest-angular1": "bower_components/binartajs-angular1/src/binarta-application-rest-angular.js",
     "binarta-checkpointjs-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-angular.js",
     "binarta-checkpointjs-rest-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-rest-angular.js",
     "binarta-checkpointjs-recaptcha-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-recaptcha-angular.js",
