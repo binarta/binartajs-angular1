@@ -335,15 +335,45 @@
                 });
 
                 it('success', function () {
-                    expectedHttpRequest.respond(201);
+                    expectedHttpRequest.respond(201, {id: 'order-id'});
                     gateway.submitOrder(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith({id: 'order-id'});
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violation-report');
+                    gateway.submitOrder(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violation-report');
+                });
+            });
+
+            describe('confirm payment', function () {
+                beforeEach(function () {
+                    request = {
+                        id: 'i',
+                        token: 'p'
+                    };
+                    expectedHttpRequest = $http.expectPOST('http://host/api/purchase-order-payment/i/approve', {
+                        id: 'i',
+                        token: 'p'
+                    }, function (headers) {
+                        return true;
+                        // return headers['Accept-Language'] == '???'; // TODO - can we find a nice way to expose the chosen language?
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(201);
+                    gateway.confirmPayment(request, response);
                     $http.flush();
                     expect(response.success).toHaveBeenCalled();
                 });
 
                 it('rejected', function () {
                     expectedHttpRequest.respond(412, 'violation-report');
-                    gateway.submitOrder(request, response);
+                    gateway.confirmPayment(request, response);
                     $http.flush();
                     expect(response.rejected).toHaveBeenCalledWith('violation-report');
                 });

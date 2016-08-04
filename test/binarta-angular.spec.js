@@ -26,11 +26,11 @@
             expect(initialisedBinarta).toEqual(binarta);
         }));
 
-        describe('binarta-applicationjs-angular1', function() {
+        describe('binarta-applicationjs-angular1', function () {
             var $rootScope, binartaApplicationIsInitialised, binartaGatewaysAreInitialised;
             var isApplicationInitialisedListener;
 
-            beforeEach(inject(function(_$rootScope_, _binartaApplicationIsInitialised_, _binartaGatewaysAreInitialised_) {
+            beforeEach(inject(function (_$rootScope_, _binartaApplicationIsInitialised_, _binartaGatewaysAreInitialised_) {
                 $rootScope = _$rootScope_;
                 binartaApplicationIsInitialised = _binartaApplicationIsInitialised_;
                 binartaGatewaysAreInitialised = _binartaGatewaysAreInitialised_;
@@ -39,11 +39,11 @@
                 binartaApplicationIsInitialised.then(isApplicationInitialisedListener);
             }));
 
-            it('application is not initialised before the binarta gateways are initialised', function() {
+            it('application is not initialised before the binarta gateways are initialised', function () {
                 expect(isApplicationInitialisedListener).not.toHaveBeenCalled();
             });
 
-            it('when binarta gateways are initialised the application is also initialised', function() {
+            it('when binarta gateways are initialised the application is also initialised', function () {
                 binartaGatewaysAreInitialised.resolve();
                 $rootScope.$digest();
                 expect(isApplicationInitialisedListener).toHaveBeenCalled();
@@ -284,7 +284,7 @@
                     });
                 });
 
-                it('on summary step set payment provider', function() {
+                it('on summary step set payment provider', function () {
                     binarta.shop.checkout.start({}, ['summary', 'completed']);
                     ctrl.setPaymentProvider('payment-provider');
                     expect(ctrl.order().provider).toEqual('payment-provider');
@@ -315,6 +315,27 @@
 
                     expect(ctrl.status()).toEqual('completed');
                     expect($location.path()).toEqual('/checkout/completed');
+                });
+
+                it('on payment step payment confirmation can be rejected', function () {
+                    binarta.shop.checkout.start({}, ['payment', 'completed']);
+
+                    $location.search({token: 'invalid'});
+                    ctrl.confirmPayment();
+
+                    expect(ctrl.status()).toEqual('payment');
+                    expect(ctrl.violationReport()).toEqual({token: ['invalid']});
+                });
+
+                it('on payment step payment confirmation success', function () {
+                    binarta.shop.checkout.start({}, ['payment', 'completed']);
+
+                    $location.search({token: '-'});
+                    ctrl.confirmPayment();
+
+                    expect(ctrl.status()).toEqual('completed');
+                    expect($location.path()).toEqual('/checkout/completed');
+                    expect($location.search()).toEqual({});
                 });
             });
 
@@ -382,7 +403,8 @@
                         });
 
                         it('then checkout is started with the previewed order', function () {
-                            expect(binarta.shop.checkout.context().order).toEqual(JSON.parse(JSON.stringify(binarta.shop.basket.toOrder())));
+                            expect(binarta.shop.checkout.context().order.items).toEqual(JSON.parse(JSON.stringify(binarta.shop.basket.toOrder().items)));
+                            expect(binarta.shop.checkout.context().order.quantity).toEqual(JSON.parse(JSON.stringify(binarta.shop.basket.toOrder().quantity)));
                         });
 
                         it('then checkout status is set to the first step', function () {
@@ -872,29 +894,51 @@
                 });
             });
 
-            describe('PaymentMethodsController', function() {
+            describe('PaymentMethodsController', function () {
                 var $ctrl;
 
-                beforeEach(inject(function($controller) {
+                beforeEach(inject(function ($controller) {
                     $ctrl = $controller('BinartaPaymentMethodsController');
                     $ctrl.onSelect = jasmine.createSpy('on-select');
                 }));
 
-                it('exposes available payment methods', function() {
+                it('exposes available payment methods', function () {
                     binarta.application.profile().availablePaymentMethods = 'available-payment-methods';
                     expect($ctrl.availablePaymentMethods()).toEqual('available-payment-methods');
                 });
 
-                it('initially no payment method is selected', function() {
+                it('initially no payment method is selected', function () {
                     expect($ctrl.onSelect).not.toHaveBeenCalled();
                 });
 
-                it('selecting a payment method', function() {
+                it('selecting a payment method', function () {
                     $ctrl.paymentProvider = 'payment-method';
                     $ctrl.select();
                     expect($ctrl.onSelect).toHaveBeenCalledWith('payment-method');
                 });
             });
+
+            describe('PaymentController', function () {
+                var $ctrl;
+
+                beforeEach(inject(function ($controller) {
+                    $ctrl = $controller('BinartaPaymentController');
+                    $ctrl.onConfirmed = jasmine.createSpy('on-confirmed');
+                }));
+
+                it('given an order with approval url when controller is initialised then visit approval url', inject(function ($window) {
+                    $ctrl.order = {approvalUrl: 'approval-url'};
+                    $ctrl.$onInit();
+                    expect($window.location).toEqual('approval-url');
+                    expect($ctrl.onConfirmed).not.toHaveBeenCalled();
+                }));
+
+                it('given a token as route parameter when controller is initialised then confirm payment', inject(function ($routeParams) {
+                    $routeParams.token = 't';
+                    $ctrl.$onInit();
+                    expect($ctrl.onConfirmed).toHaveBeenCalledWith({token: 't'});
+                }));
+            })
         });
     });
 

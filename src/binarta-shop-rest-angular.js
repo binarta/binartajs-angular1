@@ -16,6 +16,13 @@
         }
     }
 
+    function toSuccessResponse(response) {
+        return function (it) {
+            if (response.success)
+                response.success(it.data);
+        }
+    }
+
     function toErrorResponse(response) {
         return function (request) {
             if (request.status == 401)
@@ -47,7 +54,7 @@
             }).then(response.success, toErrorResponse(response));
         };
 
-        this.fetchAddresses = function(response) {
+        this.fetchAddresses = function (response) {
             self.$http({
                 method: 'GET',
                 url: self.config.baseUri + 'api/query/customer-address/listByPrincipal',
@@ -103,6 +110,15 @@
             self.$http({
                 method: 'PUT',
                 url: self.config.baseUri + 'api/entity/purchase-order',
+                withCredentials: true,
+                data: request
+            }).then(toSuccessResponse(response), toErrorResponse(response));
+        };
+
+        this.confirmPayment = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/purchase-order-payment/' + request.id + '/approve',
                 withCredentials: true,
                 data: request
             }).then(response.success, toErrorResponse(response));

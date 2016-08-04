@@ -15,6 +15,8 @@
         .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', '$scope', CheckoutController])
         .component('binCheckoutRoadmap', new CheckoutRoadmapComponent())
         .controller('CheckoutRoadmapController', ['binarta', CheckoutRoadmapController])
+        .component('binPay', new PaymentComponent())
+        .controller('BinartaPaymentController', ['binarta', '$window', '$routeParams', PaymentController])
         .component('binSetupPaymentProvider', new SetupPaymentProviderComponent())
         .controller('SetupPaymentProviderController', ['binarta', '$location', SetupPaymentProviderController])
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
@@ -27,6 +29,7 @@
         .run(['binarta', 'CheckoutController.decorator', InstallAddressSelectionSupport])
         .run(['binarta', 'CheckoutController.decorator', InstallSummarySupport])
         .run(['binarta', 'CheckoutController.decorator', '$location', InstallPaymentProviderSetupSupport])
+        .run(['binarta', 'CheckoutController.decorator', '$location', InstallPaymentSupport])
         .run(['binarta', 'UserProfileController.decorator', InstallProfileExtensions])
         .run(['binartaIsInitialised', 'shop', InitCaches]);
 
@@ -86,6 +89,7 @@
                 'address-selection',
                 'summary',
                 'setup-payment-provider',
+                'payment',
                 'completed'
             ]);
             $location.path('/checkout/start');
@@ -246,11 +250,11 @@
     function PaymentMethodsController(binarta) {
         var $ctrl = this;
 
-        $ctrl.availablePaymentMethods = function() {
+        $ctrl.availablePaymentMethods = function () {
             return binarta.application.profile().availablePaymentMethods;
         };
-        
-        $ctrl.select = function() {
+
+        $ctrl.select = function () {
             $ctrl.onSelect($ctrl.paymentProvider);
         }
     }
@@ -322,6 +326,27 @@
         this.$onInit = function () {
             self.roadmap = binarta.shop.checkout.roadmap();
             self.currentStep = binarta.shop.checkout.status();
+        }
+    }
+
+    function PaymentComponent() {
+        this.bindings = {
+            provider: '@',
+            order: '<',
+            onConfirmed: '<'
+        };
+        this.controller = 'BinartaPaymentController';
+        this.templateUrl = 'bin-shop-payment.html';
+    }
+
+    function PaymentController(binarta, $window, $routeParams) {
+        var $ctrl = this;
+
+        $ctrl.$onInit = function () {
+            if ($routeParams.token)
+                $ctrl.onConfirmed($routeParams);
+            else
+                $window.location = $ctrl.order.approvalUrl;
         }
     }
 
@@ -439,7 +464,7 @@
                 return binarta.shop.checkout.violationReport();
             };
 
-            ctrl.setPaymentProvider = function(provider) {
+            ctrl.setPaymentProvider = function (provider) {
                 binarta.shop.checkout.setPaymentProvider(provider);
             };
         });
@@ -456,6 +481,17 @@
                     $location.replace();
                 });
             };
+        });
+    }
+    
+    function InstallPaymentSupport(binarta, decorator, $location) {
+        decorator.add(function($ctrl) {
+            $ctrl.confirmPayment = function() {
+                binarta.shop.checkout.confirm($location.search(), function() {
+                    $ctrl.start();
+                    $location.search({});
+                });
+            }
         });
     }
 
@@ -494,6 +530,10 @@
                 templateUrl: 'bin-shop-checkout-setup-payment-provider.html',
                 controller: 'CheckoutController as checkout'
             })
+            .when('/checkout/payment', {
+                templateUrl: 'bin-shop-checkout-payment.html',
+                controller: 'CheckoutController as $ctrl'
+            })
             .when('/checkout/completed', {
                 templateUrl: 'bin-shop-checkout-completed.html',
                 controller: 'CheckoutController as checkout'
@@ -518,6 +558,10 @@
             .when('/:locale/checkout/setup-payment-provider', {
                 templateUrl: 'bin-shop-checkout-setup-payment-provider.html',
                 controller: 'CheckoutController as checkout'
+            })
+            .when('/:locale/checkout/payment', {
+                templateUrl: 'bin-shop-checkout-payment.html',
+                controller: 'CheckoutController as $ctrl'
             })
             .when('/:locale/checkout/completed', {
                 templateUrl: 'bin-shop-checkout-completed.html',
