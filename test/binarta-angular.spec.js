@@ -284,6 +284,12 @@
                     });
                 });
 
+                it('on summary step set payment provider', function() {
+                    binarta.shop.checkout.start({}, ['summary', 'completed']);
+                    ctrl.setPaymentProvider('payment-provider');
+                    expect(ctrl.order().provider).toEqual('payment-provider');
+                });
+
                 it('on summary step order confirmation can be rejected', function () {
                     binarta.shop.checkout.start({provider: 'with-insufficient-funds'}, ['summary', 'completed']);
 
@@ -863,6 +869,30 @@
                         ctrl.cancelNewAddress();
                         expect(ctrl.profileStatus()).toEqual('idle');
                     });
+                });
+            });
+
+            describe('PaymentMethodsController', function() {
+                var $ctrl;
+
+                beforeEach(inject(function($controller) {
+                    $ctrl = $controller('BinartaPaymentMethodsController');
+                    $ctrl.onSelect = jasmine.createSpy('on-select');
+                }));
+
+                it('exposes available payment methods', function() {
+                    binarta.application.profile().availablePaymentMethods = 'available-payment-methods';
+                    expect($ctrl.availablePaymentMethods()).toEqual('available-payment-methods');
+                });
+
+                it('initially no payment method is selected', function() {
+                    expect($ctrl.onSelect).not.toHaveBeenCalled();
+                });
+
+                it('selecting a payment method', function() {
+                    $ctrl.paymentProvider = 'payment-method';
+                    $ctrl.select();
+                    expect($ctrl.onSelect).toHaveBeenCalledWith('payment-method');
                 });
             });
         });

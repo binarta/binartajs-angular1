@@ -9,6 +9,8 @@
         .controller('BinartaBasketController', ['binarta', 'viewport', 'i18nLocation', BinartaBasketController])
         .component('binAddress', new AddressComponent())
         .controller('BinartaAddressController', ['binarta', BinartaAddressController])
+        .component('binPaymentMethods', new PaymentMethodsComponent())
+        .controller('BinartaPaymentMethodsController', ['binarta', PaymentMethodsController])
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
         .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', '$scope', CheckoutController])
         .component('binCheckoutRoadmap', new CheckoutRoadmapComponent())
@@ -129,7 +131,7 @@
         };
 
         this.select = function (label) {
-            if($ctrl.default && $ctrl.default.label != label)
+            if ($ctrl.default && $ctrl.default.label != label)
                 $ctrl.divergedFromDefault = true;
             $ctrl.label = label || $ctrl.default.label;
             if ($ctrl.onSelect)
@@ -167,18 +169,18 @@
             $ctrl.editingAddress = true;
         };
 
-        this.isSelectingAddress = function() {
+        this.isSelectingAddress = function () {
             return ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection' || !$ctrl.editingAddress) && $ctrl.profileStatus() == 'idle';
         };
-        
-        this.isEditingAddress = function() {
+
+        this.isEditingAddress = function () {
             return $ctrl.editingAddress && ($ctrl.addressStatus() == 'editing' || $ctrl.addressStatus() == 'working');
         };
 
         this.update = function () {
-            if($ctrl.generateLabel)
+            if ($ctrl.generateLabel)
                 $ctrl.form.generateLabel = true;
-            address().update(function() {
+            address().update(function () {
                 $ctrl.editingAddress = false;
                 $ctrl.select($ctrl.form.label);
             });
@@ -225,9 +227,31 @@
                 if (c.label == $ctrl.label)
                     return c;
                 return p;
-            }, {status:function() {
-                return 'awaiting-selection';
-            }});
+            }, {
+                status: function () {
+                    return 'awaiting-selection';
+                }
+            });
+        }
+    }
+
+    function PaymentMethodsComponent() {
+        this.bindings = {
+            onSelect: '<'
+        };
+        this.controller = 'BinartaPaymentMethodsController';
+        this.templateUrl = 'bin-shop-payment-methods.html';
+    }
+
+    function PaymentMethodsController(binarta) {
+        var $ctrl = this;
+
+        $ctrl.availablePaymentMethods = function() {
+            return binarta.application.profile().availablePaymentMethods;
+        };
+        
+        $ctrl.select = function() {
+            $ctrl.onSelect($ctrl.paymentProvider);
         }
     }
 
@@ -394,7 +418,7 @@
             ctrl.setShippingAddress = function (it) {
                 ctrl.addresses.shipping = it;
             };
-            ctrl.isAwaitingSelection = function() {
+            ctrl.isAwaitingSelection = function () {
                 return !ctrl.addresses.billing;
             };
             ctrl.selectAddresses = function () {
@@ -413,7 +437,11 @@
 
             ctrl.violationReport = function () {
                 return binarta.shop.checkout.violationReport();
-            }
+            };
+
+            ctrl.setPaymentProvider = function(provider) {
+                binarta.shop.checkout.setPaymentProvider(provider);
+            };
         });
     }
 

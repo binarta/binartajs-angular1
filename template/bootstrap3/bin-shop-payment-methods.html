@@ -1,0 +1,19 @@
+<div class="panel panel-default">
+    <div class="panel-heading" i18n code="shop.payment.method.panel.title" read-only>
+        <i class="fa fa-credit-card-alt fa-fw"></i> {{::var}}
+    </div>
+    <div class="panel-body">
+        <div ng-repeat="method in $ctrl.availablePaymentMethods()">
+            <div class="radio">
+                <label i18n code="purchase.orders.payment.method.{{::method}}" read-only>
+                    <input type="radio" name="availablePaymentMethods" ng-value="::method" ng-model="$ctrl.paymentProvider" ng-change="$ctrl.select()">
+                    {{::var}}
+                </label>
+
+                <small i18n code="shop.payment.wire.transfer.restriction.message" read-only ng-if="::method == 'wire-transfer'">
+                    - {{::var}}
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

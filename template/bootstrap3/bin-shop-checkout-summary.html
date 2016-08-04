@@ -21,25 +21,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" i18n code="shop.payment.method.panel.title" read-only>
-                            <i class="fa fa-credit-card-alt fa-fw"></i> {{::var}}
-                        </div>
-                        <div class="panel-body">
-                            <div ng-repeat="method in ppoc.availablePaymentMethods">
-                                <div class="radio">
-                                    <label i18n code="purchase.orders.payment.method.{{::method}}" read-only>
-                                        <input type="radio" name="availablePaymentMethods" ng-value="::method" ng-model="ppoc.form.paymentProvider">
-                                        {{::var}}
-                                    </label>
-
-                                    <small i18n code="shop.payment.wire.transfer.restriction.message" read-only ng-if="::method == 'wire-transfer'">
-                                        - {{::var}}
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <bin-payment-methods on-select="checkout.setPaymentProvider"></bin-payment-methods>
                 </div>
             </div>
             <div class="row">
@@ -69,8 +51,8 @@
                     </a>
 
                     <button class="btn btn-success pull-right" i18n code="shop.confirm.button" read-only
-                            ng-click="submit()"
-                            ng-disabled="working || ppoc.form.termsAndConditions == 'rejected'">
+                            ng-click="checkout.confirm()">
+                            <!--ng-disabled="working || ppoc.form.termsAndConditions == 'rejected'">-->
                         <span ng-hide="working"><i class="fa fa-check fa-fw"></i></span>
                         <span ng-show="working"><i class="fa fa-spinner fa-spin fa-fw"></i></span>
                         {{::var}}
