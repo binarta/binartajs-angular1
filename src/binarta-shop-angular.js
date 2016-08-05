@@ -156,14 +156,21 @@
         this.new = function () {
             binarta.checkpoint.profile.edit();
             $ctrl.form = binarta.checkpoint.profile.updateRequest().address;
+            $ctrl.creatingAddress = true;
+        };
+
+        this.isCreatingAddress = function() {
+            return $ctrl.creatingAddress && ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection') && ($ctrl.profileStatus() == 'editing' || $ctrl.profileStatus() == 'working');
         };
 
         this.create = function () {
             binarta.checkpoint.profile.update();
+            $ctrl.creatingAddress = false;
         };
 
         this.cancelNewAddress = function () {
             binarta.checkpoint.profile.cancel();
+            $ctrl.creatingAddress = false;
         };
 
         this.violationReport = function () {
@@ -177,7 +184,7 @@
         };
 
         this.isSelectingAddress = function () {
-            return ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection' || !$ctrl.editingAddress) && $ctrl.profileStatus() == 'idle';
+            return ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection' || !$ctrl.editingAddress) && ($ctrl.profileStatus() == 'idle' || !$ctrl.creatingAddress);
         };
 
         this.isEditingAddress = function () {
