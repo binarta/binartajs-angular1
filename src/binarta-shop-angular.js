@@ -84,7 +84,9 @@
 
         this.checkout = function () {
             binarta.shop.checkout.cancel();
-            binarta.shop.checkout.start(binarta.shop.basket.toOrder(), [
+            var order = binarta.shop.basket.toOrder();
+            order.clearBasketOnComplete = true;
+            binarta.shop.checkout.start(order, [
                 'authentication-required',
                 'address-selection',
                 'summary',
@@ -99,6 +101,7 @@
             this.itemAdded = refreshFromBasket;
             this.itemUpdated = refreshFromBasket;
             this.itemRemoved = refreshFromBasket;
+            this.cleared = refreshFromBasket;
         }
 
         function refreshFromBasket() {
@@ -483,13 +486,14 @@
             };
         });
     }
-    
+
     function InstallPaymentSupport(binarta, decorator, $location) {
-        decorator.add(function($ctrl) {
-            $ctrl.confirmPayment = function() {
-                binarta.shop.checkout.confirm($location.search(), function() {
+        decorator.add(function ($ctrl) {
+            $ctrl.confirmPayment = function () {
+                binarta.shop.checkout.confirm($location.search(), function () {
                     $ctrl.start();
                     $location.search({});
+                    $location.replace();
                 });
             }
         });
@@ -536,7 +540,8 @@
             })
             .when('/checkout/completed', {
                 templateUrl: 'bin-shop-checkout-completed.html',
-                controller: 'CheckoutController as checkout'
+                controller: 'CheckoutController as checkout',
+                reloadOnSearch: false
             })
             .when('/:locale/basket', {templateUrl: 'bin-shop-basket-details.html'})
             .when('/:locale/checkout/start', {
@@ -565,7 +570,8 @@
             })
             .when('/:locale/checkout/completed', {
                 templateUrl: 'bin-shop-checkout-completed.html',
-                controller: 'CheckoutController as checkout'
+                controller: 'CheckoutController as checkout',
+                reloadOnSearch: false
             });
     }
 })();

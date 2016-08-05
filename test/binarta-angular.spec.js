@@ -495,6 +495,11 @@
                             expect(binarta.shop.basket.toOrder().items.length).toEqual(0);
                         });
 
+                        it('when basket is cleared previewed contents are updated', function() {
+                            binarta.shop.basket.clear();
+                            expect(ctrl.preview.quantity).toEqual(0);
+                        });
+
                         it('$onInit installs a basket event listener', function () {
                             expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeFalsy();
                         });
