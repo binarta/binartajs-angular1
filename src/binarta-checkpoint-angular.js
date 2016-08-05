@@ -49,6 +49,7 @@
         };
 
         this.switchToSigninMode = function () {
+            clearForm();
             this.mode = 'signin';
             self.submit = function () {
                 $('form input[type="password"]').trigger('change');
@@ -62,6 +63,7 @@
         };
 
         this.switchToRegistrationMode = function () {
+            clearForm();
             this.mode = 'registration';
             self.submit = function () {
                 $('form input[type="password"]').trigger('change');
@@ -76,6 +78,15 @@
             self.status = binarta.checkpoint.registrationForm.status;
             self.violationReport = binarta.checkpoint.registrationForm.violationReport;
         };
+
+        function clearForm() {
+            delete self.email;
+            delete self.username;
+            delete self.password;
+            delete self.company;
+            delete self.vat;
+            delete self.captcha;
+        }
 
         this.submit = function () {
             throw new Error('checkpoint.submit.requires.an.operation.mode.to.be.selected');

@@ -125,6 +125,24 @@
                         ctrl.switchToRegistrationMode();
                         expect(ctrl.mode).toEqual('registration');
                     });
+
+                    it('switching to registration mode resets input', function() {
+                        ctrl.email  = 'e';
+                        ctrl.username  = 'u';
+                        ctrl.password  = 'p';
+                        ctrl.company  = 'c';
+                        ctrl.vat  = 'v';
+                        ctrl.captcha  = 'c';
+
+                        ctrl.switchToRegistrationMode();
+
+                        expect(ctrl.email).toBeUndefined();
+                        expect(ctrl.username).toBeUndefined();
+                        expect(ctrl.password).toBeUndefined();
+                        expect(ctrl.company).toBeUndefined();
+                        expect(ctrl.vat).toBeUndefined();
+                        expect(ctrl.captcha).toBeUndefined();
+                    });
                 });
 
                 describe('when initialised for registration', function () {
@@ -165,6 +183,24 @@
                     it('then controller can be switched to signin mode', function () {
                         ctrl.switchToSigninMode();
                         expect(ctrl.mode).toEqual('signin');
+                    });
+
+                    it('switching to signin mode resets input', function() {
+                        ctrl.email  = 'e';
+                        ctrl.username  = 'u';
+                        ctrl.password  = 'p';
+                        ctrl.company  = 'c';
+                        ctrl.vat  = 'v';
+                        ctrl.captcha  = 'c';
+
+                        ctrl.switchToSigninMode();
+
+                        expect(ctrl.email).toBeUndefined();
+                        expect(ctrl.username).toBeUndefined();
+                        expect(ctrl.password).toBeUndefined();
+                        expect(ctrl.company).toBeUndefined();
+                        expect(ctrl.vat).toBeUndefined();
+                        expect(ctrl.captcha).toBeUndefined();
                     });
                 });
             });
