@@ -7,7 +7,8 @@
     function proxy(gateway) {
         return function () {
             this.gateway = gateway;
-            this.$get = ['config', '$http', function (config, $http) {
+            this.$get = ['binarta', 'config', '$http', function (binarta, config, $http) {
+                this.gateway.binarta = binarta;
                 this.gateway.config = config;
                 this.gateway.$http = $http;
                 return gateway;
@@ -21,7 +22,8 @@
         this.fetchApplicationProfile = function (request, response) {
             gateway.$http({
                 method: 'GET',
-                url: gateway.config.baseUri + 'api/application/' + gateway.config.namespace + '/data/common'
+                url: gateway.config.baseUri + 'api/application/' + gateway.config.namespace + '/data/common',
+                headers: {'Accept-Language': gateway.binarta.application.locale()}
             }).then(function(it) {
                 response.success(it.data);
             });

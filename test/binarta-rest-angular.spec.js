@@ -1,12 +1,15 @@
 (function () {
     describe('binartajs-rest-angular1', function () {
-        var $http, rest, config, ui, expectedHttpRequest, request, response;
+        var binarta, $http, rest, config, ui, expectedHttpRequest, request, response;
 
         beforeEach(module('binartajs-rest-angular1-spec'));
-        beforeEach(inject(function (_config_, restServiceHandler, $httpBackend) {
+        beforeEach(inject(function (_binarta_, _config_, restServiceHandler, $httpBackend) {
+            binarta = _binarta_;
             config = _config_;
             rest = restServiceHandler;
             $http = $httpBackend;
+
+            binarta.application.setLocale('en');
 
             config.namespace = 'n';
             config.baseUri = 'http://host/';
@@ -25,6 +28,22 @@
             $http.verifyNoOutstandingRequest();
         });
 
+        function expectHeaders(expectations) {
+            return function (headers) {
+                expectations.forEach(function (it) {
+                    it(headers);
+                });
+                return true;
+            }
+        }
+
+        function expectHeader(key, value) {
+            return function (headers) {
+                if (headers[key] != value)
+                    throw new Error(key + " != '" + value + "'! [" + headers[key] + "]");
+            }
+        }
+
         describe('application gateway', function () {
             var gateway;
 
@@ -34,7 +53,9 @@
 
             describe('fetchApplicationProfile', function () {
                 beforeEach(function () {
-                    expectedHttpRequest = $http.expectGET('http://host/api/application/n/data/common');
+                    expectedHttpRequest = $http.expectGET('http://host/api/application/n/data/common', expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
                 });
 
                 it('success', function () {
@@ -65,7 +86,9 @@
                         username: 'u',
                         password: 'p',
                         rememberMe: 'r'
-                    });
+                    }, expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
                 });
 
                 it('success', function () {
@@ -93,7 +116,9 @@
                         namespace: 'n',
                         username: 'u',
                         password: 'p'
-                    });
+                    }, expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
                 });
 
                 it('success', function () {
@@ -113,9 +138,9 @@
 
             describe('fetchAccountMetadata', function () {
                 beforeEach(function () {
-                    expectedHttpRequest = $http.expectGET('http://host/api/account/metadata', function (headers) {
-                        return headers['X-Namespace'] == config.namespace;
-                    });
+                    expectedHttpRequest = $http.expectGET('http://host/api/account/metadata', expectHeaders([
+                        expectHeader('X-Namespace', config.namespace)
+                    ]));
                 });
 
                 it('success', function () {
@@ -143,7 +168,9 @@
 
             describe('fetch billing profile', function () {
                 beforeEach(function () {
-                    expectedHttpRequest = $http.expectGET('http://host/api/customer');
+                    expectedHttpRequest = $http.expectGET('http://host/api/customer', expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
                 });
 
                 it('unauthenticated', function () {
@@ -164,7 +191,9 @@
             describe('update billing profile', function () {
                 beforeEach(function () {
                     request = {vat: 'BE1234567890'};
-                    expectedHttpRequest = $http.expectPOST('http://host/api/customer', {vat: 'BE1234567890'});
+                    expectedHttpRequest = $http.expectPOST('http://host/api/customer', {vat: 'BE1234567890'}, expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
                 });
 
                 it('unauthenticated', function () {
@@ -184,7 +213,9 @@
 
             describe('fetch addresses', function () {
                 beforeEach(function () {
-                    expectedHttpRequest = $http.expectGET('http://host/api/query/customer-address/listByPrincipal');
+                    expectedHttpRequest = $http.expectGET('http://host/api/query/customer-address/listByPrincipal', expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
                 });
 
                 it('unauthenticated', function () {
@@ -205,7 +236,9 @@
             describe('add address', function () {
                 beforeEach(function () {
                     request = 'address';
-                    expectedHttpRequest = $http.expectPUT('http://host/api/entity/customer-address', 'address');
+                    expectedHttpRequest = $http.expectPUT('http://host/api/entity/customer-address', 'address', expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
                 });
 
                 it('unauthenticated', function () {
@@ -236,7 +269,9 @@
                     expectedHttpRequest = $http.expectPOST('http://host/api/entity/customer-address', {
                         context: 'update',
                         label: 'l'
-                    });
+                    }, expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
                 });
 
                 it('unauthenticated', function () {
@@ -273,10 +308,9 @@
                         items: [
                             {id: 'i'}
                         ]
-                    }, function (headers) {
-                        return true;
-                        // return headers['Accept-Language'] == '???'; // TODO - can we find a nice way to expose the chosen language?
-                    });
+                    }, expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
                 });
 
                 it('success', function () {
@@ -300,10 +334,9 @@
                         items: [
                             {id: 'i'}
                         ]
-                    }, function (headers) {
-                        return true;
-                        // return headers['Accept-Language'] == '???'; // TODO - can we find a nice way to expose the chosen language?
-                    });
+                    }, expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
                 });
 
                 it('rejected', function () {
@@ -328,10 +361,9 @@
                     };
                     expectedHttpRequest = $http.expectPUT('http://host/api/entity/purchase-order', {
                         provider: 'p'
-                    }, function (headers) {
-                        return true;
-                        // return headers['Accept-Language'] == '???'; // TODO - can we find a nice way to expose the chosen language?
-                    });
+                    }, expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
                 });
 
                 it('success', function () {
@@ -358,10 +390,9 @@
                     expectedHttpRequest = $http.expectPOST('http://host/api/purchase-order-payment/i/approve', {
                         id: 'i',
                         token: 'p'
-                    }, function (headers) {
-                        return true;
-                        // return headers['Accept-Language'] == '???'; // TODO - can we find a nice way to expose the chosen language?
-                    });
+                    }, expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
                 });
 
                 it('success', function () {
@@ -433,6 +464,7 @@
         }]);
 
     angular.module('binartajs-rest-angular1-spec', [
+        'binarta-applicationjs-angular1',
         'binarta-applicationjs-rest-angular1',
         'binarta-checkpointjs-rest-angular1',
         'binarta-shopjs-rest-angular1'

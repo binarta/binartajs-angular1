@@ -7,7 +7,8 @@
     function proxy(gateway) {
         return function () {
             this.gateway = gateway;
-            this.$get = ['config', 'restServiceHandler', '$http', function (config, rest, $http) {
+            this.$get = ['binarta', 'config', 'restServiceHandler', '$http', function (binarta, config, rest, $http) {
+                this.gateway.binarta = binarta;
                 this.gateway.config = config;
                 this.gateway.rest = rest;
                 this.gateway.$http = $http;
@@ -30,6 +31,7 @@
             self.$http({
                 method: 'PUT',
                 url: self.config.baseUri + 'api/accounts',
+                headers: {'Accept-Language': self.binarta.application.locale()},
                 data: request
             }).then(response.success, toErrorResponse(response));
         };
@@ -39,6 +41,7 @@
             self.$http({
                 method: 'POST',
                 url: self.config.baseUri + 'api/checkpoint',
+                headers: {'Accept-Language': self.binarta.application.locale()},
                 data: request,
                 withCredentials: true
             }).then(response.success, response.rejected);

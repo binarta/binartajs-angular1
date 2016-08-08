@@ -7,7 +7,8 @@
     function proxy(gateway) {
         return function () {
             this.gateway = gateway;
-            this.$get = ['config', 'restServiceHandler', '$http', function (config, rest, $http) {
+            this.$get = ['binarta', 'config', 'restServiceHandler', '$http', function (binarta, config, rest, $http) {
+                this.gateway.binarta = binarta;
                 this.gateway.config = config;
                 this.gateway.rest = rest;
                 this.gateway.$http = $http;
@@ -39,7 +40,8 @@
             self.$http({
                 method: 'GET',
                 url: self.config.baseUri + 'api/customer',
-                withCredentials: true
+                withCredentials: true,
+                headers: {'Accept-Language': self.binarta.application.locale()}
             }).then(function (it) {
                 response.success(it.data);
             }, toErrorResponse(response));
@@ -50,6 +52,7 @@
                 method: 'POST',
                 url: self.config.baseUri + 'api/customer',
                 withCredentials: true,
+                headers: {'Accept-Language': self.binarta.application.locale()},
                 data: request
             }).then(response.success, toErrorResponse(response));
         };
@@ -58,7 +61,8 @@
             self.$http({
                 method: 'GET',
                 url: self.config.baseUri + 'api/query/customer-address/listByPrincipal',
-                withCredentials: true
+                withCredentials: true,
+                headers: {'Accept-Language': self.binarta.application.locale()}
             }).then(function (it) {
                 response.success(it.data);
             }, toErrorResponse(response));
@@ -69,6 +73,7 @@
                 method: 'PUT',
                 url: self.config.baseUri + 'api/entity/customer-address',
                 withCredentials: true,
+                headers: {'Accept-Language': self.binarta.application.locale()},
                 data: request
             }).then(response.success, toErrorResponse(response));
         };
@@ -79,6 +84,7 @@
                 method: 'POST',
                 url: self.config.baseUri + 'api/entity/customer-address',
                 withCredentials: true,
+                headers: {'Accept-Language': self.binarta.application.locale()},
                 data: request
             }).then(response.success, toErrorResponse(response));
         };
@@ -89,6 +95,7 @@
                 method: 'POST',
                 url: self.config.baseUri + 'api/echo/purchase-order',
                 withCredentials: true,
+                headers: {'Accept-Language': self.binarta.application.locale()},
                 data: request
             }).then(function (it) {
                 response.success(it.data);
@@ -102,6 +109,7 @@
                 method: 'POST',
                 url: self.config.baseUri + 'api/validate/purchase-order',
                 withCredentials: true,
+                headers: {'Accept-Language': self.binarta.application.locale()},
                 data: request
             }).then(response.success, toErrorResponse(response));
         };
@@ -111,6 +119,7 @@
                 method: 'PUT',
                 url: self.config.baseUri + 'api/entity/purchase-order',
                 withCredentials: true,
+                headers: {'Accept-Language': self.binarta.application.locale()},
                 data: request
             }).then(toSuccessResponse(response), toErrorResponse(response));
         };
@@ -120,6 +129,7 @@
                 method: 'POST',
                 url: self.config.baseUri + 'api/purchase-order-payment/' + request.id + '/approve',
                 withCredentials: true,
+                headers: {'Accept-Language': self.binarta.application.locale()},
                 data: request
             }).then(response.success, toErrorResponse(response));
         };
