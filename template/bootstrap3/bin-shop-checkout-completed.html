@@ -1,4 +1,29 @@
-<div ng-init="checkout.$onInit()">
-    <h1>Checkout: {{checkout.status()}}</h1>
-    <bin-checkout-roadmap></bin-checkout-roadmap>
+<div class="bin-shop" ng-init="checkout.$onInit()">
+    <div class="container">
+        <div class="row">
+            <h1>Checkout: {{checkout.status()}}</h1>
+            <bin-checkout-roadmap></bin-checkout-roadmap>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+                <div class="bin-status-visual">
+                    <span ng-show="working"><i class="fa fa-spinner fa-spin"></i></span>
+                    <span ng-hide="working || violations['payment']"><i class="fa fa-check"></i></span>
+                    <span ng-hide="working || !violations['payment']"><i class="fa fa-times"></i></span>
+                </div>
+                <h3 class="bin-status-visual-title" ng-if="!(working || violations['payment'])"
+                    i18n code="shop.order.finalizing.confirmed.title" read-only ng-bind="::var">
+                </h3>
+                <h3 class="bin-status-visual-title" ng-if="!working && violations['payment']"
+                    i18n code="shop.order.finalizing.rejected.title" read-only ng-bind="::var">
+                </h3>
+
+                <div ng-repeat="v in violations['payment']">
+                    <div class="alert" ng-class="v.level == 'Warning' ? 'alert-warning' : 'alert-danger'">
+                        <i class="fa fa-exclamation-triangle fa-fw"></i> {{v.code}}: {{::v.description}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
