@@ -967,9 +967,10 @@
                     $ctrl.onConfirmed = jasmine.createSpy('on-confirmed');
                 }));
 
-                it('given an order with approval url when controller is initialised then visit approval url', inject(function ($window) {
+                it('given an order with approval url when controller is initialised then visit approval url', inject(function ($window, $timeout) {
                     $ctrl.order = {approvalUrl: 'approval-url'};
                     $ctrl.$onInit();
+                    $timeout.flush();
                     expect($window.location).toEqual('approval-url');
                     expect($ctrl.onConfirmed).not.toHaveBeenCalled();
                 }));

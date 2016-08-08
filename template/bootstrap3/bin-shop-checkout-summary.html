@@ -34,7 +34,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row" ng-repeat="v in violations.provider" ng-show="violations.provider && v.code == 'insufficient.funds.available'">
+            <div class="row" ng-repeat="v in checkout.violationReport().transaction" ng-show="checkout.violationReport().transaction && v.code == 'insufficient.funds.available'">
                 <div class="col-xs-12 col-md-10 col-md-offset-1">
                     <div class="panel panel-danger">
                         <div class="panel-heading" i18n code="order.summary.insufficient.funds.available" default="insufficient.funds.available" read-only ng-bind="::var">

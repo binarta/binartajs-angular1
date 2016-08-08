@@ -16,7 +16,7 @@
         .component('binCheckoutRoadmap', new CheckoutRoadmapComponent())
         .controller('CheckoutRoadmapController', ['binarta', CheckoutRoadmapController])
         .component('binPay', new PaymentComponent())
-        .controller('BinartaPaymentController', ['binarta', '$window', '$routeParams', PaymentController])
+        .controller('BinartaPaymentController', ['$window', '$routeParams', '$timeout', PaymentController])
         .component('binSetupPaymentProvider', new SetupPaymentProviderComponent())
         .controller('SetupPaymentProviderController', ['binarta', '$location', SetupPaymentProviderController])
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
@@ -349,14 +349,16 @@
         this.templateUrl = 'bin-shop-payment.html';
     }
 
-    function PaymentController(binarta, $window, $routeParams) {
+    function PaymentController($window, $routeParams, $timeout) {
         var $ctrl = this;
 
         $ctrl.$onInit = function () {
             if ($routeParams.token)
                 $ctrl.onConfirmed($routeParams);
             else
-                $window.location = $ctrl.order.approvalUrl;
+                $timeout(function() {
+                    $window.location = $ctrl.order.approvalUrl;
+                }, 3000);
         }
     }
 
