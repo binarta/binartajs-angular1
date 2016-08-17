@@ -129,13 +129,13 @@
                         expect(ctrl.mode).toEqual('registration');
                     });
 
-                    it('switching to registration mode resets input', function() {
-                        ctrl.email  = 'e';
-                        ctrl.username  = 'u';
-                        ctrl.password  = 'p';
-                        ctrl.company  = 'c';
-                        ctrl.vat  = 'v';
-                        ctrl.captcha  = 'c';
+                    it('switching to registration mode resets input', function () {
+                        ctrl.email = 'e';
+                        ctrl.username = 'u';
+                        ctrl.password = 'p';
+                        ctrl.company = 'c';
+                        ctrl.vat = 'v';
+                        ctrl.captcha = 'c';
 
                         ctrl.switchToRegistrationMode();
 
@@ -188,13 +188,13 @@
                         expect(ctrl.mode).toEqual('signin');
                     });
 
-                    it('switching to signin mode resets input', function() {
-                        ctrl.email  = 'e';
-                        ctrl.username  = 'u';
-                        ctrl.password  = 'p';
-                        ctrl.company  = 'c';
-                        ctrl.vat  = 'v';
-                        ctrl.captcha  = 'c';
+                    it('switching to signin mode resets input', function () {
+                        ctrl.email = 'e';
+                        ctrl.username = 'u';
+                        ctrl.password = 'p';
+                        ctrl.company = 'c';
+                        ctrl.vat = 'v';
+                        ctrl.captcha = 'c';
 
                         ctrl.switchToSigninMode();
 
@@ -323,12 +323,24 @@
                     });
                 });
 
-                describe('on summary step', function() {
-                    beforeEach(function() {
+                it('on address selection step addresses can be preselected', inject(function ($controller, $rootScope) {
+                    binarta.shop.checkout.start({
+                        billing: {label: 'b', addressee: 'a'},
+                        shipping: {label: 's', addressee: 'a'}
+                    }, ['address-selection', 'completed']);
+
+                    var ctrl = $controller('CheckoutController', {$scope: $rootScope.$new()});
+
+                    expect(ctrl.addresses.billing).toEqual({label: 'b', addressee: 'a'});
+                    expect(ctrl.addresses.shipping).toEqual({label: 's', addressee: 'a'});
+                }));
+
+                describe('on summary step', function () {
+                    beforeEach(function () {
                         binarta.shop.checkout.start({}, ['summary', 'completed']);
                     });
 
-                    it('expose payment provider', function() {
+                    it('expose payment provider', function () {
                         expect(ctrl.getPaymentProvider()).toEqual('wire-transfer');
                     });
 
@@ -543,7 +555,7 @@
                             expect(binarta.shop.basket.toOrder().items.length).toEqual(0);
                         });
 
-                        it('when basket is cleared previewed contents are updated', function() {
+                        it('when basket is cleared previewed contents are updated', function () {
                             binarta.shop.basket.clear();
                             expect(ctrl.preview.quantity).toEqual(0);
                         });
@@ -803,6 +815,34 @@
                     expect(ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
                 });
 
+                it('when an undefined initial address is specified', function () {
+                    ctrl.initialAddress = undefined;
+                    ctrl.$onInit();
+                    expect(ctrl.onSelect).not.toHaveBeenCalled();
+                });
+
+                it('when a known initial address is specified', function () {
+                    ctrl.initialAddress = {label: 'home'};
+                    ctrl.$onInit();
+                    expect(ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
+                });
+
+                it('when the initial address matches the default then changes to the default change the selection', function () {
+                    ctrl.default = {label: 'home'};
+                    ctrl.initialAddress = {label: 'home'};
+                    ctrl.$onInit();
+                    ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
+                    expect(ctrl.label).toEqual('work');
+                });
+
+                it('when the initial address does not match the default then changes to the default are ignored', function () {
+                    ctrl.default = {label: 'work'};
+                    ctrl.initialAddress = {label: 'home'};
+                    ctrl.$onInit();
+                    ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
+                    expect(ctrl.label).toEqual('home');
+                });
+
                 describe('when a specific address is selected', function () {
                     beforeEach(function () {
                         ctrl.select('home');
@@ -905,7 +945,7 @@
                     });
                 });
 
-                it('cancel new address has no effect when profile is in editing mode but this controller did not cause it', function() {
+                it('cancel new address has no effect when profile is in editing mode but this controller did not cause it', function () {
                     binarta.checkpoint.profile.edit();
                     ctrl.cancelNewAddress();
                     expect(ctrl.profileStatus()).toEqual('editing');
@@ -976,7 +1016,7 @@
                     expect($ctrl.onSelect).toHaveBeenCalledWith('payment-method');
                 });
 
-                it('specify a default payment method', function() {
+                it('specify a default payment method', function () {
                     $ctrl.default = 'payment-method';
                     $ctrl.$onInit();
                     expect($ctrl.onSelect).toHaveBeenCalledWith('payment-method');

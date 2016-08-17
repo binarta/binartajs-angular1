@@ -116,7 +116,8 @@
             onSelect: '<',
             default: '<',
             label: '@',
-            generateLabel: '@'
+            generateLabel: '@',
+            initialAddress: '<'
         };
         this.controller = 'BinartaAddressController';
         this.templateUrl = 'bin-shop-address.html';
@@ -130,6 +131,8 @@
         this.$onInit = function () {
             if ($ctrl.default && $ctrl.default.label)
                 $ctrl.select($ctrl.default.label);
+            if ($ctrl.initialAddress)
+                $ctrl.select($ctrl.initialAddress.label);
         };
 
         this.$onChanges = function (args) {
@@ -263,8 +266,8 @@
     function PaymentMethodsController(binarta) {
         var $ctrl = this;
 
-        $ctrl.$onInit = function() {
-            if($ctrl.default) {
+        $ctrl.$onInit = function () {
+            if ($ctrl.default) {
                 $ctrl.paymentProvider = $ctrl.default;
                 $ctrl.select();
             }
@@ -458,15 +461,24 @@
 
     function InstallAddressSelectionSupport(binarta, decorator) {
         decorator.add(function (ctrl) {
+            var isAwaitingSelection = true;
+            var order = binarta.shop.checkout.context().order;
+
             ctrl.addresses = {};
+            if (order && order.billing)
+                ctrl.addresses.billing = order.billing;
+            if (order && order.shipping)
+                ctrl.addresses.shipping = order.shipping;
+
             ctrl.setBillingAddress = function (it) {
                 ctrl.addresses.billing = it;
+                isAwaitingSelection = false;
             };
             ctrl.setShippingAddress = function (it) {
                 ctrl.addresses.shipping = it;
             };
             ctrl.isAwaitingSelection = function () {
-                return !ctrl.addresses.billing;
+                return isAwaitingSelection;
             };
             ctrl.selectAddresses = function () {
                 binarta.shop.checkout.selectAddresses(ctrl.addresses);
@@ -486,7 +498,7 @@
                 return binarta.shop.checkout.violationReport();
             };
 
-            ctrl.getPaymentProvider = function() {
+            ctrl.getPaymentProvider = function () {
                 return binarta.shop.checkout.getPaymentProvider();
             };
 
