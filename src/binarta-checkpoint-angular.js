@@ -59,7 +59,7 @@
                 }, self.listener);
             };
             self.status = binarta.checkpoint.signinForm.status;
-            self.violationReport = emptyViolationReport;
+            self.violationReport = binarta.checkpoint.signinForm.violation;
         };
 
         this.switchToRegistrationMode = function () {

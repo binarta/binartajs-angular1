@@ -97,6 +97,7 @@
                         ctrl.password = '-';
                         ctrl.submit();
                         expect(ctrl.status()).toEqual('rejected');
+                        expect(ctrl.violationReport()).toEqual('credentials.mismatch');
                     });
 
                     it('then form submission with valid credentials is accepted', function () {

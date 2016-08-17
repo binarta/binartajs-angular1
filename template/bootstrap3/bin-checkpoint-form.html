@@ -1,4 +1,3 @@
-{{$ctrl.status()}}
 <form class="bin-checkpoint-form" ng-submit="$ctrl.submit()" ng-if="$ctrl.mode == 'signin'">
     <div class="form-group">
         <i class="fa fa-user addon"></i>
@@ -11,18 +10,13 @@
         <input type="password" id="binPassword" class="form-control" placeholder="{{::passwordLabel}}" ng-model="$ctrl.password" required>
     </div>
     <p class="text-danger" ng-if="$ctrl.status() == 'rejected'">
-        <span i18n code="checkpoint.{{::checkpoint.violation}}" default="{{::checkpoint.violation}}" read-only>{{::var}}</span>
+        <span i18n code="checkpoint.{{::$ctrl.violationReport()}}" default="{{::$ctrl.violationReport()}}" read-only>{{::var}}</span>
     </p>
 
-    <button type="submit" class="btn btn-lg btn-primary btn-block" i18n code="checkpoint.login.submit" read-only>{{::var}}</button> - {{$ctrl.status()}}
+    <button type="submit" class="btn btn-lg btn-primary btn-block" i18n code="checkpoint.login.submit" read-only>{{::var}}</button>
     <% if(shop) { %>
-    <div ng-controller="ViewBasketController">
-        <!--<div ng-if="quantity > 0">-->
-            <hr>
-            <!--<a ng-href="#!{{::localePrefix}}/register" class="btn btn-lg btn-default btn-block" i18n code="checkpoint.create.account.link" read-only>{{::var}}</a>-->
-            <button type="button" ng-click="$ctrl.switchToRegistrationMode()" class="btn btn-lg btn-default btn-block" i18n code="checkpoint.create.account.link" read-only>{{::var}}</button>
-        <!--</div>-->
-    </div>
+        <hr>
+        <button type="button" ng-click="$ctrl.switchToRegistrationMode()" class="btn btn-lg btn-default btn-block" i18n code="checkpoint.create.account.link" read-only>{{::var}}</button>
     <% } %>
 
     <div class="links">
@@ -33,7 +27,6 @@
 </form>
 
 <% if(shop) { %>
-{{$ctrl.violationReport()}}
 <form class="bin-checkpoint-form" ng-submit="$ctrl.submit()" name="registrationForm"  ng-if="$ctrl.mode == 'registration'">
     <div class="form-group" ng-class="{'has-error': $ctrl.violationReport().email}">
         <i class="fa fa-envelope-o addon"></i>
@@ -96,6 +89,8 @@
         <small class="help-block" i18n code="checkpoint.register.terms.agreement" read-only>
             <i class="fa fa-info-circle fa-fw"></i> {{::var}}
         </small>
+        <hr>
+        <button type="button" ng-click="$ctrl.switchToSigninMode()" class="btn btn-lg btn-default btn-block" i18n code="checkpoint.login.link" read-only>{{::var}}</button>
     </div>
 </form>
 <% } %>
