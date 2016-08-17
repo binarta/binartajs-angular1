@@ -55,6 +55,14 @@
         </div>
     </div>
     <div class="container" ng-if="$ctrl.mode == 'detailed'">
+        <div class="row" ng-if="$ctrl.preview.items.length == 0">
+            <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
+                <div class="bin-status-visual">
+                    <i class="fa fa-shopping-cart"></i>
+                </div>
+                <h3 class="bin-status-visual-title" i18n code="shop.basket.empty.message" read-only ng-bind="::var"></h3>
+            </div>
+        </div>
         <div class="row" ng-if="$ctrl.preview.items.length > 0">
             <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
                 <div class="bin-basket-items" ng-if="$ctrl.viewport.visibleXs()">
