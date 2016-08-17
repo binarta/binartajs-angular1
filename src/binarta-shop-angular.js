@@ -169,8 +169,10 @@
         };
 
         this.cancelNewAddress = function () {
-            binarta.checkpoint.profile.cancel();
-            $ctrl.creatingAddress = false;
+            if($ctrl.creatingAddress) {
+                binarta.checkpoint.profile.cancel();
+                $ctrl.creatingAddress = false;
+            }
         };
 
         this.violationReport = function () {

@@ -894,6 +894,12 @@
                     });
                 });
 
+                it('cancel new address has no effect when profile is in editing mode but this controller did not cause it', function() {
+                    binarta.checkpoint.profile.edit();
+                    ctrl.cancelNewAddress();
+                    expect(ctrl.profileStatus()).toEqual('editing');
+                });
+
                 describe('when entering create a new address mode', function () {
                     beforeEach(function () {
                         ctrl.new();
