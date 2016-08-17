@@ -14,6 +14,8 @@
 
             binarta.checkpoint.profile.signout();
             binarta.shop.basket.clear();
+
+            localStorage.removeItem('binartaJSPaymentProvider');
         }));
 
         it('binarta is initialised promise only resolves when gateways are initialised', inject(function ($rootScope, binartaIsInitialised, binartaGatewaysAreInitialised) {
@@ -321,10 +323,19 @@
                     });
                 });
 
-                it('on summary step set payment provider', function () {
-                    binarta.shop.checkout.start({}, ['summary', 'completed']);
-                    ctrl.setPaymentProvider('payment-provider');
-                    expect(ctrl.order().provider).toEqual('payment-provider');
+                describe('on summary step', function() {
+                    beforeEach(function() {
+                        binarta.shop.checkout.start({}, ['summary', 'completed']);
+                    });
+
+                    it('expose payment provider', function() {
+                        expect(ctrl.getPaymentProvider()).toEqual('wire-transfer');
+                    });
+
+                    it('step set payment provider', function () {
+                        ctrl.setPaymentProvider('payment-provider');
+                        expect(ctrl.order().provider).toEqual('payment-provider');
+                    });
                 });
 
                 it('on summary step order confirmation can be rejected', function () {
@@ -962,6 +973,12 @@
                 it('selecting a payment method', function () {
                     $ctrl.paymentProvider = 'payment-method';
                     $ctrl.select();
+                    expect($ctrl.onSelect).toHaveBeenCalledWith('payment-method');
+                });
+
+                it('specify a default payment method', function() {
+                    $ctrl.default = 'payment-method';
+                    $ctrl.$onInit();
                     expect($ctrl.onSelect).toHaveBeenCalledWith('payment-method');
                 });
             });

@@ -1,7 +1,7 @@
 <div ng-init="checkout.$onInit()">
     <h1>Checkout: {{checkout.status()}}</h1>
     <bin-checkout-roadmap></bin-checkout-roadmap>
-    <div class="bin-shop" ng-init="checkout.setPaymentProvider('wire-transfer')">
+    <div class="bin-shop">
         <div class="container">
             <div class="row">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
@@ -21,7 +21,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
-                    <bin-payment-methods on-select="checkout.setPaymentProvider"></bin-payment-methods>
+                    <bin-payment-methods on-select="checkout.setPaymentProvider" default="checkout.getPaymentProvider()"></bin-payment-methods>
                 </div>
             </div>
             <div class="row">

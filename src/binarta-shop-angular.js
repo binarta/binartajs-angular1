@@ -159,7 +159,7 @@
             $ctrl.creatingAddress = true;
         };
 
-        this.isCreatingAddress = function() {
+        this.isCreatingAddress = function () {
             return $ctrl.creatingAddress && ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection') && ($ctrl.profileStatus() == 'editing' || $ctrl.profileStatus() == 'working');
         };
 
@@ -169,7 +169,7 @@
         };
 
         this.cancelNewAddress = function () {
-            if($ctrl.creatingAddress) {
+            if ($ctrl.creatingAddress) {
                 binarta.checkpoint.profile.cancel();
                 $ctrl.creatingAddress = false;
             }
@@ -253,7 +253,8 @@
 
     function PaymentMethodsComponent() {
         this.bindings = {
-            onSelect: '<'
+            onSelect: '<',
+            default: '<'
         };
         this.controller = 'BinartaPaymentMethodsController';
         this.templateUrl = 'bin-shop-payment-methods.html';
@@ -261,6 +262,13 @@
 
     function PaymentMethodsController(binarta) {
         var $ctrl = this;
+
+        $ctrl.$onInit = function() {
+            if($ctrl.default) {
+                $ctrl.paymentProvider = $ctrl.default;
+                $ctrl.select();
+            }
+        };
 
         $ctrl.availablePaymentMethods = function () {
             return binarta.application.profile().availablePaymentMethods;
@@ -358,7 +366,7 @@
             if ($routeParams.token)
                 $ctrl.onConfirmed($routeParams);
             else
-                $timeout(function() {
+                $timeout(function () {
                     $window.location = $ctrl.order.approvalUrl;
                 }, 3000);
         }
@@ -476,6 +484,10 @@
 
             ctrl.violationReport = function () {
                 return binarta.shop.checkout.violationReport();
+            };
+
+            ctrl.getPaymentProvider = function() {
+                return binarta.shop.checkout.getPaymentProvider();
             };
 
             ctrl.setPaymentProvider = function (provider) {
