@@ -318,7 +318,7 @@
 
         this.start = function (replace) {
             if (self.status() != 'idle')
-                i18nLocation.path('/checkout/' + self.status());
+                i18nLocation.url('/checkout/' + self.status());
             if (replace)
                 $location.replace();
         };
@@ -356,7 +356,8 @@
         this.bindings = {
             provider: '@',
             order: '<',
-            onConfirmed: '<'
+            onConfirmed: '<',
+            onCanceled: '<'
         };
         this.controller = 'BinartaPaymentController';
         this.templateUrl = 'bin-shop-payment.html';
@@ -368,8 +369,12 @@
         $ctrl.$onInit = function () {
             if ($routeParams.token)
                 $ctrl.onConfirmed($routeParams);
-            else
+            else if (sessionStorage.binartaJSAwaitingConfirmationWithPaymentProvider) {
+                sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
+                $ctrl.onCanceled();
+            } else
                 $timeout(function () {
+                    sessionStorage.setItem('binartaJSAwaitingConfirmationWithPaymentProvider', 'yes');
                     $window.location = $ctrl.order.approvalUrl;
                 }, 3000);
         }
@@ -530,6 +535,12 @@
                     $location.search({});
                     $location.replace();
                 });
+            };
+
+            $ctrl.cancelPayment = function () {
+                binarta.shop.checkout.cancelPayment(function () {
+                    $ctrl.start();
+                });
             }
         });
     }
@@ -571,7 +582,8 @@
             })
             .when('/checkout/payment', {
                 templateUrl: 'bin-shop-checkout-payment.html',
-                controller: 'CheckoutController as $ctrl'
+                controller: 'CheckoutController as $ctrl',
+                reloadOnSearch: false
             })
             .when('/checkout/completed', {
                 templateUrl: 'bin-shop-checkout-completed.html',

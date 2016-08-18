@@ -381,6 +381,36 @@
                 });
             });
 
+            describe('cancel order', function () {
+                beforeEach(function () {
+                    request = {
+                        id: 'i'
+                    };
+                    expectedHttpRequest = $http.expectPOST('http://host/api/entity/purchase-order', {
+                        context:'updateStatusAsCustomer',
+                        id:'i',
+                        status: 'canceled',
+                        treatInputAsId:true
+                    }, expectHeaders([
+                        expectHeader('Accept-Language', binarta.application.locale())
+                    ]));
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.cancelOrder(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violation-report');
+                    gateway.cancelOrder(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violation-report');
+                });
+            });
+
             describe('confirm payment', function () {
                 beforeEach(function () {
                     request = {

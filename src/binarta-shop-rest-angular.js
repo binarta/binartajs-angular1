@@ -124,6 +124,21 @@
             }).then(toSuccessResponse(response), toErrorResponse(response));
         };
 
+        this.cancelOrder = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/entity/purchase-order',
+                withCredentials: true,
+                headers: {'Accept-Language': self.binarta.application.locale()},
+                data: {
+                    context: 'updateStatusAsCustomer',
+                    id: request.id,
+                    status: 'canceled',
+                    treatInputAsId: true
+                }
+            }).then(toSuccessResponse(response), toErrorResponse(response));
+        };
+
         this.confirmPayment = function (request, response) {
             self.$http({
                 method: 'POST',

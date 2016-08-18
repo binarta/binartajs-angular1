@@ -16,6 +16,7 @@
             binarta.shop.basket.clear();
 
             localStorage.removeItem('binartaJSPaymentProvider');
+            sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
         }));
 
         it('binarta is initialised promise only resolves when gateways are initialised', inject(function ($rootScope, binartaIsInitialised, binartaGatewaysAreInitialised) {
@@ -396,6 +397,15 @@
                     expect(ctrl.status()).toEqual('completed');
                     expect($location.path()).toEqual('/checkout/completed');
                     expect($location.search()).toEqual({});
+                });
+
+                it('on payment step cancel the payment', function() {
+                    binarta.shop.checkout.start({}, ['payment', 'completed']);
+
+                    ctrl.cancelPayment();
+
+                    expect(ctrl.status()).toEqual('summary');
+                    expect($location.path()).toEqual('/checkout/summary');
                 });
             });
 
@@ -1029,15 +1039,45 @@
                 beforeEach(inject(function ($controller) {
                     $ctrl = $controller('BinartaPaymentController');
                     $ctrl.onConfirmed = jasmine.createSpy('on-confirmed');
+                    $ctrl.onCanceled = jasmine.createSpy('on-canceled');
                 }));
 
-                it('given an order with approval url when controller is initialised then visit approval url', inject(function ($window, $timeout) {
-                    $ctrl.order = {approvalUrl: 'approval-url'};
-                    $ctrl.$onInit();
-                    $timeout.flush();
-                    expect($window.location).toEqual('approval-url');
-                    expect($ctrl.onConfirmed).not.toHaveBeenCalled();
-                }));
+                describe('given an order with approval url when controller is initialised', function() {
+                    beforeEach(inject(function($timeout) {
+                        $ctrl.order = {approvalUrl: 'approval-url'};
+                        $ctrl.$onInit();
+                        $timeout.flush();
+                    }));
+
+                    it('then visit approval url', inject(function ($window) {
+                        expect($window.location).toEqual('approval-url');
+                    }));
+
+                    it('then on confirmed listener is not yet invoked', function () {
+                        expect($ctrl.onConfirmed).not.toHaveBeenCalled();
+                    });
+
+                    describe('and reinitialised', function() {
+                        beforeEach(inject(function($window) {
+                            $window.location = undefined;
+                            $ctrl.$onInit();
+                        }));
+
+                        it('then the payment is canceled', function() {
+                            expect($ctrl.onCanceled).toHaveBeenCalled();
+                        });
+
+                        it('then the user is not redirected to the approval url', inject(function($timeout) {
+                            $timeout.verifyNoPendingTasks();
+                        }));
+
+                        it('and reinitialised again then visit the approval url', inject(function($timeout, $window) {
+                            $ctrl.$onInit();
+                            $timeout.flush();
+                            expect($window.location).toEqual('approval-url');
+                        }));
+                    });
+                });
 
                 it('given a token as route parameter when controller is initialised then confirm payment', inject(function ($routeParams) {
                     $routeParams.token = 't';
