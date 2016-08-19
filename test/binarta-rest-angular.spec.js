@@ -106,6 +106,19 @@
                 });
             });
 
+            describe('signout', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectDELETE('http://host/api/checkpoint');
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.signout(response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+            });
+
             describe('register', function () {
                 beforeEach(function () {
                     request = {

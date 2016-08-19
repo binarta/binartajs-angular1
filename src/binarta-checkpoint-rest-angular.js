@@ -25,7 +25,7 @@
 
     function CheckpointGateway() {
         var self = this;
-        
+
         this.register = function (request, response) {
             request.namespace = this.config.namespace;
             self.$http({
@@ -45,6 +45,14 @@
                 data: request,
                 withCredentials: true
             }).then(response.success, response.rejected);
+        };
+
+        this.signout = function (response) {
+            self.$http({
+                method: 'DELETE',
+                url: self.config.baseUri + 'api/checkpoint',
+                withCredentials: true
+            }).then(response.unauthenticated);
         };
 
         this.fetchAccountMetadata = function (response) {
