@@ -44,14 +44,8 @@
                     {{::var}}
                 </th>
                 <td>
-                    <span class="item-price" ng-bind="::item.presentablePrice"></span>
+                    <span class="item-price" ng-bind="::item.presentableTotal"></span>
                 </td>
-            </tr>
-            <tr ng-if="item.quantity > 1">
-                <th i18n code="shop.item.total.label" read-only>
-                    {{::var}}
-                </th>
-                <td ng-bind="item.presentableSubTotal"></td>
             </tr>
             </tbody>
         </table>
