@@ -1,5 +1,4 @@
 <div ng-init="checkout.$onInit()">
-    <h1>Checkout: {{checkout.status()}}</h1>
-    <bin-checkout-roadmap></bin-checkout-roadmap>
+    <bin-checkout-header sub-title-key="shop.checkout.setup.payment.provider"></bin-checkout-header>
     <bin-setup-payment-provider provider="paypal-classic" method="billing-agreement" on-confirmed="checkout.retry"></bin-setup-payment-provider>
 </div>

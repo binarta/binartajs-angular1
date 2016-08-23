@@ -13,6 +13,8 @@
         .controller('BinartaPaymentMethodsController', ['binarta', PaymentMethodsController])
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
         .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', '$scope', CheckoutController])
+        .component('binCheckoutHeader', new CheckoutHeaderComponent())
+        .controller('CheckoutHeaderController', ['binarta', CheckoutHeaderController])
         .component('binCheckoutRoadmap', new CheckoutRoadmapComponent())
         .controller('CheckoutRoadmapController', ['binarta', CheckoutRoadmapController])
         .component('binPay', new PaymentComponent())
@@ -331,6 +333,9 @@
             return cache.order;
         };
 
+        this.hasPreviousStep = binarta.shop.checkout.hasPreviousStep;
+        this.previousStep = binarta.shop.checkout.previousStep;
+
         function EventListener($location) {
             this.goto = function (step) {
                 $location.path('/checkout/' + self.status());
@@ -338,9 +343,20 @@
         }
     }
 
+    function CheckoutHeaderComponent() {
+        this.bindings = {
+            subTitleKey: '@'
+        };
+        this.controller = 'CheckoutHeaderController';
+        this.templateUrl = 'bin-shop-checkout-header.html'
+    }
+
     function CheckoutRoadmapComponent() {
         this.controller = 'CheckoutRoadmapController';
         this.templateUrl = 'bin-shop-checkout-roadmap.html';
+    }
+    
+    function CheckoutHeaderController() {
     }
 
     function CheckoutRoadmapController(binarta) {
@@ -605,7 +621,7 @@
             })
             .when('/:locale/checkout/summary', {
                 templateUrl: 'bin-shop-checkout-summary.html',
-                controller: 'CheckoutController as checkout'
+                controller: 'CheckoutController as $ctrl'
             })
             .when('/:locale/checkout/setup-payment-provider', {
                 templateUrl: 'bin-shop-checkout-setup-payment-provider.html',

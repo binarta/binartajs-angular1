@@ -1,6 +1,5 @@
-<div ng-init="checkout.$onInit()">
-    <h1>Checkout: {{checkout.status()}}</h1>
-    <bin-checkout-roadmap></bin-checkout-roadmap>
+<div ng-init="$ctrl.$onInit()">
+    <bin-checkout-header sub-title-key="shop.summary.title"></bin-checkout-header>
     <div class="bin-shop">
         <div class="container">
             <div class="row">
@@ -10,18 +9,18 @@
             </div>
             <div class="row">
                 <div class="col-xs-12 col-sm-5 col-sm-offset-1 col-lg-4 col-lg-offset-2">
-                    <bin-address purpose="billing" label="{{::checkout.order().billing.label}}"></bin-address>
+                    <bin-address purpose="billing" label="{{::$ctrl.order().billing.label}}"></bin-address>
                 </div>
                 <div class="col-xs-12 col-sm-5 col-lg-4">
-                    <bin-address purpose="shipping" label="{{::checkout.order().shipping.label}}"></bin-address>
+                    <bin-address purpose="shipping" label="{{::$ctrl.order().shipping.label}}"></bin-address>
                 </div>
             </div>
             <div class="row">
-                <bin-basket mode="summary" order="checkout.order()"></bin-basket>
+                <bin-basket mode="summary" order="$ctrl.order()"></bin-basket>
             </div>
             <div class="row">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
-                    <bin-payment-methods on-select="checkout.setPaymentProvider" default="checkout.getPaymentProvider()"></bin-payment-methods>
+                    <bin-payment-methods on-select="$ctrl.setPaymentProvider" default="$ctrl.getPaymentProvider()"></bin-payment-methods>
                 </div>
             </div>
             <div class="row">
@@ -34,7 +33,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row" ng-repeat="v in checkout.violationReport().transaction" ng-show="checkout.violationReport().transaction && v.code == 'insufficient.funds.available'">
+            <div class="row" ng-repeat="v in $ctrl.violationReport().transaction" ng-show="$ctrl.violationReport().transaction && v.code == 'insufficient.funds.available'">
                 <div class="col-xs-12 col-md-10 col-md-offset-1">
                     <div class="panel panel-danger">
                         <div class="panel-heading" i18n code="order.summary.insufficient.funds.available" default="insufficient.funds.available" read-only ng-bind="::var">
@@ -45,13 +44,12 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
                     <hr>
-                    <a ng-href="#!{{localePrefix}}/checkout/address" class="btn btn-default"
-                       i18n code="shop.back.button" read-only>
+                    <a ng-if="$ctrl.hasPreviousStep()" ng-href="#!{{localePrefix}}/checkout/{{$ctrl.previousStep()}}" class="btn btn-default" i18n code="shop.back.button" read-only>
                         <i class="fa fa-caret-left fa-fw"></i> {{::var}}
                     </a>
 
                     <button class="btn btn-success pull-right" i18n code="shop.confirm.button" read-only
-                            ng-click="checkout.confirm()">
+                            ng-click="$ctrl.confirm()">
                             <!--ng-disabled="working || ppoc.form.termsAndConditions == 'rejected'">-->
                         <span ng-hide="working"><i class="fa fa-check fa-fw"></i></span>
                         <span ng-show="working"><i class="fa fa-spinner fa-spin fa-fw"></i></span>

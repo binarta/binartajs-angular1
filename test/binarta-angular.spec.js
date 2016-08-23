@@ -407,6 +407,13 @@
                     expect(ctrl.status()).toEqual('summary');
                     expect($location.path()).toEqual('/checkout/summary');
                 });
+
+                it('expose previous step details', function() {
+                    binarta.shop.checkout.start({}, ['summary', 'payment', 'completed']);
+                    binarta.shop.checkout.next();
+                    expect(ctrl.hasPreviousStep()).toBeTruthy();
+                    expect(ctrl.previousStep()).toEqual('summary');
+                });
             });
 
             describe('CheckoutRoadmapController', function () {
