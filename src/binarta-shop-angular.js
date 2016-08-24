@@ -57,7 +57,8 @@
     }
 
     function BinartaBasketController(binarta, viewport, $location) {
-        var eventListener = new BasketEventListener();
+        var profileEventListener = new ProfileEventListener();
+        var basketEventListener = new BasketEventListener();
         var self = this;
 
         this.viewport = viewport;
@@ -65,19 +66,20 @@
 
         this.$onInit = function () {
             if (['summary', 'detailed', 'link', 'minimal-link'].indexOf(self.mode) > -1) {
-                if (self.mode == 'summary')
-                    binarta.shop.previewOrder(this.order, function (order) {
-                        self.preview = order;
-                    });
+                if (self.mode == 'summary') {
+                    binarta.checkpoint.profile.eventRegistry.add(profileEventListener);
+                    refreshFromPreview();
+                }
                 if (['detailed', 'link', 'minimal-link'].indexOf(self.mode) > -1) {
-                    binarta.shop.basket.eventRegistry.add(eventListener);
+                    binarta.shop.basket.eventRegistry.add(basketEventListener);
                     refreshFromBasket();
                 }
             }
         };
 
         this.$onDestroy = function () {
-            binarta.shop.basket.eventRegistry.remove(eventListener);
+            binarta.checkpoint.profile.eventRegistry.remove(profileEventListener);
+            binarta.shop.basket.eventRegistry.remove(basketEventListener);
         };
 
         this.addToBasket = function () {
@@ -106,8 +108,18 @@
             this.cleared = refreshFromBasket;
         }
 
+        function ProfileEventListener() {
+            this.updated = refreshFromPreview;
+        }
+
         function refreshFromBasket() {
             self.preview = binarta.shop.basket.toOrder();
+        }
+
+        function refreshFromPreview() {
+            binarta.shop.previewOrder(self.order, function (order) {
+                self.preview = order;
+            });
         }
     }
 
@@ -590,7 +602,7 @@
             })
             .when('/checkout/summary', {
                 templateUrl: 'bin-shop-checkout-summary.html',
-                controller: 'CheckoutController as checkout'
+                controller: 'CheckoutController as $ctrl'
             })
             .when('/checkout/setup-payment-provider', {
                 templateUrl: 'bin-shop-checkout-setup-payment-provider.html',
