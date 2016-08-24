@@ -416,6 +416,25 @@
                 });
             });
 
+            describe('CheckoutHeaderController', function() {
+                var $ctrl;
+
+                beforeEach(inject(function($controller) {
+                    $ctrl = $controller('CheckoutHeaderController');
+                }));
+
+                it('titles are not inverted by default', function() {
+                    $ctrl.$onInit();
+                    expect($ctrl.inverted).toBeFalsy();
+                });
+
+                it('titles can be inverted by setting the inverted header titles flage on binarta', function() {
+                    binarta.invertedHeaderTitles = true;
+                    $ctrl.$onInit();
+                    expect($ctrl.inverted).toBeTruthy();
+                });
+            });
+
             describe('CheckoutRoadmapController', function () {
                 var ctrl;
 

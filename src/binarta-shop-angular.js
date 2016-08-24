@@ -363,12 +363,15 @@
         this.templateUrl = 'bin-shop-checkout-header.html'
     }
 
+    function CheckoutHeaderController(binarta) {
+        this.$onInit = function() {
+            this.inverted = binarta.invertedHeaderTitles;
+        }
+    }
+
     function CheckoutRoadmapComponent() {
         this.controller = 'CheckoutRoadmapController';
         this.templateUrl = 'bin-shop-checkout-roadmap.html';
-    }
-    
-    function CheckoutHeaderController() {
     }
 
     function CheckoutRoadmapController(binarta) {
