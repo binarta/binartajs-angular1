@@ -1,6 +1,6 @@
 <div ng-init="$ctrl.$onInit()">
     <bin-checkout-header sub-title-key="shop.checkout.payment"></bin-checkout-header>
-    <div class="container">
+    <div class="container bin-checkout-body">
         <div class="row">
             <bin-pay ng-if="$ctrl.order().provider != 'wire-transfer'" provider="paypal-classic" order="$ctrl.order()" on-confirmed="$ctrl.confirmPayment" on-canceled="$ctrl.cancelPayment"></bin-pay>
             <div ng-if="$ctrl.order().provider == 'wire-transfer'">
