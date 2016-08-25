@@ -14,7 +14,6 @@
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
         .controller('CheckoutController', ['binarta', 'CheckoutController.decorator', 'i18nLocation', '$location', '$scope', CheckoutController])
         .component('binCheckoutHeader', new CheckoutHeaderComponent())
-        .controller('CheckoutHeaderController', ['binarta', CheckoutHeaderController])
         .component('binCheckoutRoadmap', new CheckoutRoadmapComponent())
         .controller('CheckoutRoadmapController', ['binarta', CheckoutRoadmapController])
         .component('binPay', new PaymentComponent())
@@ -359,14 +358,7 @@
         this.bindings = {
             subTitleKey: '@'
         };
-        this.controller = 'CheckoutHeaderController';
         this.templateUrl = 'bin-shop-checkout-header.html'
-    }
-
-    function CheckoutHeaderController(binarta) {
-        this.$onInit = function() {
-            this.inverted = binarta.invertedHeaderTitles;
-        }
     }
 
     function CheckoutRoadmapComponent() {

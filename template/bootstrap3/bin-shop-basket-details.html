@@ -1,21 +1,2 @@
-<div class="page-header-wrapper">
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="page-header">
-                    <h1 i18n code="shop.basket.title" read-only ng-bind="::var"></h1>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<section id="breadcrumb">
-    <div class="container">
-        <div class="row">
-            <ol class="breadcrumb" ng-if="!viewport.xs">
-                <li i18n code="shop.basket.title" read-only ng-bind="::var"></li>
-            </ol>
-        </div>
-    </div>
-</section>
+<bin-content-header title-key="shop.basket.title" sub-title-key="shop.basket.title"></bin-content-header>
 <bin-basket class="bin-basket-panel" mode="detailed"></bin-basket>

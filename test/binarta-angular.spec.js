@@ -29,6 +29,25 @@
             expect(initialisedBinarta).toEqual(binarta);
         }));
 
+        describe('ContentHeaderController', function() {
+            var $ctrl;
+
+            beforeEach(inject(function($controller) {
+                $ctrl = $controller('ContentHeaderController');
+            }));
+
+            it('titles are not inverted by default', function() {
+                $ctrl.$onInit();
+                expect($ctrl.inverted).toBeFalsy();
+            });
+
+            it('titles can be inverted by setting the inverted header titles flage on binarta', function() {
+                binarta.invertedHeaderTitles = true;
+                $ctrl.$onInit();
+                expect($ctrl.inverted).toBeTruthy();
+            });
+        });
+
         describe('binarta-applicationjs-angular1', function () {
             var $rootScope, binartaApplicationIsInitialised, binartaGatewaysAreInitialised;
             var isApplicationInitialisedListener;
@@ -413,25 +432,6 @@
                     binarta.shop.checkout.next();
                     expect(ctrl.hasPreviousStep()).toBeTruthy();
                     expect(ctrl.previousStep()).toEqual('summary');
-                });
-            });
-
-            describe('CheckoutHeaderController', function() {
-                var $ctrl;
-
-                beforeEach(inject(function($controller) {
-                    $ctrl = $controller('CheckoutHeaderController');
-                }));
-
-                it('titles are not inverted by default', function() {
-                    $ctrl.$onInit();
-                    expect($ctrl.inverted).toBeFalsy();
-                });
-
-                it('titles can be inverted by setting the inverted header titles flage on binarta', function() {
-                    binarta.invertedHeaderTitles = true;
-                    $ctrl.$onInit();
-                    expect($ctrl.inverted).toBeTruthy();
                 });
             });
 

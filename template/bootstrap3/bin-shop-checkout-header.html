@@ -1,8 +1,1 @@
-<div ng-if="!$ctrl.inverted">
-    <div ng-include="'bin-shop-checkout-header-title.html'"></div>
-    <div ng-include="'bin-shop-checkout-header-subtitle.html'"></div>
-</div>
-<div ng-if="$ctrl.inverted">
-    <div ng-include="'bin-shop-checkout-header-subtitle.html'"></div>
-    <div ng-include="'bin-shop-checkout-header-title.html'"></div>
-</div>
+<bin-content-header title-key="shop.checkout.title" sub-title-key="{{::$ctrl.subTitleKey}}"></bin-content-header>
