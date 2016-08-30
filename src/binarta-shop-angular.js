@@ -6,7 +6,7 @@
     ])
         .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', ShopProvider])
         .component('binBasket', new BasketComponent())
-        .controller('BinartaBasketController', ['binarta', 'viewport', 'i18nLocation', BinartaBasketController])
+        .controller('BinartaBasketController', ['binarta', 'viewport', 'i18nLocation', '$timeout', BinartaBasketController])
         .component('binAddress', new AddressComponent())
         .controller('BinartaAddressController', ['binarta', BinartaAddressController])
         .component('binPaymentMethods', new PaymentMethodsComponent())
@@ -55,7 +55,7 @@
         this.templateUrl = 'bin-shop-basket.html';
     }
 
-    function BinartaBasketController(binarta, viewport, $location) {
+    function BinartaBasketController(binarta, viewport, $location, $timeout) {
         var profileEventListener = new ProfileEventListener();
         var basketEventListener = new BasketEventListener();
         var self = this;
@@ -64,12 +64,12 @@
         this.quantity = 1;
 
         this.$onInit = function () {
-            if (['summary', 'detailed', 'link', 'minimal-link'].indexOf(self.mode) > -1) {
+            if (['summary', 'detailed', 'link', 'minimal-link', 'add-to-basket-button'].indexOf(self.mode) > -1) {
                 if (self.mode == 'summary') {
                     binarta.checkpoint.profile.eventRegistry.add(profileEventListener);
                     refreshFromPreview();
                 }
-                if (['detailed', 'link', 'minimal-link'].indexOf(self.mode) > -1) {
+                if (['detailed', 'link', 'minimal-link', 'add-to-basket-button'].indexOf(self.mode) > -1) {
                     binarta.shop.basket.eventRegistry.add(basketEventListener);
                     refreshFromBasket();
                 }
@@ -101,7 +101,15 @@
         };
 
         function BasketEventListener() {
-            this.itemAdded = refreshFromBasket;
+            this.itemAdded = function() {
+                if(self.mode == 'add-to-basket-button') {
+                    self.itemAdded = true;
+                    $timeout(function() {
+                        self.itemAdded = false
+                    }, 1000);
+                }
+                refreshFromBasket();
+            };
             this.itemUpdated = refreshFromBasket;
             this.itemRemoved = refreshFromBasket;
             this.cleared = refreshFromBasket;

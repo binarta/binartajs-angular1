@@ -613,9 +613,9 @@
                         ctrl.$onInit();
                     });
 
-                    it('$onInit does not install a basket event listener', function () {
-                        expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
-                    });
+                    // it('$onInit does not install a basket event listener', function () {
+                    //     expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
+                    // });
 
                     describe('when adding an item to the basket', function () {
                         var ctrl2;
@@ -638,6 +638,15 @@
                         it('other basket controllers reflect the addition', function () {
                             expect(ctrl2.preview.quantity).toEqual(1);
                         });
+
+                        it('then expose item added flag', function() {
+                            expect(ctrl.itemAdded).toBeTruthy();
+                        });
+
+                        it('when flushing timeout then item added flag is reset', inject(function($timeout) {
+                            $timeout.flush();
+                            expect(ctrl.itemAdded).toBeFalsy();
+                        }));
                     });
                 });
             });

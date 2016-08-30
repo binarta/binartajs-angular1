@@ -3,10 +3,15 @@
     <i class="fa fa-shopping-cart fa-fw"></i>
     ({{$ctrl.preview.quantity}}) <span ng-if="$ctrl.mode == 'link'">{{$ctrl.preview.presentablePrice}}</span>
 </a>
-<button class="btn btn-success" ng-if="$ctrl.mode == 'add-to-basket-button'"
-        ng-click="$ctrl.addToBasket()" i18n code="catalog.item.add.to.basket.button" read-only>
-    <i class="fa fa-shopping-cart fa-fw"></i> {{var}}
-</button>
+<div ng-if="$ctrl.mode == 'add-to-basket-button'">
+    <button class="btn btn-success" ng-hide="$ctrl.itemAdded"
+            ng-click="$ctrl.addToBasket()" i18n code="catalog.item.add.to.basket.button" read-only>
+        <i class="fa fa-shopping-cart fa-fw"></i> {{var}}
+    </button>
+    <button class="btn btn-success" ng-show="$ctrl.itemAdded" i18n code="catalog.item.add.to.basket.button.success" read-only disabled>
+        <i class="fa fa-shopping-cart fa-fw"></i> {{var}}
+    </button>
+</div>
 <div class="container" ng-if="$ctrl.mode == 'summary'">
     <div class="row">
         <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
