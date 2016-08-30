@@ -145,15 +145,22 @@
     }
 
     function BinartaAddressController(binarta) {
+        var profileEventListener = new ProfileEventListener(this);
         var $ctrl = this;
 
         this.mode = 'display';
 
         this.$onInit = function () {
+            binarta.checkpoint.profile.eventRegistry.add(profileEventListener);
+
             if ($ctrl.default && $ctrl.default.label)
                 $ctrl.select($ctrl.default.label);
             if ($ctrl.initialAddress)
                 $ctrl.select($ctrl.initialAddress.label);
+        };
+
+        this.$onDestroy = function() {
+            binarta.checkpoint.profile.eventRegistry.remove(profileEventListener);
         };
 
         this.$onChanges = function (args) {
@@ -188,8 +195,8 @@
         };
 
         this.create = function () {
+            $ctrl.awaitingAddressCreation = true;
             binarta.checkpoint.profile.update();
-            $ctrl.creatingAddress = false;
         };
 
         this.cancelNewAddress = function () {
@@ -272,6 +279,16 @@
                     return 'awaiting-selection';
                 }
             });
+        }
+
+        function ProfileEventListener($ctrl) {
+            this.updated = function() {
+                if($ctrl.awaitingAddressCreation) {
+                    $ctrl.select($ctrl.form.label);
+                    $ctrl.creatingAddress = false;
+                    $ctrl.awaitingAddressCreation = false;
+                }
+            }
         }
     }
 

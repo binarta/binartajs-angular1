@@ -998,6 +998,7 @@
 
                 describe('when entering create a new address mode', function () {
                     beforeEach(function () {
+                        ctrl.$onInit();
                         ctrl.new();
                     });
 
@@ -1009,20 +1010,33 @@
                         expect(ctrl.form).toEqual(binarta.checkpoint.profile.updateRequest().address);
                     });
 
-                    it('when creating a new address then the address is added to the profile', function () {
-                        ctrl.form.label = 'work';
-                        ctrl.form.addressee = 'John Doe';
-                        ctrl.form.street = 'Johny Lane';
-                        ctrl.form.number = '1';
-                        ctrl.form.zip = '1000';
-                        ctrl.form.city = 'Johnyville';
-                        ctrl.form.country = 'BE';
+                    describe('when creating a new address', function() {
+                        var ctrl2;
 
-                        ctrl.create();
+                        beforeEach(inject(function($controller) {
+                            ctrl2 = $controller('BinartaAddressController');
+                            ctrl2.$onInit();
 
-                        expect(binarta.checkpoint.profile.addresses().map(function (it) {
-                            return it.label
-                        })).toEqual(['home', 'work']);
+                            ctrl.form.label = 'work';
+                            ctrl.form.addressee = 'John Doe';
+                            ctrl.form.street = 'Johny Lane';
+                            ctrl.form.number = '1';
+                            ctrl.form.zip = '1000';
+                            ctrl.form.city = 'Johnyville';
+                            ctrl.form.country = 'BE';
+
+                            ctrl.create();
+                        }));
+
+                        it('then the address is added to the profile', function() {
+                            expect(binarta.checkpoint.profile.addresses().map(function (it) {
+                                return it.label
+                            })).toEqual(['home', 'work']);
+                        });
+
+                        it('then the newly created address is selected', function() {
+                            expect(ctrl.label).toEqual('work');
+                        });
                     });
 
                     it('when create address is rejected then expose the violation report', function () {
