@@ -1,7 +1,7 @@
 <div class="panel panel-default panel-profile">
     <div class="panel-heading" i18n code="profile.panel.title" read-only>
         <i class="fa fa-user fa-fw"></i> {{::var}}
-        <button ng-if="$ctrl.status() == 'idle'" ng-click="$ctrl.edit()">edit</button>
+        <button class="btn" ng-if="$ctrl.status() == 'idle'" ng-click="$ctrl.edit()">edit</button>
     </div>
     <div class="panel-body" ng-if="$ctrl.status() == 'idle'">
         <label i18n code="customer.profile.email.label" read-only>{{::var}}</label>
