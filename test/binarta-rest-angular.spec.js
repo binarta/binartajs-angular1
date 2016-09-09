@@ -170,6 +170,27 @@
                     expect(response.unauthenticated).toHaveBeenCalled();
                 });
             });
+
+            describe('fetchPermissions', function () {
+                beforeEach(function () {
+                    request = {
+                        principal: 'p'
+                    };
+                    expectedHttpRequest = $http.expectPOST('http://host/api/query/permission/list', {
+                        filters: {
+                            namespace: 'n',
+                            owner: 'p'
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'permissions');
+                    gateway.fetchPermissions(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('permissions');
+                });
+            })
         });
 
         describe('shop gateway', function () {
@@ -400,10 +421,10 @@
                         id: 'i'
                     };
                     expectedHttpRequest = $http.expectPOST('http://host/api/entity/purchase-order', {
-                        context:'updateStatusAsCustomer',
-                        id:'i',
+                        context: 'updateStatusAsCustomer',
+                        id: 'i',
                         status: 'canceled',
-                        treatInputAsId:true
+                        treatInputAsId: true
                     }, expectHeaders([
                         expectHeader('Accept-Language', binarta.application.locale())
                     ]));

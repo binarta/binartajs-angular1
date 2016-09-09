@@ -65,6 +65,22 @@
                 response.activeAccountMetadata(it.data)
             }, response.unauthenticated);
         };
+
+        this.fetchPermissions = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/query/permission/list',
+                data: {
+                    filters: {
+                        namespace: self.config.namespace,
+                        owner: request.principal
+                    }
+                },
+                withCredentials: true
+            }).then(function (it) {
+                response.success(it.data);
+            });
+        }
     }
 
     function GatewayIsInitialisedFactory($q) {
