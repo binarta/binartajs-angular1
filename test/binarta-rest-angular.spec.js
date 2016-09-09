@@ -177,7 +177,7 @@
                         principal: 'p'
                     };
                     expectedHttpRequest = $http.expectPOST('http://host/api/query/permission/list', {
-                        filters: {
+                        filter: {
                             namespace: 'n',
                             owner: 'p'
                         }

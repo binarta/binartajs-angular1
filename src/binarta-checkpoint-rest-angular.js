@@ -71,7 +71,7 @@
                 method: 'POST',
                 url: self.config.baseUri + 'api/query/permission/list',
                 data: {
-                    filters: {
+                    filter: {
                         namespace: self.config.namespace,
                         owner: request.principal
                     }
