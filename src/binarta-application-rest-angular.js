@@ -32,7 +32,7 @@
         this.fetchSectionData = function(request, response) {
             gateway.$http({
                 method: 'GET',
-                url: gateway.config.baseUri + 'api/usecase?h.usecase=adhesive.stream&h.locale=' + gateway.binarta.application.locale() + '&p.namespace=' + gateway.config.namespace + '&p.section=' + request.id
+                url: gateway.config.baseUri + 'api/usecase?h.usecase=adhesive.reading.stream&h.locale=' + gateway.binarta.application.locale() + '&p.namespace=' + gateway.config.namespace + '&p.section=' + request.id
             }).then(function(it) {
                 response.success(it.data);
             });
