@@ -65,6 +65,20 @@
                     expect(response.success).toHaveBeenCalledWith('application-profile');
                 });
             });
+
+            describe('fetchSectionData', function () {
+                beforeEach(function () {
+                    request = {id:'s'};
+                    expectedHttpRequest = $http.expectGET('http://host/api/usecase?h.usecase=adhesive.stream&h.locale=en&p.namespace=n&p.section=s');
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'stream');
+                    gateway.fetchSectionData(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('stream');
+                });
+            });
         });
 
         describe('checkpoint gateway', function () {
