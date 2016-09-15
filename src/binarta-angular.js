@@ -2,7 +2,8 @@
     angular.module('binartajs-angular1', [])
         .provider('binarta', [BinartaProvider])
         .factory('binartaGatewaysAreInitialised', ['$q', GatewaysAreInitialisedFactory])
-        .factory('binartaIsInitialised', ['$q', 'binarta', 'binartaGatewaysAreInitialised', IsInitialisedFactory])
+        .factory('binartaConfigIsInitialised', ['$q', 'binartaGatewaysAreInitialised', ConfigIsInitialisedFactory])
+        .factory('binartaIsInitialised', ['$q', 'binarta', 'binartaGatewaysAreInitialised', 'binartaConfigIsInitialised', IsInitialisedFactory])
         .component('binContentHeader', new ContentHeaderComponent())
         .controller('ContentHeaderController', ['binarta', ContentHeaderController]);
 
@@ -22,7 +23,12 @@
         return $q.defer();
     }
 
-    function IsInitialisedFactory($q, binarta, gatewaysAreInitialised) {
+    function ConfigIsInitialisedFactory($q, gatewaysAreInitialised) {
+        var d = $q.defer();
+        return {resolve:d.resolve, promise:$q.all([gatewaysAreInitialised.promise, d.promise])};
+    }
+
+    function IsInitialisedFactory($q, binarta, gatewaysAreInitialised, configIsInitialised) {
         var d = $q.defer();
         $q.all([gatewaysAreInitialised.promise]).then(function () {
             d.resolve(binarta);

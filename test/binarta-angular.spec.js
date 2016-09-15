@@ -19,15 +19,48 @@
             sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
         }));
 
-        it('binarta is initialised promise only resolves when gateways are initialised', inject(function ($rootScope, binartaIsInitialised, binartaGatewaysAreInitialised) {
-            var initialisedBinarta;
-            binartaGatewaysAreInitialised.resolve();
-            binartaIsInitialised.then(function (binarta) {
-                initialisedBinarta = binarta;
+        describe('binarta is initialised promise', function() {
+            var initialisedBinarta, $rootScope, binartaIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
+
+            beforeEach(inject(function(_$rootScope_, _binartaIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_) {
+                $rootScope = _$rootScope_;
+                binartaIsInitialised = _binartaIsInitialised_;
+                binartaGatewaysAreInitialised = _binartaGatewaysAreInitialised_;
+                binartaConfigIsInitialised = _binartaConfigIsInitialised_;
+
+                binartaIsInitialised.then(function (binarta) {
+                    initialisedBinarta = binarta;
+                });
+            }));
+
+            // TODO - uncomment once app modules resolve config promise
+            // it('does not resolve when only gateways are initialised', function () {
+            //     binartaGatewaysAreInitialised.resolve();
+            //     $rootScope.$digest();
+            //     expect(initialisedBinarta).toBeUndefined();
+            // });
+
+            it('does not resolve when only config are initialised', function () {
+                binartaConfigIsInitialised.resolve();
+                $rootScope.$digest();
+                expect(initialisedBinarta).toBeUndefined();
             });
-            $rootScope.$digest();
-            expect(initialisedBinarta).toEqual(binarta);
-        }));
+
+            it('resolves when gateways and config are initialised', function () {
+                binartaGatewaysAreInitialised.resolve();
+                binartaConfigIsInitialised.resolve();
+                $rootScope.$digest();
+                expect(initialisedBinarta).toEqual(binarta);
+            });
+
+            it('config is initialised promise does not resolve when gateways are not initialised', function() {
+                var spy = jasmine.createSpy('spy');
+                binartaConfigIsInitialised.promise.then(spy);
+                binartaConfigIsInitialised.resolve();
+                $rootScope.$digest();
+                expect(spy).not.toHaveBeenCalled();
+            });
+        });
 
         describe('ContentHeaderController', function() {
             var $ctrl;
@@ -49,13 +82,14 @@
         });
 
         describe('binarta-applicationjs-angular1', function () {
-            var $rootScope, binartaApplicationIsInitialised, binartaGatewaysAreInitialised;
+            var $rootScope, binartaApplicationIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
             var isApplicationInitialisedListener;
 
-            beforeEach(inject(function (_$rootScope_, _binartaApplicationIsInitialised_, _binartaGatewaysAreInitialised_) {
+            beforeEach(inject(function (_$rootScope_, _binartaApplicationIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_) {
                 $rootScope = _$rootScope_;
                 binartaApplicationIsInitialised = _binartaApplicationIsInitialised_;
                 binartaGatewaysAreInitialised = _binartaGatewaysAreInitialised_;
+                binartaConfigIsInitialised = _binartaConfigIsInitialised_;
 
                 isApplicationInitialisedListener = jasmine.createSpy('is-application-initialised');
                 binartaApplicationIsInitialised.then(isApplicationInitialisedListener);
@@ -65,8 +99,9 @@
                 expect(isApplicationInitialisedListener).not.toHaveBeenCalled();
             });
 
-            it('when binarta gateways are initialised the application is also initialised', function () {
+            it('when binarta gateways and config are initialised the application is also initialised', function () {
                 binartaGatewaysAreInitialised.resolve();
+                binartaConfigIsInitialised.resolve();
                 $rootScope.$digest();
                 expect(isApplicationInitialisedListener).toHaveBeenCalled();
             });
