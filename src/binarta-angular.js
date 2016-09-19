@@ -3,6 +3,7 @@
         .provider('binarta', [BinartaProvider])
         .factory('binartaGatewaysAreInitialised', ['$q', GatewaysAreInitialisedFactory])
         .factory('binartaConfigIsInitialised', ['$q', 'binartaGatewaysAreInitialised', ConfigIsInitialisedFactory])
+        .factory('binartaCachesAreInitialised', ['$q', 'binartaConfigIsInitialised', CachesAreInitialisedFactory])
         .factory('binartaIsInitialised', ['$q', 'binarta', 'binartaGatewaysAreInitialised', 'binartaConfigIsInitialised', IsInitialisedFactory])
         .component('binContentHeader', new ContentHeaderComponent())
         .controller('ContentHeaderController', ['binarta', ContentHeaderController]);
@@ -26,6 +27,11 @@
     function ConfigIsInitialisedFactory($q, gatewaysAreInitialised) {
         var d = $q.defer();
         return {resolve:d.resolve, promise:$q.all([gatewaysAreInitialised.promise, d.promise])};
+    }
+
+    function CachesAreInitialisedFactory($q, configIsInitialised) {
+        var d = $q.defer();
+        return {resolve:d.resolve, promise:$q.all([configIsInitialised.promise, d.promise])};
     }
 
     function IsInitialisedFactory($q, binarta, gatewaysAreInitialised, configIsInitialised) {

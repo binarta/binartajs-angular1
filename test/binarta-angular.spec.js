@@ -20,35 +20,45 @@
         }));
 
         describe('binarta is initialised promise', function() {
-            var initialisedBinarta, $rootScope, binartaIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
+            var initialisedBinarta, $rootScope, binartaIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised, binartaCachesAreInitialised;
 
-            beforeEach(inject(function(_$rootScope_, _binartaIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_) {
+            beforeEach(inject(function(_$rootScope_, _binartaIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_, _binartaCachesAreInitialised_) {
                 $rootScope = _$rootScope_;
                 binartaIsInitialised = _binartaIsInitialised_;
                 binartaGatewaysAreInitialised = _binartaGatewaysAreInitialised_;
                 binartaConfigIsInitialised = _binartaConfigIsInitialised_;
+                binartaCachesAreInitialised = _binartaCachesAreInitialised_;
 
                 binartaIsInitialised.then(function (binarta) {
                     initialisedBinarta = binarta;
                 });
             }));
 
-            // TODO - uncomment once app modules resolve config promise
+            // TODO - uncomment once app modules resolve config and caches promise
             // it('does not resolve when only gateways are initialised', function () {
             //     binartaGatewaysAreInitialised.resolve();
             //     $rootScope.$digest();
             //     expect(initialisedBinarta).toBeUndefined();
             // });
 
-            it('does not resolve when only config are initialised', function () {
+            it('does not resolve when only config is initialised', function () {
                 binartaConfigIsInitialised.resolve();
                 $rootScope.$digest();
                 expect(initialisedBinarta).toBeUndefined();
             });
 
-            it('resolves when gateways and config are initialised', function () {
+            // TODO - uncomment once app modules resolve config and caches promise
+            // it('does not resolve when only gateways and config are initialised', function () {
+            //     binartaGatewaysAreInitialised.resolve();
+            //     binartaConfigIsInitialised.resolve();
+            //     $rootScope.$digest();
+            //     expect(initialisedBinarta).toBeUndefined();
+            // });
+
+            it('resolves when gateways and config and caches are initialised', function () {
                 binartaGatewaysAreInitialised.resolve();
                 binartaConfigIsInitialised.resolve();
+                binartaCachesAreInitialised.resolve();
                 $rootScope.$digest();
                 expect(initialisedBinarta).toEqual(binarta);
             });
@@ -57,6 +67,23 @@
                 var spy = jasmine.createSpy('spy');
                 binartaConfigIsInitialised.promise.then(spy);
                 binartaConfigIsInitialised.resolve();
+                $rootScope.$digest();
+                expect(spy).not.toHaveBeenCalled();
+            });
+
+            it('caches are initialised promise does not resolve when gateways are not initialised', function() {
+                var spy = jasmine.createSpy('spy');
+                binartaCachesAreInitialised.promise.then(spy);
+                binartaCachesAreInitialised.resolve();
+                $rootScope.$digest();
+                expect(spy).not.toHaveBeenCalled();
+            });
+
+            it('caches are initialised promise does not resolve when config is not initialised', function() {
+                var spy = jasmine.createSpy('spy');
+                binartaCachesAreInitialised.promise.then(spy);
+                binartaGatewaysAreInitialised.resolve();
+                binartaCachesAreInitialised.resolve();
                 $rootScope.$digest();
                 expect(spy).not.toHaveBeenCalled();
             });
