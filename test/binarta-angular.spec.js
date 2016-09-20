@@ -34,12 +34,11 @@
                 });
             }));
 
-            // TODO - uncomment once app modules resolve config and caches promise
-            // it('does not resolve when only gateways are initialised', function () {
-            //     binartaGatewaysAreInitialised.resolve();
-            //     $rootScope.$digest();
-            //     expect(initialisedBinarta).toBeUndefined();
-            // });
+            it('does not resolve when only gateways are initialised', function () {
+                binartaGatewaysAreInitialised.resolve();
+                $rootScope.$digest();
+                expect(initialisedBinarta).toBeUndefined();
+            });
 
             it('does not resolve when only config is initialised', function () {
                 binartaConfigIsInitialised.resolve();
@@ -47,13 +46,12 @@
                 expect(initialisedBinarta).toBeUndefined();
             });
 
-            // TODO - uncomment once app modules resolve config and caches promise
-            // it('does not resolve when only gateways and config are initialised', function () {
-            //     binartaGatewaysAreInitialised.resolve();
-            //     binartaConfigIsInitialised.resolve();
-            //     $rootScope.$digest();
-            //     expect(initialisedBinarta).toBeUndefined();
-            // });
+            it('does not resolve when only gateways and config are initialised', function () {
+                binartaGatewaysAreInitialised.resolve();
+                binartaConfigIsInitialised.resolve();
+                $rootScope.$digest();
+                expect(initialisedBinarta).toBeUndefined();
+            });
 
             it('resolves when gateways and config and caches are initialised', function () {
                 binartaGatewaysAreInitialised.resolve();
