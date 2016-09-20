@@ -8,14 +8,17 @@
         .config(['binartaProvider', 'applicationProvider', ExtendBinarta])
         .factory('binartaApplicationConfigIsInitialised.deferred', ['$q', IsInitialisedDeferredFactory])
         .factory('binartaApplicationCachesAreInitialised.deferred', ['$q', IsInitialisedDeferredFactory])
+        .factory('binartaApplicationIsInitialised.deferred', ['$q', IsInitialisedDeferredFactory])
         .factory('binartaApplicationConfigIsInitialised', ['binartaApplicationConfigIsInitialised.deferred', IsConfigInitialisedFactory])
         .factory('binartaApplicationCachesAreInitialised', ['binartaApplicationCachesAreInitialised.deferred', AreCachesInitialisedFactory])
+        .factory('binartaApplicationIsInitialised', ['binartaApplicationIsInitialised.deferred', IsApplicationInitialisedFactory])
         .run(['application', WireAngularDependencies])
         .run([
             'binartaGatewaysAreInitialised',
             'binartaConfigIsInitialised',
             'binartaApplicationConfigIsInitialised.deferred',
             'binartaApplicationCachesAreInitialised.deferred',
+            'binartaApplicationIsInitialised.deferred',
             'application',
             InitCaches
         ]);
@@ -42,9 +45,12 @@
     function WireAngularDependencies() {
     }
 
-    function InitCaches(gatewaysAreInitialised, configIsInitialised, configD, cachesD, application) {
+    function InitCaches(gatewaysAreInitialised, configIsInitialised, configD, cachesD, applicationD, application) {
         gatewaysAreInitialised.promise.then(function() {
-            application.refresh(configD.resolve);
+            application.refresh(function() {
+                configD.resolve();
+                applicationD.resolve();
+            });
         });
 
         configIsInitialised.promise.then(cachesD.resolve);
@@ -62,6 +68,10 @@
     }
 
     function AreCachesInitialisedFactory(d) {
+        return d.promise;
+    }
+
+    function IsApplicationInitialisedFactory(d) {
         return d.promise;
     }
 })();
