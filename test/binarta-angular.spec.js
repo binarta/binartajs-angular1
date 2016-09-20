@@ -109,28 +109,42 @@
         });
 
         describe('binarta-applicationjs-angular1', function () {
-            var $rootScope, binartaApplicationIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
-            var isApplicationInitialisedListener;
+            var $rootScope, binartaApplicationConfigIsInitialised, binartaApplicationCachesAreInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
+            var isApplicationConfigInitialisedListener, areApplicationCachesInitialisedListener;
 
-            beforeEach(inject(function (_$rootScope_, _binartaApplicationIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_) {
+            beforeEach(inject(function (_$rootScope_, _binartaApplicationConfigIsInitialised_, _binartaApplicationCachesAreInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_) {
                 $rootScope = _$rootScope_;
-                binartaApplicationIsInitialised = _binartaApplicationIsInitialised_;
+                binartaApplicationConfigIsInitialised = _binartaApplicationConfigIsInitialised_;
+                binartaApplicationCachesAreInitialised = _binartaApplicationCachesAreInitialised_;
                 binartaGatewaysAreInitialised = _binartaGatewaysAreInitialised_;
                 binartaConfigIsInitialised = _binartaConfigIsInitialised_;
 
-                isApplicationInitialisedListener = jasmine.createSpy('is-application-initialised');
-                binartaApplicationIsInitialised.then(isApplicationInitialisedListener);
+                isApplicationConfigInitialisedListener = jasmine.createSpy('is-application-config-initialised');
+                binartaApplicationConfigIsInitialised.then(isApplicationConfigInitialisedListener);
+
+                areApplicationCachesInitialisedListener = jasmine.createSpy('are-application-caches-initialised');
+                binartaApplicationCachesAreInitialised.then(areApplicationCachesInitialisedListener);
             }));
 
-            it('application is not initialised before the binarta gateways are initialised', function () {
-                expect(isApplicationInitialisedListener).not.toHaveBeenCalled();
+            it('application config is not initialised before the binarta gateways are initialised', function () {
+                expect(isApplicationConfigInitialisedListener).not.toHaveBeenCalled();
             });
 
-            it('when binarta gateways and config are initialised the application is also initialised', function () {
+            it('when binarta gateways are initialised then application config is also initialised', function () {
+                binartaGatewaysAreInitialised.resolve();
+                $rootScope.$digest();
+                expect(isApplicationConfigInitialisedListener).toHaveBeenCalled();
+            });
+
+            it('application caches are not initialised before the binarta config is initialised', function () {
+                expect(areApplicationCachesInitialisedListener).not.toHaveBeenCalled();
+            });
+
+            it('when binarta gateways and config are initialised then application caches are also initialised', function () {
                 binartaGatewaysAreInitialised.resolve();
                 binartaConfigIsInitialised.resolve();
                 $rootScope.$digest();
-                expect(isApplicationInitialisedListener).toHaveBeenCalled();
+                expect(areApplicationCachesInitialisedListener).toHaveBeenCalled();
             });
         });
 

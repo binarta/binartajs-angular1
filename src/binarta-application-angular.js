@@ -6,10 +6,19 @@
     ])
         .provider('application', ['binartaApplicationGatewayProvider', ApplicationProvider])
         .config(['binartaProvider', 'applicationProvider', ExtendBinarta])
-        .factory('binartaApplicationIsInitialised.deferred', ['$q', IsInitialisedDeferredFactory])
-        .factory('binartaApplicationIsInitialised', ['binartaApplicationIsInitialised.deferred', IsInitialisedFactory])
+        .factory('binartaApplicationConfigIsInitialised.deferred', ['$q', IsInitialisedDeferredFactory])
+        .factory('binartaApplicationCachesAreInitialised.deferred', ['$q', IsInitialisedDeferredFactory])
+        .factory('binartaApplicationConfigIsInitialised', ['binartaApplicationConfigIsInitialised.deferred', IsConfigInitialisedFactory])
+        .factory('binartaApplicationCachesAreInitialised', ['binartaApplicationCachesAreInitialised.deferred', AreCachesInitialisedFactory])
         .run(['application', WireAngularDependencies])
-        .run(['binartaIsInitialised', 'binartaApplicationIsInitialised.deferred', 'application', InitCaches]);
+        .run([
+            'binartaGatewaysAreInitialised',
+            'binartaConfigIsInitialised',
+            'binartaApplicationConfigIsInitialised.deferred',
+            'binartaApplicationCachesAreInitialised.deferred',
+            'application',
+            InitCaches
+        ]);
 
     function ApplicationProvider(provider) {
         this.application = new BinartaApplicationjs();
@@ -33,20 +42,26 @@
     function WireAngularDependencies() {
     }
 
-    function InitCaches(binartaIsInitialised, d, application) {
-        binartaIsInitialised.then(function() {
-            application.refresh(d.resolve);
+    function InitCaches(gatewaysAreInitialised, configIsInitialised, configD, cachesD, application) {
+        gatewaysAreInitialised.promise.then(function() {
+            application.refresh(configD.resolve);
         });
+
+        configIsInitialised.promise.then(cachesD.resolve);
     }
 
     function IsInitialisedDeferredFactory($q) {
         return $q.defer();
     }
 
-    function IsInitialisedFactory(d) {
+    function IsConfigInitialisedFactory(d) {
         // $q.all([gatewaysAreInitialised.promise]).then(function() {
         //     d.resolve(binarta);
         // });
+        return d.promise;
+    }
+
+    function AreCachesInitialisedFactory(d) {
         return d.promise;
     }
 })();
