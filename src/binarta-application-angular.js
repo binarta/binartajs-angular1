@@ -82,38 +82,39 @@
         }
     }
 
-    function DefaultBinHrefDirective(application) {
+    function DefaultBinHrefDirective(application, attributeName) {
         var directive = this;
 
+        this.attributeName = attributeName || 'binHref';
         this.restrict = 'A';
 
         this.link = function ($scope, els, attrs) {
+            directive.linkWithContext($scope, els, attrs, {});
+        };
+
+        this.linkWithContext = function ($scope, els, attrs, ctx) {
             var a = els[0];
-            if(a.nodeName == 'A') {
-                var listener = new ExternalLocaleListener(a);
+            if (a.nodeName == 'A') {
+                var listener = new ExternalLocaleListener(a, ctx);
                 application.eventRegistry.add(listener);
-                $scope.$on('$destroy', function() {
+                $scope.$on('$destroy', function () {
                     application.eventRegistry.remove(listener);
                 });
-                directive.href = directive.toHref(attrs);
-                directive.locale = application.externalLocale();
-                directive.apply(a);
+                ctx.href = attrs[directive.attributeName];
+                ctx.locale = application.externalLocale();
+                directive.apply(a, ctx);
             } else throw new Error('bin-href attribute is only supported on anchor elements!');
 
-            function ExternalLocaleListener(a) {
-                this.setExternalLocale = function(locale) {
-                    directive.locale = locale;
-                    directive.apply(a);
+            function ExternalLocaleListener(a, ctx) {
+                this.setExternalLocale = function (locale) {
+                    ctx.locale = locale;
+                    directive.apply(a, ctx);
                 }
             }
         };
 
-        this.toHref = function(attrs) {
-            return attrs.binHref;
-        };
-
-        this.apply = function(a) {
-            a.href = '/#!' + (directive.locale ? '/' + directive.locale : '') + directive.href;
+        this.apply = function (a, ctx) {
+            a.href = '/#!' + (ctx.locale ? '/' + ctx.locale : '') + ctx.href;
         }
     }
 
@@ -122,16 +123,13 @@
     }
 
     function BinDhrefDirectiveFactory(application) {
-        var directive = new DefaultBinHrefDirective(application);
-        var superLink = directive.link;
-        directive.link = function($scope, els, attrs) {
-            directive.toHref = function(attrs) {
-                return attrs.binDhref;
-            };
-            superLink($scope, els, attrs);
-            attrs.$observe('binDhref', function(x) {
-                directive.href = x;
-                directive.apply(els[0]);
+        var directive = new DefaultBinHrefDirective(application, 'binDhref');
+        var superLinkWithContext = directive.linkWithContext;
+        directive.linkWithContext = function ($scope, els, attrs, ctx) {
+            superLinkWithContext($scope, els, attrs, ctx);
+            attrs.$observe('binDhref', function (href) {
+                ctx.href = href;
+                directive.apply(els[0], ctx);
             });
         };
         return directive;
