@@ -15,6 +15,7 @@
         .factory('binartaApplicationCachesAreInitialised', ['binartaApplicationCachesAreInitialised.deferred', AreCachesInitialisedFactory])
         .factory('binartaApplicationIsInitialised', ['binartaApplicationIsInitialised.deferred', IsApplicationInitialisedFactory])
         .directive('binHref', ['application', BinHrefDirectiveFactory])
+        .directive('binDhref', ['application', BinDhrefDirectiveFactory])
         .run(['application', WireAngularDependencies])
         .run(['$rootScope', 'application', ResolveExternalLocaleFromRoute])
         .run([
@@ -81,27 +82,59 @@
         }
     }
 
-    function BinHrefDirectiveFactory(application) {
-        return {
-            restrict: 'A',
-            link: function ($scope, els, attrs) {
-                var a = els[0];
-                if(a.nodeName == 'A') {
-                    var listener = new ExternalLocaleListener();
-                    application.eventRegistry.add(listener);
-                    listener.setExternalLocale(application.externalLocale());
-                    $scope.$on('$destroy', function() {
-                        application.eventRegistry.remove(listener);
-                    });
-                } else throw new Error('bin-href attribute is only supported on anchor elements!');
+    function DefaultBinHrefDirective(application) {
+        var directive = this;
 
-                function ExternalLocaleListener() {
-                    this.setExternalLocale = function(locale) {
-                        a.href = '/#!' + (locale ? '/' + locale : '') + attrs.binHref;
-                    }
+        this.restrict = 'A';
+
+        this.link = function ($scope, els, attrs) {
+            var a = els[0];
+            if(a.nodeName == 'A') {
+                var listener = new ExternalLocaleListener(a);
+                application.eventRegistry.add(listener);
+                $scope.$on('$destroy', function() {
+                    application.eventRegistry.remove(listener);
+                });
+                directive.href = directive.toHref(attrs);
+                directive.locale = application.externalLocale();
+                directive.apply(a);
+            } else throw new Error('bin-href attribute is only supported on anchor elements!');
+
+            function ExternalLocaleListener(a) {
+                this.setExternalLocale = function(locale) {
+                    directive.locale = locale;
+                    directive.apply(a);
                 }
             }
         };
+
+        this.toHref = function(attrs) {
+            return attrs.binHref;
+        };
+
+        this.apply = function(a) {
+            a.href = '/#!' + (directive.locale ? '/' + directive.locale : '') + directive.href;
+        }
+    }
+
+    function BinHrefDirectiveFactory(application) {
+        return new DefaultBinHrefDirective(application);
+    }
+
+    function BinDhrefDirectiveFactory(application) {
+        var directive = new DefaultBinHrefDirective(application);
+        var superLink = directive.link;
+        directive.link = function($scope, els, attrs) {
+            directive.toHref = function(attrs) {
+                return attrs.binDhref;
+            };
+            superLink($scope, els, attrs);
+            attrs.$observe('binDhref', function(x) {
+                directive.href = x;
+                directive.apply(els[0]);
+            });
+        };
+        return directive;
     }
 
     function WireAngularDependencies() {

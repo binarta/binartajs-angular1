@@ -243,6 +243,24 @@
                     expectHref(a).toEqual('#!/');
                 });
 
+                it('limited expression support', function() {
+                    a = $compile('<a bin-href="/{{\'x\'}}"></a>')($rootScope.$new())[0];
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/x');
+                });
+
+                it('expression updates do not modify the underlying href', function() {
+                    var $scope = $rootScope.$new();
+                    $scope.x = 'a';
+                    a = $compile('<a bin-href="/{{x}}"></a>')($scope)[0];
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/a');
+
+                    $scope.x = 'b';
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/a');
+                });
+
                 it('prepends hash bang and external local when external locale is specified', function() {
                     binarta.application.setExternalLocale('en');
                     a = $compile('<a bin-href="/"></a>')($rootScope.$new())[0];
@@ -273,11 +291,82 @@
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/');
                 });
-
-                function expectHref(a) {
-                    return expect(a.href.replace(/^http:\/\/[^\/]+\//, ''));
-                }
             });
+
+            describe('<a bin-dhref="?"></a>', function() {
+                var a;
+
+                afterEach(function() {
+                    if(a)
+                        a.remove();
+                });
+
+                it('only applies to anchor elements', function() {
+                    expect(function() {
+                        $compile('<div bin-dhref="/"></div>')($rootScope.$new());
+                        $rootScope.$digest();
+                    }).toThrowError('bin-href attribute is only supported on anchor elements!');
+                });
+
+                it('prepends hash bang when no external locale is specified', function() {
+                    a = $compile('<a bin-dhref="/"></a>')($rootScope.$new())[0];
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/');
+                });
+
+                it('limited expression support', function() {
+                    a = $compile('<a bin-dhref="/{{\'x\'}}"></a>')($rootScope.$new())[0];
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/x');
+                });
+
+                it('expression updates modify the underlying href', function() {
+                    var $scope = $rootScope.$new();
+                    $scope.x = 'a';
+                    a = $compile('<a bin-dhref="/{{x}}"></a>')($scope)[0];
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/a');
+
+                    $scope.x = 'b';
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/b');
+                });
+
+                it('prepends hash bang and external local when external locale is specified', function() {
+                    binarta.application.setExternalLocale('en');
+                    a = $compile('<a bin-dhref="/"></a>')($rootScope.$new())[0];
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/en/');
+                });
+
+                it('when external locale is updated so does the href', function() {
+                    a = $compile('<a bin-dhref="/"></a>')($rootScope.$new())[0];
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/');
+
+                    binarta.application.setExternalLocale('en');
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/en/');
+                });
+
+                it('when $scope is destroyed changes to the external locale are no longer picked up', function() {
+                    var $scope = $rootScope.$new();
+                    a = $compile('<a bin-dhref="/"></a>')($scope)[0];
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/');
+
+                    $scope.$destroy();
+                    $rootScope.$digest();
+
+                    binarta.application.setExternalLocale('en');
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/');
+                });
+            });
+
+            function expectHref(a) {
+                return expect(a.href.replace(/^http:\/\/[^\/]+\//, ''));
+            }
         });
 
         describe('binarta-checkpointjs-angular1', function () {
