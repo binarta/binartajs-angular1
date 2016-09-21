@@ -2,15 +2,17 @@
     var ui;
 
     describe('binartajs-angular', function () {
-        var binarta, $location;
+        var binarta, $compile, $location, $routeParams;
 
         beforeEach(function () {
             ui = new UI();
         });
         beforeEach(module('binartajs-angular1-spec'));
-        beforeEach(inject(function (_binarta_, _$location_) {
+        beforeEach(inject(function (_binarta_, _$compile_, _$location_, _$routeParams_) {
             binarta = _binarta_;
+            $compile = _$compile_;
             $location = _$location_;
+            $routeParams = _$routeParams_;
 
             binarta.checkpoint.profile.signout();
             binarta.shop.basket.clear();
@@ -19,10 +21,10 @@
             sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
         }));
 
-        describe('binarta is initialised promise', function() {
+        describe('binarta is initialised promise', function () {
             var initialisedBinarta, $rootScope, binartaIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised, binartaCachesAreInitialised;
 
-            beforeEach(inject(function(_$rootScope_, _binartaIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_, _binartaCachesAreInitialised_) {
+            beforeEach(inject(function (_$rootScope_, _binartaIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_, _binartaCachesAreInitialised_) {
                 $rootScope = _$rootScope_;
                 binartaIsInitialised = _binartaIsInitialised_;
                 binartaGatewaysAreInitialised = _binartaGatewaysAreInitialised_;
@@ -61,7 +63,7 @@
                 expect(initialisedBinarta).toEqual(binarta);
             });
 
-            it('config is initialised promise does not resolve when gateways are not initialised', function() {
+            it('config is initialised promise does not resolve when gateways are not initialised', function () {
                 var spy = jasmine.createSpy('spy');
                 binartaConfigIsInitialised.promise.then(spy);
                 binartaConfigIsInitialised.resolve();
@@ -69,7 +71,7 @@
                 expect(spy).not.toHaveBeenCalled();
             });
 
-            it('caches are initialised promise does not resolve when gateways are not initialised', function() {
+            it('caches are initialised promise does not resolve when gateways are not initialised', function () {
                 var spy = jasmine.createSpy('spy');
                 binartaCachesAreInitialised.promise.then(spy);
                 binartaCachesAreInitialised.resolve();
@@ -77,7 +79,7 @@
                 expect(spy).not.toHaveBeenCalled();
             });
 
-            it('caches are initialised promise does not resolve when config is not initialised', function() {
+            it('caches are initialised promise does not resolve when config is not initialised', function () {
                 var spy = jasmine.createSpy('spy');
                 binartaCachesAreInitialised.promise.then(spy);
                 binartaGatewaysAreInitialised.resolve();
@@ -87,19 +89,19 @@
             });
         });
 
-        describe('ContentHeaderController', function() {
+        describe('ContentHeaderController', function () {
             var $ctrl;
 
-            beforeEach(inject(function($controller) {
+            beforeEach(inject(function ($controller) {
                 $ctrl = $controller('ContentHeaderController');
             }));
 
-            it('titles are not inverted by default', function() {
+            it('titles are not inverted by default', function () {
                 $ctrl.$onInit();
                 expect($ctrl.inverted).toBeFalsy();
             });
 
-            it('titles can be inverted by setting the inverted header titles flage on binarta', function() {
+            it('titles can be inverted by setting the inverted header titles flage on binarta', function () {
                 binarta.invertedHeaderTitles = true;
                 $ctrl.$onInit();
                 expect($ctrl.inverted).toBeTruthy();
@@ -107,16 +109,20 @@
         });
 
         describe('binarta-applicationjs-angular1', function () {
-            var $rootScope, binartaApplicationConfigIsInitialised, binartaApplicationCachesAreInitialised, binartaApplicationIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
-            var isApplicationConfigInitialisedListener, areApplicationCachesInitialisedListener, applicationIsInitialisedListener;
+            var $rootScope, binartaApplicationRefresh, binartaApplicationConfigIsInitialised, binartaApplicationCachesAreInitialised, binartaApplicationIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
+            var isApplicationRefreshedListener, isApplicationConfigInitialisedListener, areApplicationCachesInitialisedListener, applicationIsInitialisedListener;
 
-            beforeEach(inject(function (_$rootScope_, _binartaApplicationConfigIsInitialised_, _binartaApplicationCachesAreInitialised_, _binartaApplicationIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_) {
+            beforeEach(inject(function (_$rootScope_, _binartaApplicationRefresh_, _binartaApplicationConfigIsInitialised_, _binartaApplicationCachesAreInitialised_, _binartaApplicationIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_) {
                 $rootScope = _$rootScope_;
+                binartaApplicationRefresh = _binartaApplicationRefresh_;
                 binartaApplicationConfigIsInitialised = _binartaApplicationConfigIsInitialised_;
                 binartaApplicationCachesAreInitialised = _binartaApplicationCachesAreInitialised_;
                 binartaApplicationIsInitialised = _binartaApplicationIsInitialised_;
                 binartaGatewaysAreInitialised = _binartaGatewaysAreInitialised_;
                 binartaConfigIsInitialised = _binartaConfigIsInitialised_;
+
+                isApplicationRefreshedListener = jasmine.createSpy('is-application-refreshed');
+                binartaApplicationRefresh.promise.then(isApplicationRefreshedListener);
 
                 isApplicationConfigInitialisedListener = jasmine.createSpy('is-application-config-initialised');
                 binartaApplicationConfigIsInitialised.then(isApplicationConfigInitialisedListener);
@@ -132,10 +138,16 @@
                 expect(isApplicationConfigInitialisedListener).not.toHaveBeenCalled();
             });
 
-            it('when binarta gateways are initialised then application config is also initialised', function () {
+            it('when binarta gateways are initialised then application config is not yet initialised', function () {
                 binartaGatewaysAreInitialised.resolve();
                 $rootScope.$digest();
-                expect(isApplicationConfigInitialisedListener).toHaveBeenCalled();
+                expect(isApplicationConfigInitialisedListener).not.toHaveBeenCalled();
+            });
+
+            it('when binarta gateways are initialised then application refresh is completed', function () {
+                binartaGatewaysAreInitialised.resolve();
+                $rootScope.$digest();
+                expect(isApplicationRefreshedListener).toHaveBeenCalled();
             });
 
             it('application caches are not initialised before the binarta config is initialised', function () {
@@ -154,6 +166,117 @@
                 binartaConfigIsInitialised.resolve();
                 $rootScope.$digest();
                 expect(applicationIsInitialisedListener).toHaveBeenCalled();
+            });
+
+            it('external locale is undefined when not specified on route params', function () {
+                $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                $rootScope.$digest();
+                expect(binarta.application.externalLocale()).toBeUndefined();
+            });
+
+            it('external locale matches the value from route params', function () {
+                $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
+                $rootScope.$digest();
+                expect(binarta.application.externalLocale()).toEqual('en');
+            });
+
+            it('external locale matches changes in route params', function () {
+                $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
+                $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'nl'}});
+                $rootScope.$digest();
+                expect(binarta.application.externalLocale()).toEqual('nl');
+            });
+
+            it('resolving external locale uninstalls the external locale listener used to resolve an internal promise for tracking configuration completion', function() {
+                $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                $rootScope.$digest();
+                var uninstalled = true;
+                binarta.application.eventRegistry.forEach(function(l) {
+                    if(l.constructor.name == 'ExternalLocaleListener')
+                        uninstalled = false;
+                });
+                expect(uninstalled).toBeTruthy();
+            });
+
+            it('resolving external locale is not enough to resolve application config', function () {
+                $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                $rootScope.$digest();
+                expect(isApplicationConfigInitialisedListener).not.toHaveBeenCalled();
+            });
+
+            it('when gateways and external locale are resolved then application config also resolves', function () {
+                $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                binartaGatewaysAreInitialised.resolve();
+                $rootScope.$digest();
+                expect(isApplicationConfigInitialisedListener).toHaveBeenCalled();
+            });
+
+            it('unlocalized path when no external locale is specified', function() {
+                $location.path('/');
+                expect(binarta.application.unlocalizedPath()).toEqual('/');
+            });
+
+            it('unlocalized path with external locale specified', function() {
+                $location.path('/en/');
+                binarta.application.setExternalLocale('en');
+                expect(binarta.application.unlocalizedPath()).toEqual('/');
+            });
+
+            describe('<a bin-href="?"></a>', function() {
+                var a;
+
+                afterEach(function() {
+                    if(a)
+                        a.remove();
+                });
+
+                it('only applies to anchor elements', function() {
+                    expect(function() {
+                        $compile('<div bin-href="/"></div>')($rootScope.$new());
+                        $rootScope.$digest();
+                    }).toThrowError('bin-href attribute is only supported on anchor elements!');
+                });
+
+                it('prepends hash bang when no external locale is specified', function() {
+                    a = $compile('<a bin-href="/"></a>')($rootScope.$new())[0];
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/');
+                });
+
+                it('prepends hash bang and external local when external locale is specified', function() {
+                    binarta.application.setExternalLocale('en');
+                    a = $compile('<a bin-href="/"></a>')($rootScope.$new())[0];
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/en/');
+                });
+
+                it('when external locale is updated so does the href', function() {
+                    a = $compile('<a bin-href="/"></a>')($rootScope.$new())[0];
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/');
+
+                    binarta.application.setExternalLocale('en');
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/en/');
+                });
+
+                it('when $scope is destroyed changes to the external locale are no longer picked up', function() {
+                    var $scope = $rootScope.$new();
+                    a = $compile('<a bin-href="/"></a>')($scope)[0];
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/');
+
+                    $scope.$destroy();
+                    $rootScope.$digest();
+
+                    binarta.application.setExternalLocale('en');
+                    $rootScope.$digest();
+                    expectHref(a).toEqual('#!/');
+                });
+
+                function expectHref(a) {
+                    return expect(a.href.replace(/^http:\/\/[^\/]+\//, ''));
+                }
             });
         });
 
@@ -503,7 +626,7 @@
                     expect($location.search()).toEqual({});
                 });
 
-                it('on payment step cancel the payment', function() {
+                it('on payment step cancel the payment', function () {
                     binarta.shop.checkout.start({}, ['payment', 'completed']);
 
                     ctrl.cancelPayment();
@@ -512,7 +635,7 @@
                     expect($location.path()).toEqual('/checkout/summary');
                 });
 
-                it('expose previous step details', function() {
+                it('expose previous step details', function () {
                     binarta.shop.checkout.start({}, ['summary', 'payment', 'completed']);
                     binarta.shop.checkout.next();
                     expect(ctrl.hasPreviousStep()).toBeTruthy();
@@ -724,11 +847,11 @@
                             expect(ctrl2.preview.quantity).toEqual(1);
                         });
 
-                        it('then expose item added flag', function() {
+                        it('then expose item added flag', function () {
                             expect(ctrl.itemAdded).toBeTruthy();
                         });
 
-                        it('when flushing timeout then item added flag is reset', inject(function($timeout) {
+                        it('when flushing timeout then item added flag is reset', inject(function ($timeout) {
                             $timeout.flush();
                             expect(ctrl.itemAdded).toBeFalsy();
                         }));
@@ -1095,10 +1218,10 @@
                         expect(ctrl.form).toEqual(binarta.checkpoint.profile.updateRequest().address);
                     });
 
-                    describe('when creating a new address', function() {
+                    describe('when creating a new address', function () {
                         var ctrl2;
 
-                        beforeEach(inject(function($controller) {
+                        beforeEach(inject(function ($controller) {
                             ctrl2 = $controller('BinartaAddressController');
                             ctrl2.$onInit();
 
@@ -1113,13 +1236,13 @@
                             ctrl.create();
                         }));
 
-                        it('then the address is added to the profile', function() {
+                        it('then the address is added to the profile', function () {
                             expect(binarta.checkpoint.profile.addresses().map(function (it) {
                                 return it.label
                             })).toEqual(['home', 'work']);
                         });
 
-                        it('then the newly created address is selected', function() {
+                        it('then the newly created address is selected', function () {
                             expect(ctrl.label).toEqual('work');
                         });
                     });
@@ -1176,8 +1299,8 @@
                     $ctrl.onCanceled = jasmine.createSpy('on-canceled');
                 }));
 
-                describe('given an order with approval url when controller is initialised', function() {
-                    beforeEach(inject(function($timeout) {
+                describe('given an order with approval url when controller is initialised', function () {
+                    beforeEach(inject(function ($timeout) {
                         $ctrl.order = {approvalUrl: 'approval-url'};
                         $ctrl.$onInit();
                         $timeout.flush();
@@ -1191,21 +1314,21 @@
                         expect($ctrl.onConfirmed).not.toHaveBeenCalled();
                     });
 
-                    describe('and reinitialised', function() {
-                        beforeEach(inject(function($window) {
+                    describe('and reinitialised', function () {
+                        beforeEach(inject(function ($window) {
                             $window.location = undefined;
                             $ctrl.$onInit();
                         }));
 
-                        it('then the payment is canceled', function() {
+                        it('then the payment is canceled', function () {
                             expect($ctrl.onCanceled).toHaveBeenCalled();
                         });
 
-                        it('then the user is not redirected to the approval url', inject(function($timeout) {
+                        it('then the user is not redirected to the approval url', inject(function ($timeout) {
                             $timeout.verifyNoPendingTasks();
                         }));
 
-                        it('and reinitialised again then visit the approval url', inject(function($timeout, $window) {
+                        it('and reinitialised again then visit the approval url', inject(function ($timeout, $window) {
                             $ctrl.$onInit();
                             $timeout.flush();
                             expect($window.location).toEqual('approval-url');
