@@ -59,19 +59,21 @@
         }
 
         return function (app) {
-            var externalLocale;
+            var externalLocale = -1;
 
             app.eventRegistry.add(new ExternalLocaleListener(app));
 
             app.externalLocale = function () {
-                return externalLocale;
+                return externalLocale == -1 ? undefined : externalLocale;
             };
 
             app.setExternalLocale = function (locale) {
+                var changed = externalLocale != locale;
                 externalLocale = locale;
-                app.eventRegistry.forEach(function (l) {
-                    l.notify('setExternalLocale', locale);
-                });
+                if(changed)
+                    app.eventRegistry.forEach(function (l) {
+                        l.notify('setExternalLocale', locale);
+                    });
             };
 
             app.unlocalizedPath = function () {

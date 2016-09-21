@@ -198,6 +198,21 @@
                 expect(uninstalled).toBeTruthy();
             });
 
+            it('external locale listeners receive locale changes', function() {
+                var spy = jasmine.createSpyObj('spy', ['setExternalLocale']);
+                binarta.application.eventRegistry.add(spy);
+                binarta.application.setExternalLocale('en');
+                expect(spy.setExternalLocale).toHaveBeenCalled();
+            });
+
+            it('external locale listeners are not invoked when locale is set to the existing value', function() {
+                var spy = jasmine.createSpyObj('spy', ['setExternalLocale']);
+                binarta.application.setExternalLocale('en');
+                binarta.application.eventRegistry.add(spy);
+                binarta.application.setExternalLocale('en');
+                expect(spy.setExternalLocale).not.toHaveBeenCalled();
+            });
+
             it('resolving external locale is not enough to resolve application config', function () {
                 $rootScope.$broadcast('$routeChangeStart', {params: {}});
                 $rootScope.$digest();
