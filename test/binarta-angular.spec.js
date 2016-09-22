@@ -109,12 +109,13 @@
         });
 
         describe('binarta-applicationjs-angular1', function () {
-            var $rootScope, binartaApplicationRefresh, binartaApplicationConfigIsInitialised, binartaApplicationCachesAreInitialised, binartaApplicationIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
-            var isApplicationRefreshedListener, isApplicationConfigInitialisedListener, areApplicationCachesInitialisedListener, applicationIsInitialisedListener;
+            var $rootScope, binartaApplicationRefresh, binartaApplicationAdhesiveReadingInitialised, binartaApplicationConfigIsInitialised, binartaApplicationCachesAreInitialised, binartaApplicationIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
+            var isApplicationRefreshedListener, isAdhesiveReadingInitialisedListener, isApplicationConfigInitialisedListener, areApplicationCachesInitialisedListener, applicationIsInitialisedListener;
 
-            beforeEach(inject(function (_$rootScope_, _binartaApplicationRefresh_, _binartaApplicationConfigIsInitialised_, _binartaApplicationCachesAreInitialised_, _binartaApplicationIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_) {
+            beforeEach(inject(function (_$rootScope_, _binartaApplicationRefresh_, _binartaApplicationAdhesiveReadingInitialised_, _binartaApplicationConfigIsInitialised_, _binartaApplicationCachesAreInitialised_, _binartaApplicationIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_) {
                 $rootScope = _$rootScope_;
                 binartaApplicationRefresh = _binartaApplicationRefresh_;
+                binartaApplicationAdhesiveReadingInitialised = _binartaApplicationAdhesiveReadingInitialised_;
                 binartaApplicationConfigIsInitialised = _binartaApplicationConfigIsInitialised_;
                 binartaApplicationCachesAreInitialised = _binartaApplicationCachesAreInitialised_;
                 binartaApplicationIsInitialised = _binartaApplicationIsInitialised_;
@@ -123,6 +124,9 @@
 
                 isApplicationRefreshedListener = jasmine.createSpy('is-application-refreshed');
                 binartaApplicationRefresh.promise.then(isApplicationRefreshedListener);
+
+                isAdhesiveReadingInitialisedListener = jasmine.createSpy('is-adhesive-reading-initialised');
+                binartaApplicationAdhesiveReadingInitialised.promise.then(isAdhesiveReadingInitialisedListener);
 
                 isApplicationConfigInitialisedListener = jasmine.createSpy('is-application-config-initialised');
                 binartaApplicationConfigIsInitialised.then(isApplicationConfigInitialisedListener);
@@ -154,11 +158,11 @@
                 expect(areApplicationCachesInitialisedListener).not.toHaveBeenCalled();
             });
 
-            it('when binarta gateways and config are initialised then application caches are also initialised', function () {
+            it('when binarta gateways and config are initialised then application caches are not yet initialised', function () {
                 binartaGatewaysAreInitialised.resolve();
                 binartaConfigIsInitialised.resolve();
                 $rootScope.$digest();
-                expect(areApplicationCachesInitialisedListener).toHaveBeenCalled();
+                expect(areApplicationCachesInitialisedListener).not.toHaveBeenCalled();
             });
 
             it('when binarta gateways and config are initialised then application is also initialised', function () {
@@ -187,12 +191,12 @@
                 expect(binarta.application.externalLocale()).toEqual('nl');
             });
 
-            it('resolving external locale uninstalls the external locale listener used to resolve an internal promise for tracking configuration completion', function() {
+            it('resolving external locale uninstalls the external locale listener used to resolve an internal promise for tracking configuration completion', function () {
                 $rootScope.$broadcast('$routeChangeStart', {params: {}});
                 $rootScope.$digest();
                 var uninstalled = true;
-                binarta.application.eventRegistry.forEach(function(l) {
-                    if(l.constructor.name == 'ExternalLocaleListener')
+                binarta.application.eventRegistry.forEach(function (l) {
+                    if (l.constructor.name == 'ExternalLocaleListener')
                         uninstalled = false;
                 });
                 expect(uninstalled).toBeTruthy();
@@ -226,45 +230,91 @@
                 expect(isApplicationConfigInitialisedListener).toHaveBeenCalled();
             });
 
-            it('unlocalized path when no external locale is specified', function() {
+            it('unlocalized path when no external locale is specified', function () {
                 $location.path('/');
                 expect(binarta.application.unlocalizedPath()).toEqual('/');
             });
 
-            it('unlocalized path with external locale specified', function() {
+            it('unlocalized path with external locale specified', function () {
                 $location.path('/en/');
                 binarta.application.setExternalLocale('en');
                 expect(binarta.application.unlocalizedPath()).toEqual('/');
             });
 
-            describe('<a bin-href="?"></a>', function() {
+            it('adhesive reading is initialised on route change', function () {
+                $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                $rootScope.$digest();
+                expect(isAdhesiveReadingInitialisedListener).toHaveBeenCalled();
+            });
+
+            describe('adhesive reading initial read', function() {
+                var requestedSectionId;
+
+                beforeEach(function() {
+                    binarta.application.adhesiveReading.handlers.add({
+                        type: 'requested.section',
+                        cache: function (it) {
+                            requestedSectionId = it.id;
+                        }
+                    });
+                });
+
+                it('when no external locale is specified', function () {
+                    $location.path('/');
+                    $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                    $rootScope.$digest();
+                    expect(requestedSectionId).toEqual('/');
+                });
+
+                it('when external locale is specified removes locale information from path', function () {
+                    $location.path('/en/');
+                    $rootScope.$broadcast('$routeChangeStart', {params: {locale:'en'}});
+                    $rootScope.$digest();
+                    expect(requestedSectionId).toEqual('/');
+                });
+            });
+
+            it('when binarta gateways and config are initialised and initial adhesive reading section is read then application caches are initialised', function () {
+                binartaGatewaysAreInitialised.resolve();
+                binartaConfigIsInitialised.resolve();
+                binarta.application.adhesiveReading.read('-');
+                $rootScope.$digest();
+                expect(areApplicationCachesInitialisedListener).toHaveBeenCalled();
+            });
+
+            it('when initial adhesive reading section is read the adhesive reading listener is uninstalled', function () {
+                binarta.application.adhesiveReading.read('-');
+                expectAdhesiveReadingListenerUninstalled('AdhesiveReadingListener');
+            });
+
+            describe('<a bin-href="?"></a>', function () {
                 var a;
 
-                afterEach(function() {
-                    if(a)
+                afterEach(function () {
+                    if (a)
                         a.remove();
                 });
 
-                it('only applies to anchor elements', function() {
-                    expect(function() {
+                it('only applies to anchor elements', function () {
+                    expect(function () {
                         $compile('<div bin-href="/"></div>')($rootScope.$new());
                         $rootScope.$digest();
                     }).toThrowError('bin-href attribute is only supported on anchor elements!');
                 });
 
-                it('prepends hash bang when no external locale is specified', function() {
+                it('prepends hash bang when no external locale is specified', function () {
                     a = $compile('<a bin-href="/"></a>')($rootScope.$new())[0];
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/');
                 });
 
-                it('limited expression support', function() {
+                it('limited expression support', function () {
                     a = $compile('<a bin-href="/{{\'x\'}}"></a>')($rootScope.$new())[0];
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/x');
                 });
 
-                it('expression updates do not modify the underlying href', function() {
+                it('expression updates do not modify the underlying href', function () {
                     var $scope = $rootScope.$new();
                     $scope.x = 'a';
                     a = $compile('<a bin-href="/{{x}}"></a>')($scope)[0];
@@ -276,14 +326,14 @@
                     expectHref(a).toEqual('#!/a');
                 });
 
-                it('prepends hash bang and external local when external locale is specified', function() {
+                it('prepends hash bang and external local when external locale is specified', function () {
                     binarta.application.setExternalLocale('en');
                     a = $compile('<a bin-href="/"></a>')($rootScope.$new())[0];
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/en/');
                 });
 
-                it('when external locale is updated so does the href', function() {
+                it('when external locale is updated so does the href', function () {
                     a = $compile('<a bin-href="/"></a>')($rootScope.$new())[0];
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/');
@@ -293,7 +343,7 @@
                     expectHref(a).toEqual('#!/en/');
                 });
 
-                it('when $scope is destroyed changes to the external locale are no longer picked up', function() {
+                it('when $scope is destroyed changes to the external locale are no longer picked up', function () {
                     var $scope = $rootScope.$new();
                     a = $compile('<a bin-href="/"></a>')($scope)[0];
                     $rootScope.$digest();
@@ -308,34 +358,34 @@
                 });
             });
 
-            describe('<a bin-dhref="?"></a>', function() {
+            describe('<a bin-dhref="?"></a>', function () {
                 var a;
 
-                afterEach(function() {
-                    if(a)
+                afterEach(function () {
+                    if (a)
                         a.remove();
                 });
 
-                it('only applies to anchor elements', function() {
-                    expect(function() {
+                it('only applies to anchor elements', function () {
+                    expect(function () {
                         $compile('<div bin-dhref="/"></div>')($rootScope.$new());
                         $rootScope.$digest();
                     }).toThrowError('bin-href attribute is only supported on anchor elements!');
                 });
 
-                it('prepends hash bang when no external locale is specified', function() {
+                it('prepends hash bang when no external locale is specified', function () {
                     a = $compile('<a bin-dhref="/"></a>')($rootScope.$new())[0];
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/');
                 });
 
-                it('limited expression support', function() {
+                it('limited expression support', function () {
                     a = $compile('<a bin-dhref="/{{\'x\'}}"></a>')($rootScope.$new())[0];
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/x');
                 });
 
-                it('expression updates modify the underlying href', function() {
+                it('expression updates modify the underlying href', function () {
                     var $scope = $rootScope.$new();
                     $scope.x = 'a';
                     a = $compile('<a bin-dhref="/{{x}}"></a>')($scope)[0];
@@ -347,14 +397,14 @@
                     expectHref(a).toEqual('#!/b');
                 });
 
-                it('prepends hash bang and external local when external locale is specified', function() {
+                it('prepends hash bang and external local when external locale is specified', function () {
                     binarta.application.setExternalLocale('en');
                     a = $compile('<a bin-dhref="/"></a>')($rootScope.$new())[0];
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/en/');
                 });
 
-                it('when external locale is updated so does the href', function() {
+                it('when external locale is updated so does the href', function () {
                     a = $compile('<a bin-dhref="/"></a>')($rootScope.$new())[0];
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/');
@@ -364,7 +414,7 @@
                     expectHref(a).toEqual('#!/en/');
                 });
 
-                it('when $scope is destroyed changes to the external locale are no longer picked up', function() {
+                it('when $scope is destroyed changes to the external locale are no longer picked up', function () {
                     var $scope = $rootScope.$new();
                     a = $compile('<a bin-dhref="/"></a>')($scope)[0];
                     $rootScope.$digest();
@@ -1447,6 +1497,23 @@
                 }));
             })
         });
+
+        function expectApplicationListenerUninstalled(listenerName) {
+            expectEventListenerUninstalled(binarta.application.eventRegistry, listenerName);
+        }
+
+        function expectAdhesiveReadingListenerUninstalled(listenerName) {
+            expectEventListenerUninstalled(binarta.application.adhesiveReading.eventRegistry, listenerName);
+        }
+
+        function expectEventListenerUninstalled(eventRegistry, listenerName) {
+            var uninstalled = true;
+            eventRegistry.forEach(function (l) {
+                if (l.constructor.name == listenerName)
+                    uninstalled = false;
+            });
+            expect(uninstalled).toBeTruthy();
+        }
     });
 
     installBackendStrategy('inmem');

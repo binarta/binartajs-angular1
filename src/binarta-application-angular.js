@@ -9,6 +9,7 @@
         .factory('extendBinartaApplication', ['binartaApplicationExternalLocaleIsSet.deferred', '$location', ExtendBinartaApplicationFactory])
         .factory('binartaApplicationExternalLocaleIsSet.deferred', ['$q', IsInitialisedDeferredFactory])
         .factory('binartaApplicationRefresh', ['$q', IsInitialisedDeferredFactory])
+        .factory('binartaApplicationAdhesiveReadingInitialised', ['$q', IsInitialisedDeferredFactory])
         .factory('binartaApplicationCachesAreInitialised.deferred', ['$q', IsInitialisedDeferredFactory])
         .factory('binartaApplicationIsInitialised.deferred', ['$q', IsInitialisedDeferredFactory])
         .factory('binartaApplicationConfigIsInitialised', ['$q', 'binartaApplicationExternalLocaleIsSet.deferred', 'binartaApplicationRefresh', IsConfigInitialisedFactory])
@@ -17,13 +18,19 @@
         .directive('binHref', ['application', BinHrefDirectiveFactory])
         .directive('binDhref', ['application', BinDhrefDirectiveFactory])
         .run(['application', WireAngularDependencies])
-        .run(['$rootScope', 'application', ResolveExternalLocaleFromRoute])
+        .run(['$rootScope', 'application', InstallRouteChangeListeners])
         .run([
             'binartaGatewaysAreInitialised',
-            'binartaConfigIsInitialised',
             'binartaApplicationRefresh',
-            'binartaApplicationCachesAreInitialised.deferred',
             'binartaApplicationIsInitialised.deferred',
+            'application',
+            InitConfig
+        ])
+        .run([
+            '$q',
+            'binartaConfigIsInitialised',
+            'binartaApplicationCachesAreInitialised.deferred',
+            'binartaApplicationAdhesiveReadingInitialised',
             'application',
             InitCaches
         ]);
@@ -140,21 +147,38 @@
     function WireAngularDependencies() {
     }
 
-    function ResolveExternalLocaleFromRoute($rootScope, application) {
+    function InstallRouteChangeListeners($rootScope, application) {
         $rootScope.$on('$routeChangeStart', function (evt, n) {
             application.setExternalLocale(n.params.locale);
+            application.adhesiveReading.read(application.unlocalizedPath());
         });
     }
 
-    function InitCaches(gatewaysAreInitialised, configIsInitialised, refreshD, cachesD, applicationD, application) {
+    function InitConfig(gatewaysAreInitialised, refreshD, applicationD, application) {
         gatewaysAreInitialised.promise.then(function () {
             application.refresh(function () {
                 refreshD.resolve();
                 applicationD.resolve();
             });
         });
+    }
 
-        configIsInitialised.promise.then(cachesD.resolve);
+    function InitCaches($q, configIsInitialised, cachesD, adhesiveReadingD, application) {
+        var listener = new AdhesiveReadingListener();
+        application.adhesiveReading.eventRegistry.add(listener);
+
+        function AdhesiveReadingListener() {
+            var listener = this;
+
+            this.stop = function() {
+                application.adhesiveReading.eventRegistry.remove(listener);
+                adhesiveReadingD.resolve();
+            }
+        }
+
+        configIsInitialised.promise.then(function() {
+            $q.all([adhesiveReadingD.promise]).then(cachesD.resolve)
+        });
     }
 
     function IsInitialisedDeferredFactory($q) {
