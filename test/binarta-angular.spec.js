@@ -2,24 +2,30 @@
     var ui;
 
     describe('binartajs-angular', function () {
-        var binarta, $compile, $location, $routeParams;
+        var binarta, $compile, $location, $routeParams, localStorage, sessionStorage;
 
         beforeEach(function () {
             ui = new UI();
         });
         beforeEach(module('binartajs-angular1-spec'));
-        beforeEach(inject(function (_binarta_, _$compile_, _$location_, _$routeParams_) {
+        beforeEach(inject(function (_binarta_, _$compile_, _$location_, _$routeParams_, _localStorage_, _sessionStorage_) {
             binarta = _binarta_;
             $compile = _$compile_;
             $location = _$location_;
             $routeParams = _$routeParams_;
+            localStorage = _localStorage_;
+            sessionStorage = _sessionStorage_;
 
             binarta.checkpoint.profile.signout();
             binarta.shop.basket.clear();
+        }));
 
+        afterEach(function () {
             localStorage.removeItem('binartaJSPaymentProvider');
             sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
-        }));
+            sessionStorage.removeItem('binartaJSSetupBillingAgreementReturnUrl');
+            sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
+        });
 
         describe('binarta is initialised promise', function () {
             var initialisedBinarta, $rootScope, binartaIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised, binartaCachesAreInitialised;
@@ -202,14 +208,14 @@
                 expect(uninstalled).toBeTruthy();
             });
 
-            it('external locale listeners receive locale changes', function() {
+            it('external locale listeners receive locale changes', function () {
                 var spy = jasmine.createSpyObj('spy', ['setExternalLocale']);
                 binarta.application.eventRegistry.add(spy);
                 binarta.application.setExternalLocale('en');
                 expect(spy.setExternalLocale).toHaveBeenCalled();
             });
 
-            it('external locale listeners are not invoked when locale is set to the existing value', function() {
+            it('external locale listeners are not invoked when locale is set to the existing value', function () {
                 var spy = jasmine.createSpyObj('spy', ['setExternalLocale']);
                 binarta.application.setExternalLocale('en');
                 binarta.application.eventRegistry.add(spy);
@@ -247,10 +253,10 @@
                 expect(isAdhesiveReadingInitialisedListener).toHaveBeenCalled();
             });
 
-            describe('adhesive reading initial read', function() {
+            describe('adhesive reading initial read', function () {
                 var requestedSectionId;
 
-                beforeEach(function() {
+                beforeEach(function () {
                     binarta.application.adhesiveReading.handlers.add({
                         type: 'requested.section',
                         cache: function (it) {
@@ -268,7 +274,7 @@
 
                 it('when external locale is specified removes locale information from path', function () {
                     $location.path('/en/');
-                    $rootScope.$broadcast('$routeChangeStart', {params: {locale:'en'}});
+                    $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
                     $rootScope.$digest();
                     expect(requestedSectionId).toEqual('/');
                 });

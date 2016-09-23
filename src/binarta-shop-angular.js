@@ -17,9 +17,9 @@
         .component('binCheckoutRoadmap', new CheckoutRoadmapComponent())
         .controller('CheckoutRoadmapController', ['binarta', CheckoutRoadmapController])
         .component('binPay', new PaymentComponent())
-        .controller('BinartaPaymentController', ['$window', '$routeParams', '$timeout', PaymentController])
+        .controller('BinartaPaymentController', ['$window', '$routeParams', '$timeout', 'sessionStorage', PaymentController])
         .component('binSetupPaymentProvider', new SetupPaymentProviderComponent())
-        .controller('SetupPaymentProviderController', ['binarta', '$location', SetupPaymentProviderController])
+        .controller('SetupPaymentProviderController', ['binarta', '$location', 'sessionStorage', SetupPaymentProviderController])
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
         .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
         .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
@@ -43,6 +43,7 @@
             this.shop.sessionStorage = sessionStorage;
             this.ui.window = $window;
             this.ui.location = $location;
+            this.ui.sessionStorage = sessionStorage;
             return this.shop;
         }]
     }
@@ -413,7 +414,7 @@
         this.templateUrl = 'bin-shop-payment.html';
     }
 
-    function PaymentController($window, $routeParams, $timeout) {
+    function PaymentController($window, $routeParams, $timeout, sessionStorage) {
         var $ctrl = this;
 
         $ctrl.$onInit = function () {
@@ -440,7 +441,7 @@
         this.templateUrl = 'bin-shop-setup-payment-provider.html';
     }
 
-    function SetupPaymentProviderController(binarta, $location) {
+    function SetupPaymentProviderController(binarta, $location, sessionStorage) {
         var self = this;
 
         this.$onInit = function () {
@@ -485,7 +486,7 @@
         };
 
         this.confirmedBillingAgreement = function () {
-            var returnUrl = sessionStorage.getItem('binartaJSSetupBillingAgreementReturnUrl');
+            var returnUrl = self.sessionStorage.getItem('binartaJSSetupBillingAgreementReturnUrl');
             if (returnUrl)
                 self.location.path(returnUrl);
         }
