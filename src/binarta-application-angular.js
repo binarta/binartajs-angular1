@@ -39,7 +39,9 @@
         this.application = new BinartaApplicationjs();
         this.application.gateway = provider.gateway;
         this.ui = new UI();
-        this.$get = ['$window', '$location', 'extendBinartaApplication', function ($window, $location, extend) {
+        this.$get = ['$window', '$location', 'extendBinartaApplication', 'localStorage', 'sessionStorage', function ($window, $location, extend, localStorage, sessionStorage) {
+            this.application.localStorage = localStorage;
+            this.application.sessionStorage = sessionStorage;
             this.ui.window = $window;
             this.ui.location = $location;
             extend(this.application);

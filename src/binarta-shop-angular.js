@@ -38,7 +38,9 @@
         this.shop = new BinartaShopjs(checkpointProvider.checkpoint);
         this.shop.gateway = gatewayProvider.gateway;
         this.ui = new UI();
-        this.$get = ['$window', '$location', function ($window, $location) {
+        this.$get = ['$window', '$location', 'localStorage', 'sessionStorage', function ($window, $location, localStorage, sessionStorage) {
+            this.shop.localStorage = localStorage;
+            this.shop.sessionStorage = sessionStorage;
             this.ui.window = $window;
             this.ui.location = $location;
             return this.shop;
