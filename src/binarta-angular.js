@@ -1,5 +1,5 @@
 (function () {
-    angular.module('binartajs-angular1', [])
+    angular.module('binartajs-angular1', ['web.storage'])
         .provider('binarta', [BinartaProvider])
         .factory('binartaGatewaysAreInitialised', ['$q', GatewaysAreInitialisedFactory])
         .factory('binartaConfigIsInitialised', ['$q', 'binartaGatewaysAreInitialised', ConfigIsInitialisedFactory])
@@ -15,9 +15,12 @@
         factory.addUI(this.ui);
         this.addSubSystems = factory.addSubSystems;
 
-        this.$get = function () {
-            return factory.create();
-        }
+        this.$get = ['localStorage', 'sessionStorage', function (localStorage, sessionStorage) {
+            var binartajs = factory.create();
+            binartajs.localStorage = localStorage;
+            binartajs.sessionStorage = sessionStorage;
+            return binartajs;
+        }]
     }
 
     function GatewaysAreInitialisedFactory($q) {
