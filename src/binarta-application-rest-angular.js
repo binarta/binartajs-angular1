@@ -24,16 +24,16 @@
                 method: 'GET',
                 url: gateway.config.baseUri + 'api/application/' + gateway.config.namespace + '/data/common',
                 headers: {'Accept-Language': gateway.binarta.application.locale()}
-            }).then(function(it) {
+            }).then(function (it) {
                 response.success(it.data);
             });
         };
 
-        this.fetchSectionData = function(request, response) {
+        this.fetchSectionData = function (request, response) {
             gateway.$http({
                 method: 'GET',
-                url: gateway.config.baseUri + 'api/usecase?h.usecase=adhesive.reading.stream&h.locale=' + gateway.binarta.application.locale() + '&p.namespace=' + gateway.config.namespace + '&p.section=' + request.id
-            }).then(function(it) {
+                url: gateway.config.baseUri + 'api/adhesive/reading/stream/' + gateway.config.namespace + '/' + gateway.binarta.application.locale() + '/section' + request.id
+            }).then(function (it) {
                 response.success(it.data);
             });
         }

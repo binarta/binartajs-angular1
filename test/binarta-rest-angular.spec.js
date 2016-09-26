@@ -69,7 +69,7 @@
             describe('fetchSectionData', function () {
                 beforeEach(function () {
                     request = {id:'s'};
-                    expectedHttpRequest = $http.expectGET('http://host/api/usecase?h.usecase=adhesive.reading.stream&h.locale=en&p.namespace=n&p.section=s');
+                    expectedHttpRequest = $http.expectGET('http://host/api/adhesive/reading/stream/n/en/sections');
                 });
 
                 it('success', function () {
