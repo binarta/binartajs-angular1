@@ -19,7 +19,8 @@
                 'success',
                 'rejected',
                 'unauthenticated',
-                'activeAccountMetadata'
+                'activeAccountMetadata',
+                'notFound'
             ]);
         }));
 
@@ -68,7 +69,7 @@
 
             describe('fetchSectionData', function () {
                 beforeEach(function () {
-                    request = {id:'s'};
+                    request = {id: 's'};
                     expectedHttpRequest = $http.expectGET('http://host/api/adhesive/reading/stream/n/en/sections');
                 });
 
@@ -77,6 +78,35 @@
                     gateway.fetchSectionData(request, response);
                     $http.flush();
                     expect(response.success).toHaveBeenCalledWith('stream');
+                });
+            });
+
+            describe('findPublicConfig', function () {
+                beforeEach(function () {
+                    request = {id: 'k'};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/usecase', {
+                        headers: {
+                            usecase: "resolve.public.config",
+                            namespace: "n"
+                        },
+                        payload: {
+                            key: "k"
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, {value: 'v'});
+                    gateway.findPublicConfig(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('v');
+                });
+
+                it('not found', function () {
+                    expectedHttpRequest.respond(404);
+                    gateway.findPublicConfig(request, response);
+                    $http.flush();
+                    expect(response.notFound).toHaveBeenCalled();
                 });
             });
         });

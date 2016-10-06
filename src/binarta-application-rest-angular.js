@@ -16,6 +16,13 @@
         }
     }
 
+    function toErrorResponse(response) {
+        return function (request) {
+            if (request.status == 404)
+                response.notFound();
+        };
+    }
+
     function ApplicationGateway() {
         var gateway = this;
 
@@ -36,6 +43,24 @@
             }).then(function (it) {
                 response.success(it.data);
             });
+        };
+
+        this.findPublicConfig = function (request, response) {
+            gateway.$http({
+                method: 'POST',
+                url: gateway.config.baseUri + 'api/usecase',
+                data: {
+                    headers: {
+                        usecase: 'resolve.public.config',
+                        namespace: gateway.config.namespace
+                    },
+                    payload: {
+                        key: request.id
+                    }
+                }
+            }).then(function(it) {
+                response.success(it.data.value);
+            }, toErrorResponse(response));
         }
     }
 
