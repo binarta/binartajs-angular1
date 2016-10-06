@@ -52,13 +52,14 @@
                 data: {
                     headers: {
                         usecase: 'resolve.public.config',
-                        namespace: gateway.config.namespace
+                        namespace: gateway.config.namespace,
+                        section: gateway.binarta.application.unlocalizedPath()
                     },
                     payload: {
                         key: request.id
                     }
                 }
-            }).then(function(it) {
+            }).then(function (it) {
                 response.success(it.data.value);
             }, toErrorResponse(response));
         }

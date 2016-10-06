@@ -1,15 +1,18 @@
 (function () {
     describe('binartajs-rest-angular1', function () {
-        var binarta, $http, rest, config, ui, expectedHttpRequest, request, response;
+        var binarta, $rootScope, $http, $location, rest, config, ui, expectedHttpRequest, request, response;
 
         beforeEach(module('binartajs-rest-angular1-spec'));
-        beforeEach(inject(function (_binarta_, _config_, restServiceHandler, $httpBackend) {
+        beforeEach(inject(function (_binarta_, _$rootScope_, _$location_, _config_, restServiceHandler, $httpBackend) {
             binarta = _binarta_;
+            $location = _$location_;
             config = _config_;
             rest = restServiceHandler;
             $http = $httpBackend;
+            $rootScope = _$rootScope_;
 
             binarta.application.setLocale('en');
+            binarta.application.setExternalLocale('en');
 
             config.namespace = 'n';
             config.baseUri = 'http://host/';
@@ -81,32 +84,36 @@
                 });
             });
 
-            describe('findPublicConfig', function () {
-                beforeEach(function () {
-                    request = {id: 'k'};
-                    expectedHttpRequest = $http.expectPOST('http://host/api/usecase', {
-                        headers: {
-                            usecase: "resolve.public.config",
-                            namespace: "n"
-                        },
-                        payload: {
-                            key: "k"
-                        }
+            ['/', '/en/'].forEach(function (path) {
+                describe('findPublicConfig on ' + path, function () {
+                    beforeEach(function () {
+                        $location.path('/en/');
+                        request = {id: 'k'};
+                        expectedHttpRequest = $http.expectPOST('http://host/api/usecase', {
+                            headers: {
+                                usecase: "resolve.public.config",
+                                namespace: "n",
+                                section: '/'
+                            },
+                            payload: {
+                                key: "k"
+                            }
+                        });
                     });
-                });
 
-                it('success', function () {
-                    expectedHttpRequest.respond(200, {value: 'v'});
-                    gateway.findPublicConfig(request, response);
-                    $http.flush();
-                    expect(response.success).toHaveBeenCalledWith('v');
-                });
+                    it('success', function () {
+                        expectedHttpRequest.respond(200, {value: 'v'});
+                        gateway.findPublicConfig(request, response);
+                        $http.flush();
+                        expect(response.success).toHaveBeenCalledWith('v');
+                    });
 
-                it('not found', function () {
-                    expectedHttpRequest.respond(404);
-                    gateway.findPublicConfig(request, response);
-                    $http.flush();
-                    expect(response.notFound).toHaveBeenCalled();
+                    it('not found', function () {
+                        expectedHttpRequest.respond(404);
+                        gateway.findPublicConfig(request, response);
+                        $http.flush();
+                        expect(response.notFound).toHaveBeenCalled();
+                    });
                 });
             });
         });
