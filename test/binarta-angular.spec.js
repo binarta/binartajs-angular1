@@ -247,7 +247,14 @@
                 expect(binarta.application.unlocalizedPath()).toEqual('/');
             });
 
-            it('adhesive reading is initialised on route change', function () {
+            // it('given application locale is not set then adhesive reading is not initialised on route change', function () {
+            //     $rootScope.$broadcast('$routeChangeStart', {params: {}});
+            //     $rootScope.$digest();
+            //     expect(isAdhesiveReadingInitialisedListener).not.toHaveBeenCalled();
+            // });
+
+            it('given application locale is set then adhesive reading is initialised on route change', function () {
+                binarta.application.setLocale('-');
                 $rootScope.$broadcast('$routeChangeStart', {params: {}});
                 $rootScope.$digest();
                 expect(isAdhesiveReadingInitialisedListener).toHaveBeenCalled();
@@ -257,6 +264,8 @@
                 var requestedSectionId;
 
                 beforeEach(function () {
+                    requestedSectionId = undefined;
+                    binarta.application.setLocale('-');
                     binarta.application.adhesiveReading.handlers.add({
                         type: 'requested.section',
                         cache: function (it) {
@@ -265,19 +274,24 @@
                     });
                 });
 
-                it('when no external locale is specified', function () {
+                it('when no external locale is specified on route', function () {
                     $location.path('/');
                     $rootScope.$broadcast('$routeChangeStart', {params: {}});
                     $rootScope.$digest();
                     expect(requestedSectionId).toEqual('/');
                 });
 
-                it('when external locale is specified removes locale information from path', function () {
+                it('when external locale is specified on route then remove locale information from path', function () {
                     $location.path('/en/');
                     $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
                     $rootScope.$digest();
                     expect(requestedSectionId).toEqual('/');
                 });
+
+                // it('ahdesive reading init does nothing when external locale is not set', function() {
+                //     binarta.application.adhesiveReading.init();
+                //     expect(requestedSectionId).toBeUndefined();
+                // });
             });
 
             it('when binarta gateways and config are initialised and initial adhesive reading section is read then application caches are initialised', function () {

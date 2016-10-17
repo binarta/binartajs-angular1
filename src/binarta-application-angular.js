@@ -79,7 +79,7 @@
             app.setExternalLocale = function (locale) {
                 var changed = externalLocale != locale;
                 externalLocale = locale;
-                if(changed)
+                if (changed)
                     app.eventRegistry.forEach(function (l) {
                         l.notify('setExternalLocale', locale);
                     });
@@ -89,6 +89,11 @@
                 var locale = app.externalLocale();
                 var path = $location.path();
                 return locale ? path.replace('/' + locale, '') : path;
+            };
+
+            app.adhesiveReading.readRoute = function () {
+                // if (app.locale() && externalLocale != -1)
+                    app.adhesiveReading.read(app.unlocalizedPath());
             }
         }
     }
@@ -152,7 +157,7 @@
     function InstallRouteChangeListeners($rootScope, application) {
         $rootScope.$on('$routeChangeStart', function (evt, n) {
             application.setExternalLocale(n.params.locale);
-            application.adhesiveReading.read(application.unlocalizedPath());
+            application.adhesiveReading.readRoute();
         });
     }
 
@@ -172,13 +177,13 @@
         function AdhesiveReadingListener() {
             var listener = this;
 
-            this.stop = function() {
+            this.stop = function () {
                 application.adhesiveReading.eventRegistry.remove(listener);
                 adhesiveReadingD.resolve();
             }
         }
 
-        configIsInitialised.promise.then(function() {
+        configIsInitialised.promise.then(function () {
             $q.all([adhesiveReadingD.promise]).then(cachesD.resolve)
         });
     }
