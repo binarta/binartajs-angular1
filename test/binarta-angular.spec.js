@@ -288,10 +288,10 @@
                     expect(requestedSectionId).toEqual('/');
                 });
 
-                // it('ahdesive reading init does nothing when external locale is not set', function() {
-                //     binarta.application.adhesiveReading.init();
-                //     expect(requestedSectionId).toBeUndefined();
-                // });
+                it('ahdesive reading init does nothing when external locale is not set', function() {
+                    binarta.application.adhesiveReading.init();
+                    expect(requestedSectionId).toBeUndefined();
+                });
             });
 
             it('when binarta gateways and config are initialised and initial adhesive reading section is read then application caches are initialised', function () {
@@ -995,9 +995,9 @@
                         ctrl.$onInit();
                     });
 
-                    // it('$onInit does not install a basket event listener', function () {
-                    //     expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
-                    // });
+                    it('$onInit does not install a basket event listener', function () {
+                        expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
+                    });
 
                     describe('when adding an item to the basket', function () {
                         var ctrl2;
