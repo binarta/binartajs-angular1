@@ -288,10 +288,10 @@
                     expect(requestedSectionId).toEqual('/');
                 });
 
-                // it('ahdesive reading init does nothing when external locale is not set', function() {
-                //     binarta.application.adhesiveReading.init();
-                //     expect(requestedSectionId).toBeUndefined();
-                // });
+                it('read route does nothing when external locale is not set', function() {
+                    binarta.application.adhesiveReading.readRoute();
+                    expect(requestedSectionId).toBeUndefined();
+                });
             });
 
             it('when binarta gateways and config are initialised and initial adhesive reading section is read then application caches are initialised', function () {

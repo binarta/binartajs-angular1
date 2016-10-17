@@ -92,7 +92,7 @@
             };
 
             app.adhesiveReading.readRoute = function () {
-                // if (app.locale() && externalLocale != -1)
+                if (app.locale() && externalLocale != -1)
                     app.adhesiveReading.read(app.unlocalizedPath());
             }
         }
