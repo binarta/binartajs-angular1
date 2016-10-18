@@ -64,3 +64,53 @@
         }
     }
 })();
+
+var binComponentControllerExtenders = [];
+function binComponentController(ConcreteController) {
+    function Handlers() {
+        var handlers = [];
+        var released = false;
+
+        this.add = function(h) {
+            released ? h() : handlers.push(h);
+        };
+
+        this.release = function() {
+            released = true;
+            handlers.forEach(function(h) {
+                h();
+            });
+        }
+    }
+
+    function AbstractController() {
+        var $ctrl = this;
+
+        var onInitHandlers = new Handlers();
+        var onDestroyHandlers = new Handlers();
+
+        $ctrl.addInitHandler = function(h) {
+            onInitHandlers.add(h);
+        };
+
+        $ctrl.$onInit = function() {
+            onInitHandlers.release();
+        };
+
+        $ctrl.addDestroyHandler = function(h) {
+            onDestroyHandlers.add(h);
+        };
+
+        $ctrl.$onDestroy = function() {
+            onDestroyHandlers.release();
+        };
+
+        binComponentControllerExtenders.forEach(function(extend) {
+            extend($ctrl);
+        });
+
+        ConcreteController.apply($ctrl, arguments);
+    }
+
+    return AbstractController;
+}

@@ -2,14 +2,15 @@
     var ui;
 
     describe('binartajs-angular', function () {
-        var binarta, $compile, $location, $routeParams, localStorage, sessionStorage;
+        var binarta, $rootScope, $compile, $location, $routeParams, $ctrl, localStorage, sessionStorage;
 
         beforeEach(function () {
             ui = new UI();
         });
         beforeEach(module('binartajs-angular1-spec'));
-        beforeEach(inject(function (_binarta_, _$compile_, _$location_, _$routeParams_, _localStorage_, _sessionStorage_) {
+        beforeEach(inject(function (_binarta_, _$rootScope_, _$compile_, _$location_, _$routeParams_, _localStorage_, _sessionStorage_) {
             binarta = _binarta_;
+            $rootScope = _$rootScope_;
             $compile = _$compile_;
             $location = _$location_;
             $routeParams = _$routeParams_;
@@ -111,6 +112,56 @@
                 binarta.invertedHeaderTitles = true;
                 $ctrl.$onInit();
                 expect($ctrl.inverted).toBeTruthy();
+            });
+        });
+
+        describe('component controller decorator', function () {
+            var spy1, spy2;
+
+            beforeEach(inject(function ($controller) {
+                $ctrl = $controller('TestComponentController'); // Mind how this controller has been declared
+                spy1 = jasmine.createSpy('spy1');
+                spy2 = jasmine.createSpy('spy2');
+            }));
+
+            it('installs an $onInit function on the controller', function () {
+                $ctrl.$onInit();
+            });
+
+            it('$onInit executes one or more init handlers', function () {
+                $ctrl.addInitHandler(spy1);
+                $ctrl.addInitHandler(spy2);
+
+                $ctrl.$onInit();
+
+                expect(spy1).toHaveBeenCalled();
+                expect(spy2).toHaveBeenCalled();
+            });
+
+            it('init handlers added after $onInit executed are still invoked', function () {
+                $ctrl.$onInit();
+                $ctrl.addInitHandler(spy1);
+                expect(spy1).toHaveBeenCalled();
+            });
+
+            it('installs an $onDestroy function on the controller', function () {
+                $ctrl.$onDestroy();
+            });
+
+            it('$onDestroy executes one or more destroy handlers', function () {
+                $ctrl.addDestroyHandler(spy1);
+                $ctrl.addDestroyHandler(spy2);
+
+                $ctrl.$onDestroy();
+
+                expect(spy1).toHaveBeenCalled();
+                expect(spy2).toHaveBeenCalled();
+            });
+
+            it('destroy handlers added after $onDestroy executed are still invoked', function () {
+                $ctrl.$onDestroy();
+                $ctrl.addDestroyHandler(spy1);
+                expect(spy1).toHaveBeenCalled();
             });
         });
 
@@ -446,6 +497,105 @@
                     binarta.application.setExternalLocale('en');
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/');
+                });
+            });
+
+            describe('component controller decorator', function () {
+                var spy;
+
+                beforeEach(inject(function ($controller) {
+                    spy = jasmine.createSpy('-');
+                    $ctrl = $controller('TestComponentController'); // Mind how this controller has been declared
+                }));
+
+                it('is wired with angular dependencies', inject(function(dependencyA, dependencyB) {
+                    expect($ctrl.constructorArguments[0]).toEqual(dependencyA);
+                    expect($ctrl.constructorArguments[1]).toEqual(dependencyB);
+                }));
+
+                it('exposes custom attributes', function() {
+                    expect($ctrl.customAttribute).toEqual('custom-attribute');
+                });
+
+                describe('given an add init handler', function() {
+                    beforeEach(function() {
+                        $ctrl.addInitHandler(function() {
+                            $ctrl.message = 'Hello World!';
+                        });
+                    });
+
+                    it('which is executed $onInit()', function() {
+                        $ctrl.$onInit();
+                        expect($ctrl.message).toEqual('Hello World!');
+                    });
+
+                    it('which is specific to the controller instance', inject(function($controller) {
+                        var $ctrl2 = $controller('TestComponentController');
+                        $ctrl.$onInit();
+                        expect($ctrl2.message).toBeUndefined();
+                    }));
+
+                    it('other controller instance can install their own init handlers', inject(function($controller) {
+                        var $ctrl2 = $controller('TestComponentController');
+                        $ctrl2.addInitHandler(function() {
+                            $ctrl2.message = 'Hello Joe!';
+                        });
+                        $ctrl2.$onInit();
+                        expect($ctrl2.message).toEqual('Hello Joe!');
+                    }));
+                });
+
+                describe('given an add destroy handler', function() {
+                    beforeEach(function() {
+                        $ctrl.addDestroyHandler(function() {
+                            $ctrl.message = 'Hello World!';
+                        });
+                    });
+
+                    it('which is executed $onDestroy()', function() {
+                        $ctrl.$onDestroy();
+                        expect($ctrl.message).toEqual('Hello World!');
+                    });
+
+                    it('which is specific to the controller instance', inject(function($controller) {
+                        var $ctrl2 = $controller('TestComponentController');
+                        $ctrl.$onDestroy();
+                        expect($ctrl2.message).toBeUndefined();
+                    }));
+
+                    it('other controller instance can install their own init handlers', inject(function($controller) {
+                        var $ctrl2 = $controller('TestComponentController');
+                        $ctrl2.addDestroyHandler(function() {
+                            $ctrl2.message = 'Hello Joe!';
+                        });
+                        $ctrl2.$onDestroy();
+                        expect($ctrl2.message).toEqual('Hello Joe!');
+                    }));
+                });
+
+                describe('observing public config', function() {
+                    beforeEach(function() {
+                        binarta.application.gateway.addSectionData({type:'config', key:'k'});
+                        binarta.application.gateway.addPublicConfig({id:'k', value:'v'});
+                        binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+
+                        $ctrl.config.public.observe('k', spy);
+                    });
+
+                    it('triggers immediately with current known config value', function () {
+                        expect(spy).toHaveBeenCalledWith('v')
+                    });
+
+                    it('triggers for updates', function () {
+                        binarta.application.config.cache('k', '-');
+                        expect(spy).toHaveBeenCalledWith('-')
+                    });
+
+                    it('disconnects $onDestroy', function() {
+                        $ctrl.$onDestroy();
+                        binarta.application.config.cache('k', '-');
+                        expect(spy).not.toHaveBeenCalledWith('-')
+                    });
                 });
             });
 
@@ -1545,9 +1695,15 @@
         .service('$window', MockWindow)
         .factory('i18nLocation', MockI18nLocationFactory)
         .service('viewport', MockViewport)
+        .service('dependencyA', DependencyStub)
+        .service('dependencyB', DependencyStub)
+        .controller('TestComponentController', ['dependencyA', 'dependencyB', binComponentController(TestComponentController)])
         .config(ExtendBinarta);
 
     function MockWindow() {
+    }
+
+    function DependencyStub() {
     }
 
     function MockI18nLocationFactory($location) {
@@ -1600,6 +1756,13 @@
         this.rejected = function () {
             throw new Error('request.rejected');
         };
+    }
+
+    function TestComponentController() {
+        var $ctrl = this;
+
+        $ctrl.constructorArguments = arguments;
+        $ctrl.customAttribute = 'custom-attribute';
     }
 })();
 

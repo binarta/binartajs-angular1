@@ -1,4 +1,6 @@
 (function () {
+    var binarta;
+
     angular.module('binarta-applicationjs-angular1', [
         'ngRoute',
         'binartajs-angular1',
@@ -151,7 +153,8 @@
         return directive;
     }
 
-    function WireAngularDependencies() {
+    function WireAngularDependencies(application) {
+        binarta = application.binarta;
     }
 
     function InstallRouteChangeListeners($rootScope, application) {
@@ -202,5 +205,25 @@
 
     function IsApplicationInitialisedFactory(d) {
         return d.promise;
+    }
+
+    binComponentControllerExtenders.push(function($ctrl) {
+        $ctrl.config = new ComponentControllerConfig($ctrl);
+    });
+
+    function ComponentControllerPublicConfig($ctrl) {
+        var self = this;
+
+        self.observe = function(k, cb) {
+            binarta.schedule(function() {
+                $ctrl.addDestroyHandler(binarta.application.config.observePublic(k, cb).disconnect);
+            });
+        }
+    }
+
+    function ComponentControllerConfig($ctrl) {
+        var config = this;
+
+        config.public = new ComponentControllerPublicConfig($ctrl);
     }
 })();
