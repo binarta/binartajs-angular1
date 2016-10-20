@@ -22,7 +22,10 @@
         }));
 
         afterEach(function () {
+            binarta.application.gateway.clear();
+            localStorage.removeItem('locale');
             localStorage.removeItem('binartaJSPaymentProvider');
+            sessionStorage.removeItem('locale');
             sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
             sessionStorage.removeItem('binartaJSSetupBillingAgreementReturnUrl');
             sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
@@ -232,24 +235,24 @@
             it('external locale is undefined when not specified on route params', function () {
                 $rootScope.$broadcast('$routeChangeStart', {params: {}});
                 $rootScope.$digest();
-                expect(binarta.application.externalLocale()).toBeUndefined();
+                expect(binarta.application.localeForPresentation()).toBeUndefined();
             });
 
             it('external locale matches the value from route params', function () {
                 $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
                 $rootScope.$digest();
-                expect(binarta.application.externalLocale()).toEqual('en');
+                expect(binarta.application.localeForPresentation()).toEqual('en');
             });
 
             it('external locale matches changes in route params', function () {
                 $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
                 $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'nl'}});
                 $rootScope.$digest();
-                expect(binarta.application.externalLocale()).toEqual('nl');
+                expect(binarta.application.localeForPresentation()).toEqual('nl');
             });
 
             it('resolving external locale uninstalls the external locale listener used to resolve an internal promise for tracking configuration completion', function () {
-                $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
                 $rootScope.$digest();
                 var uninstalled = true;
                 binarta.application.eventRegistry.forEach(function (l) {
@@ -259,21 +262,6 @@
                 expect(uninstalled).toBeTruthy();
             });
 
-            it('external locale listeners receive locale changes', function () {
-                var spy = jasmine.createSpyObj('spy', ['setExternalLocale']);
-                binarta.application.eventRegistry.add(spy);
-                binarta.application.setExternalLocale('en');
-                expect(spy.setExternalLocale).toHaveBeenCalled();
-            });
-
-            it('external locale listeners are not invoked when locale is set to the existing value', function () {
-                var spy = jasmine.createSpyObj('spy', ['setExternalLocale']);
-                binarta.application.setExternalLocale('en');
-                binarta.application.eventRegistry.add(spy);
-                binarta.application.setExternalLocale('en');
-                expect(spy.setExternalLocale).not.toHaveBeenCalled();
-            });
-
             it('resolving external locale is not enough to resolve application config', function () {
                 $rootScope.$broadcast('$routeChangeStart', {params: {}});
                 $rootScope.$digest();
@@ -281,7 +269,7 @@
             });
 
             it('when gateways and external locale are resolved then application config also resolves', function () {
-                $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
                 binartaGatewaysAreInitialised.resolve();
                 $rootScope.$digest();
                 expect(isApplicationConfigInitialisedListener).toHaveBeenCalled();
@@ -294,21 +282,182 @@
 
             it('unlocalized path with external locale specified', function () {
                 $location.path('/en/');
-                binarta.application.setExternalLocale('en');
+                binarta.application.setLocaleForPresentation('en');
                 expect(binarta.application.unlocalizedPath()).toEqual('/');
             });
 
-            // it('given application locale is not set then adhesive reading is not initialised on route change', function () {
-            //     $rootScope.$broadcast('$routeChangeStart', {params: {}});
-            //     $rootScope.$digest();
-            //     expect(isAdhesiveReadingInitialisedListener).not.toHaveBeenCalled();
-            // });
+            describe('locale helper', function () {
+                beforeEach(function () {
+                    $location.path('/');
+                });
 
-            it('given application locale is set then adhesive reading is initialised on route change', function () {
-                binarta.application.setLocale('-');
-                $rootScope.$broadcast('$routeChangeStart', {params: {}});
-                $rootScope.$digest();
-                expect(isAdhesiveReadingInitialisedListener).toHaveBeenCalled();
+                it('given neither the primary language and the external locale have been set yet then the application locale is still undefined', function () {
+                    expect(binarta.application.locale()).toBeUndefined();
+                });
+
+                it('given the primary language is set but the external locale has not been set yet then the application locale is still undefined', function () {
+                    setPrimaryLanguage(undefined);
+                    expect(binarta.application.locale()).toBeUndefined();
+                });
+
+                it('given the external locale is set but the primary language has not been set yet then the application locale is still undefined', function () {
+                    setLocaleForPresentation(undefined);
+                    expect(binarta.application.locale()).toBeUndefined();
+                });
+
+                describe('given both the primary language and the external locale are undefined', function () {
+                    beforeEach(function () {
+                        setPrimaryLanguage(undefined);
+                        setLocaleForPresentation(undefined);
+                    });
+
+                    it('then set the application locale to default', function () {
+                        expect(binarta.application.locale()).toEqual('default');
+                    });
+
+                    it('then application caches are initialised', function () {
+                        binartaConfigIsInitialised.resolve();
+                        $rootScope.$digest();
+                        expect(isAdhesiveReadingInitialisedListener).toHaveBeenCalled();
+                        expect(areApplicationCachesInitialisedListener).toHaveBeenCalled();
+                    });
+                });
+
+                describe('given the primary language is set and the external locale is undefined', function () {
+                    beforeEach(function () {
+                        setPrimaryLanguage('en');
+                        setLocaleForPresentation(undefined);
+                    });
+
+                    it('then redirect to localized path', function () {
+                        expect($location.path()).toEqual('/en/');
+                    });
+
+                    it('then application caches are not initialised', function () {
+                        binartaConfigIsInitialised.resolve();
+                        $rootScope.$digest();
+                        expect(isAdhesiveReadingInitialisedListener).not.toHaveBeenCalled();
+                        expect(areApplicationCachesInitialisedListener).not.toHaveBeenCalled();
+                    });
+                });
+
+                describe('given the external locale is set and the primary language is undefined', function () {
+                    beforeEach(function () {
+                        $location.path('/en/');
+                        setPrimaryLanguage(undefined);
+                        setLocaleForPresentation('en');
+                    });
+
+                    it('then redirect to the unlocalized path', function () {
+                        expect($location.path()).toEqual('/');
+                    });
+
+                    it('then application caches are not initialised', function () {
+                        binartaConfigIsInitialised.resolve();
+                        $rootScope.$digest();
+                        expect(isAdhesiveReadingInitialisedListener).not.toHaveBeenCalled();
+                        expect(areApplicationCachesInitialisedListener).not.toHaveBeenCalled();
+                    });
+                });
+
+                describe('given the primary language and the external locale match', function () {
+                    beforeEach(function () {
+                        $location.path('/en/');
+                        setPrimaryLanguage('en');
+                        setLocaleForPresentation('en');
+                    });
+
+                    it('then the path remains unchanged', function () {
+                        expect($location.path()).toEqual('/en/');
+                    });
+
+                    it('then the locale is set to default', function () {
+                        expect(binarta.application.locale()).toEqual('default');
+                    });
+
+                    it('then application caches are initialised', function () {
+                        binartaConfigIsInitialised.resolve();
+                        $rootScope.$digest();
+                        expect(isAdhesiveReadingInitialisedListener).toHaveBeenCalled();
+                        expect(areApplicationCachesInitialisedListener).toHaveBeenCalled();
+                    });
+                });
+
+                describe('when the external locale is not one of the supported languages', function () {
+                    beforeEach(function () {
+                        $location.path('/fr/');
+                        setPrimaryLanguage('en');
+                        setLocaleForPresentation('fr');
+                    });
+
+                    it('then redirect to the primary language', function () {
+                        expect($location.path()).toEqual('/en/');
+                    });
+
+                    it('then application caches are not initialised', function () {
+                        binartaConfigIsInitialised.resolve();
+                        $rootScope.$digest();
+                        expect(isAdhesiveReadingInitialisedListener).not.toHaveBeenCalled();
+                        expect(areApplicationCachesInitialisedListener).not.toHaveBeenCalled();
+                    });
+                });
+
+                describe('given the primary language and the external locale do not match', function () {
+                    beforeEach(function () {
+                        $location.path('/fr/');
+                        setSupportedLanguages(['en', 'fr']);
+                        setLocaleForPresentation('fr');
+                    });
+
+                    it('then the path remains unchanged', function () {
+                        expect($location.path()).toEqual('/fr/');
+                    });
+
+                    it('then the locale is set to match the external locale', function () {
+                        expect(binarta.application.locale()).toEqual('fr');
+                    });
+
+                    it('then application caches are initialised', function () {
+                        binartaConfigIsInitialised.resolve();
+                        $rootScope.$digest();
+                        expect(isAdhesiveReadingInitialisedListener).toHaveBeenCalled();
+                        expect(areApplicationCachesInitialisedListener).toHaveBeenCalled();
+                    });
+                });
+
+                describe('given both the primary language and the external locale are set', function () {
+                    var spy;
+
+                    beforeEach(function () {
+                        spy = jasmine.createSpyObj('spy', ['start']);
+                        binarta.application.adhesiveReading.eventRegistry.add(spy);
+
+                        $location.path('/en/');
+                        setSupportedLanguages(['en', 'fr']);
+                        setLocaleForPresentation('en');
+                    });
+
+                    it('when setting the external locale to the same value then adhesive reading is not executed', function () {
+                        setLocaleForPresentation('en');
+                        expect(spy.start).toHaveBeenCalledTimes(1);
+                    });
+
+                    it('when setting the external locale to a different value then adhesive reading is executed', function () {
+                        setLocaleForPresentation('fr');
+                        expect(spy.start).toHaveBeenCalledTimes(2);
+                    });
+
+                    it('when removing language support for a language not matching the external locale then adhesive reading is not executed', function () {
+                        setSupportedLanguages(['en']);
+                        expect(spy.start).toHaveBeenCalledTimes(1);
+                    });
+
+                    it('when removing language support for a language matching the external locale then redirect to the primary language', function () {
+                        setPrimaryLanguage('fr');
+                        binarta.application.refreshEvents();
+                        expect($location.path()).toEqual('/fr/');
+                    });
+                });
             });
 
             describe('adhesive reading initial read', function () {
@@ -316,7 +465,7 @@
 
                 beforeEach(function () {
                     requestedSectionId = undefined;
-                    binarta.application.setLocale('-');
+
                     binarta.application.adhesiveReading.handlers.add({
                         type: 'requested.section',
                         cache: function (it) {
@@ -326,6 +475,7 @@
                 });
 
                 it('when no external locale is specified on route', function () {
+                    setPrimaryLanguage(undefined);
                     $location.path('/');
                     $rootScope.$broadcast('$routeChangeStart', {params: {}});
                     $rootScope.$digest();
@@ -333,15 +483,11 @@
                 });
 
                 it('when external locale is specified on route then remove locale information from path', function () {
+                    setPrimaryLanguage('en');
                     $location.path('/en/');
                     $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
                     $rootScope.$digest();
                     expect(requestedSectionId).toEqual('/');
-                });
-
-                it('read route does nothing when external locale is not set', function() {
-                    binarta.application.adhesiveReading.readRoute();
-                    expect(requestedSectionId).toBeUndefined();
                 });
             });
 
@@ -398,7 +544,7 @@
                 });
 
                 it('prepends hash bang and external local when external locale is specified', function () {
-                    binarta.application.setExternalLocale('en');
+                    binarta.application.setLocaleForPresentation('en');
                     a = $compile('<a bin-href="/"></a>')($rootScope.$new())[0];
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/en/');
@@ -409,7 +555,7 @@
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/');
 
-                    binarta.application.setExternalLocale('en');
+                    binarta.application.setLocaleForPresentation('en');
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/en/');
                 });
@@ -423,7 +569,7 @@
                     $scope.$destroy();
                     $rootScope.$digest();
 
-                    binarta.application.setExternalLocale('en');
+                    binarta.application.setLocaleForPresentation('en');
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/');
                 });
@@ -469,7 +615,7 @@
                 });
 
                 it('prepends hash bang and external local when external locale is specified', function () {
-                    binarta.application.setExternalLocale('en');
+                    binarta.application.setLocaleForPresentation('en');
                     a = $compile('<a bin-dhref="/"></a>')($rootScope.$new())[0];
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/en/');
@@ -480,7 +626,7 @@
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/');
 
-                    binarta.application.setExternalLocale('en');
+                    binarta.application.setLocaleForPresentation('en');
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/en/');
                 });
@@ -494,7 +640,7 @@
                     $scope.$destroy();
                     $rootScope.$digest();
 
-                    binarta.application.setExternalLocale('en');
+                    binarta.application.setLocaleForPresentation('en');
                     $rootScope.$digest();
                     expectHref(a).toEqual('#!/');
                 });
@@ -508,36 +654,36 @@
                     $ctrl = $controller('TestComponentController'); // Mind how this controller has been declared
                 }));
 
-                it('is wired with angular dependencies', inject(function(dependencyA, dependencyB) {
+                it('is wired with angular dependencies', inject(function (dependencyA, dependencyB) {
                     expect($ctrl.constructorArguments[0]).toEqual(dependencyA);
                     expect($ctrl.constructorArguments[1]).toEqual(dependencyB);
                 }));
 
-                it('exposes custom attributes', function() {
+                it('exposes custom attributes', function () {
                     expect($ctrl.customAttribute).toEqual('custom-attribute');
                 });
 
-                describe('given an add init handler', function() {
-                    beforeEach(function() {
-                        $ctrl.addInitHandler(function() {
+                describe('given an add init handler', function () {
+                    beforeEach(function () {
+                        $ctrl.addInitHandler(function () {
                             $ctrl.message = 'Hello World!';
                         });
                     });
 
-                    it('which is executed $onInit()', function() {
+                    it('which is executed $onInit()', function () {
                         $ctrl.$onInit();
                         expect($ctrl.message).toEqual('Hello World!');
                     });
 
-                    it('which is specific to the controller instance', inject(function($controller) {
+                    it('which is specific to the controller instance', inject(function ($controller) {
                         var $ctrl2 = $controller('TestComponentController');
                         $ctrl.$onInit();
                         expect($ctrl2.message).toBeUndefined();
                     }));
 
-                    it('other controller instance can install their own init handlers', inject(function($controller) {
+                    it('other controller instance can install their own init handlers', inject(function ($controller) {
                         var $ctrl2 = $controller('TestComponentController');
-                        $ctrl2.addInitHandler(function() {
+                        $ctrl2.addInitHandler(function () {
                             $ctrl2.message = 'Hello Joe!';
                         });
                         $ctrl2.$onInit();
@@ -545,27 +691,27 @@
                     }));
                 });
 
-                describe('given an add destroy handler', function() {
-                    beforeEach(function() {
-                        $ctrl.addDestroyHandler(function() {
+                describe('given an add destroy handler', function () {
+                    beforeEach(function () {
+                        $ctrl.addDestroyHandler(function () {
                             $ctrl.message = 'Hello World!';
                         });
                     });
 
-                    it('which is executed $onDestroy()', function() {
+                    it('which is executed $onDestroy()', function () {
                         $ctrl.$onDestroy();
                         expect($ctrl.message).toEqual('Hello World!');
                     });
 
-                    it('which is specific to the controller instance', inject(function($controller) {
+                    it('which is specific to the controller instance', inject(function ($controller) {
                         var $ctrl2 = $controller('TestComponentController');
                         $ctrl.$onDestroy();
                         expect($ctrl2.message).toBeUndefined();
                     }));
 
-                    it('other controller instance can install their own init handlers', inject(function($controller) {
+                    it('other controller instance can install their own init handlers', inject(function ($controller) {
                         var $ctrl2 = $controller('TestComponentController');
-                        $ctrl2.addDestroyHandler(function() {
+                        $ctrl2.addDestroyHandler(function () {
                             $ctrl2.message = 'Hello Joe!';
                         });
                         $ctrl2.$onDestroy();
@@ -573,10 +719,10 @@
                     }));
                 });
 
-                describe('observing public config', function() {
-                    beforeEach(function() {
-                        binarta.application.gateway.addSectionData({type:'config', key:'k'});
-                        binarta.application.gateway.addPublicConfig({id:'k', value:'v'});
+                describe('observing public config', function () {
+                    beforeEach(function () {
+                        binarta.application.gateway.addSectionData({type: 'config', key: 'k'});
+                        binarta.application.gateway.addPublicConfig({id: 'k', value: 'v'});
                         binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
 
                         $ctrl.config.public.observe('k', spy);
@@ -591,7 +737,7 @@
                         expect(spy).toHaveBeenCalledWith('-')
                     });
 
-                    it('disconnects $onDestroy', function() {
+                    it('disconnects $onDestroy', function () {
                         $ctrl.$onDestroy();
                         binarta.application.config.cache('k', '-');
                         expect(spy).not.toHaveBeenCalledWith('-')
@@ -601,6 +747,21 @@
 
             function expectHref(a) {
                 return expect(a.href.replace(/^http:\/\/[^\/]+\//, ''));
+            }
+
+            function setPrimaryLanguage(locale) {
+                setSupportedLanguages(locale ? [locale] : [])
+            }
+
+            function setSupportedLanguages(languages) {
+                if (languages.length > 0)
+                    binarta.application.gateway.updateApplicationProfile({supportedLanguages: languages});
+                binartaGatewaysAreInitialised.resolve();
+                $rootScope.$digest();
+            }
+
+            function setLocaleForPresentation(locale) {
+                $rootScope.$broadcast('$routeChangeStart', {params: {locale: locale}});
             }
         });
 

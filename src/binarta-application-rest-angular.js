@@ -39,7 +39,7 @@
         this.fetchSectionData = function (request, response) {
             gateway.$http({
                 method: 'GET',
-                url: gateway.config.baseUri + 'api/adhesive/reading/stream/' + gateway.config.namespace + '/' + gateway.binarta.application.locale() + '/section' + request.id
+                url: gateway.config.baseUri + 'api/adhesive/reading/stream/' + gateway.config.namespace + '/' + gateway.binarta.application.localeForPresentation() + '/section' + request.id
             }).then(function (it) {
                 response.success(it.data);
             });

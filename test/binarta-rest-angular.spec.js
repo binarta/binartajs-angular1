@@ -11,11 +11,11 @@
             $http = $httpBackend;
             $rootScope = _$rootScope_;
 
-            binarta.application.setLocale('en');
-            binarta.application.setExternalLocale('en');
-
             config.namespace = 'n';
             config.baseUri = 'http://host/';
+
+            binarta.application.setLocale('default');
+            binarta.application.setLocaleForPresentation('en');
 
             ui = new UI();
             response = jasmine.createSpyObj('response', [
@@ -583,7 +583,9 @@
         'binarta-applicationjs-rest-angular1',
         'binarta-checkpointjs-rest-angular1',
         'binarta-shopjs-rest-angular1'
-    ]);
+    ]).factory('binartaReadRouteOnLocaleChange', function () {
+        return false;
+    });
 
     function UI() {
         var self = this;

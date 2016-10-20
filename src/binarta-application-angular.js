@@ -8,7 +8,8 @@
     ])
         .provider('application', ['binartaApplicationGatewayProvider', ApplicationProvider])
         .config(['binartaProvider', 'applicationProvider', ExtendBinarta])
-        .factory('extendBinartaApplication', ['binartaApplicationExternalLocaleIsSet.deferred', '$location', ExtendBinartaApplicationFactory])
+        .factory('binartaReadRouteOnLocaleChange', AlwaysReadRouteOnLocaleChange)
+        .factory('extendBinartaApplication', ['binartaApplicationExternalLocaleIsSet.deferred', '$location', 'binartaReadRouteOnLocaleChange', ExtendBinartaApplicationFactory])
         .factory('binartaApplicationExternalLocaleIsSet.deferred', ['$q', IsInitialisedDeferredFactory])
         .factory('binartaApplicationRefresh', ['$q', IsInitialisedDeferredFactory])
         .factory('binartaApplicationAdhesiveReadingInitialised', ['$q', IsInitialisedDeferredFactory])
@@ -59,44 +60,50 @@
         binarta.addSubSystems({application: applicationProvider.application});
     }
 
-    function ExtendBinartaApplicationFactory(externalLocaleD, $location) {
+    function AlwaysReadRouteOnLocaleChange() {
+        return true;
+    }
+
+    function ExtendBinartaApplicationFactory(externalLocaleD, $location, readRouteOnLocaleChange) {
         function ExternalLocaleListener(app) {
             var listener = this;
 
-            this.setExternalLocale = function (locale) {
+            this.setLocaleForPresentation = function (locale) {
                 app.eventRegistry.remove(listener);
                 externalLocaleD.resolve();
             }
         }
 
-        return function (app) {
-            var externalLocale = -1;
+        function ApplicationInitializer(app) {
+            this.setLocale = function (locale) {
+                if(readRouteOnLocaleChange) {
+                    app.adhesiveReading.readRoute();
+                }
+            };
 
+            this.applyLocale = function (locale) {
+                $location.path('/' + locale + app.unlocalizedPath());
+            };
+
+            this.unlocalized = function () {
+                $location.path(app.unlocalizedPath());
+            };
+        }
+
+        return function (app) {
             app.eventRegistry.add(new ExternalLocaleListener(app));
 
-            app.externalLocale = function () {
-                return externalLocale == -1 ? undefined : externalLocale;
-            };
-
-            app.setExternalLocale = function (locale) {
-                var changed = externalLocale != locale;
-                externalLocale = locale;
-                if (changed)
-                    app.eventRegistry.forEach(function (l) {
-                        l.notify('setExternalLocale', locale);
-                    });
-            };
-
             app.unlocalizedPath = function () {
-                var locale = app.externalLocale();
+                var locale = app.localeForPresentation();
                 var path = $location.path();
                 return locale ? path.replace('/' + locale, '') : path;
             };
 
             app.adhesiveReading.readRoute = function () {
-                if (app.locale() && externalLocale != -1)
-                    app.adhesiveReading.read(app.unlocalizedPath());
-            }
+                app.adhesiveReading.read(app.unlocalizedPath());
+            };
+
+            app.eventRegistry.add(new ApplicationInitializer(app));
         }
     }
 
@@ -119,12 +126,12 @@
                     application.eventRegistry.remove(listener);
                 });
                 ctx.href = attrs[directive.attributeName];
-                ctx.locale = application.externalLocale();
+                ctx.locale = application.localeForPresentation();
                 directive.apply(a, ctx);
             } else throw new Error('bin-href attribute is only supported on anchor elements!');
 
             function ExternalLocaleListener(a, ctx) {
-                this.setExternalLocale = function (locale) {
+                this.setLocaleForPresentation = function (locale) {
                     ctx.locale = locale;
                     directive.apply(a, ctx);
                 }
@@ -159,8 +166,7 @@
 
     function InstallRouteChangeListeners($rootScope, application) {
         $rootScope.$on('$routeChangeStart', function (evt, n) {
-            application.setExternalLocale(n.params.locale);
-            application.adhesiveReading.readRoute();
+            application.setLocaleForPresentation(n.params.locale);
         });
     }
 
@@ -187,7 +193,7 @@
         }
 
         configIsInitialised.promise.then(function () {
-            $q.all([adhesiveReadingD.promise]).then(cachesD.resolve)
+            $q.all([adhesiveReadingD.promise]).then(cachesD.resolve);
         });
     }
 
@@ -207,15 +213,15 @@
         return d.promise;
     }
 
-    binComponentControllerExtenders.push(function($ctrl) {
+    binComponentControllerExtenders.push(function ($ctrl) {
         $ctrl.config = new ComponentControllerConfig($ctrl);
     });
 
     function ComponentControllerPublicConfig($ctrl) {
         var self = this;
 
-        self.observe = function(k, cb) {
-            binarta.schedule(function() {
+        self.observe = function (k, cb) {
+            binarta.schedule(function () {
                 $ctrl.addDestroyHandler(binarta.application.config.observePublic(k, cb).disconnect);
             });
         }
