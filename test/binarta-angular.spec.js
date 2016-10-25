@@ -251,9 +251,8 @@
                 expect(binarta.application.localeForPresentation()).toEqual('nl');
             });
 
-            it('resolving external locale uninstalls the external locale listener used to resolve an internal promise for tracking configuration completion', function () {
-                $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
-                $rootScope.$digest();
+            it('resolving locale uninstalls the external locale listener used to resolve an internal promise for tracking configuration completion', function () {
+                binarta.application.setLocale('-');
                 var uninstalled = true;
                 binarta.application.eventRegistry.forEach(function (l) {
                     if (l.constructor.name == 'ExternalLocaleListener')
@@ -269,7 +268,7 @@
             });
 
             it('when gateways and external locale are resolved then application config also resolves', function () {
-                $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
+                binarta.application.setLocale('-');
                 binartaGatewaysAreInitialised.resolve();
                 $rootScope.$digest();
                 expect(isApplicationConfigInitialisedListener).toHaveBeenCalled();

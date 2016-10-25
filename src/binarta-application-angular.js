@@ -68,7 +68,7 @@
         function ExternalLocaleListener(app) {
             var listener = this;
 
-            this.setLocaleForPresentation = function (locale) {
+            this.setLocale = function (locale) {
                 app.eventRegistry.remove(listener);
                 externalLocaleD.resolve();
             }
