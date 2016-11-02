@@ -166,7 +166,8 @@
 
     function InstallRouteChangeListeners($rootScope, application) {
         $rootScope.$on('$routeChangeStart', function (evt, n) {
-            application.setLocaleForPresentation(n.params.locale);
+            if(n.redirectTo == undefined)
+                application.setLocaleForPresentation(n.params.locale);
         });
     }
 

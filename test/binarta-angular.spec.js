@@ -322,6 +322,12 @@
                     });
                 });
 
+                it('given the primary language is set then route redirects are ignored to prevent endless digest loops', function () {
+                    setPrimaryLanguage('en');
+                    $rootScope.$broadcast('$routeChangeStart', {redirectTo: '-', params: {}});
+                    expect($location.path()).toEqual('/');
+                });
+
                 describe('given the primary language is set and the external locale is undefined', function () {
                     beforeEach(function () {
                         setPrimaryLanguage('en');
