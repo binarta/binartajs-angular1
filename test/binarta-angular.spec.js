@@ -1835,40 +1835,50 @@
 
             describe('ViolationsController', function () {
                 var ctrl, timeout;
+
                 beforeEach(inject(function (_$timeout_, $controller) {
                     ctrl = $controller('ViolationsController');
-                    ctrl.src = ['violation'];
                     ctrl.fadeAfter = 100;
-                    timeout=_$timeout_;
-
+                    timeout = _$timeout_;
                 }));
 
-                it('violations get deleted', function () {
-                    ctrl.$onChanges();
-                    timeout.flush();
-                    expect(ctrl.src).toEqual([]);
-                });
-
-                it('violations get deleted after some seconds', function () {
-                    ctrl.$onChanges();
-                    timeout.flush(99);
-                    expect(ctrl.src).toEqual(['violation']);
-                    timeout.flush(1);
-                    expect(ctrl.src).toEqual([]);
-                });
-
-                it('there stay no trailing timeouts', function () {
-                   ctrl.$onChanges();
-                    timeout.flush(50);
-                    ctrl.$onChanges();
-                    timeout.flush(100);
-                    timeout.verifyNoPendingTasks();
-                });
-
-                it('when there are no errors', function () {
-                    ctrl.src=undefined;
+                it('given there are no violations then onChanges does nothing', function () {
                     ctrl.$onChanges();
                     timeout.verifyNoPendingTasks();
+                });
+
+                describe('given there are violations', function () {
+                    beforeEach(function () {
+                        ctrl.src = ['violation'];
+                        ctrl.$onChanges();
+                    });
+
+                    describe('and timeout has not been reached', function () {
+                        beforeEach(function () {
+                            timeout.flush(ctrl.fadeAfter - 1);
+                        });
+
+                        it('then violations do not fade away', function () {
+                            expect(ctrl.src).toEqual(['violation']);
+                        });
+
+                        it('then fade away is cancelled', function () {
+                            ctrl.$onChanges();
+                            timeout.flush(ctrl.fadeAfter - 1);
+                            expect(ctrl.src).toEqual(['violation']);
+                        });
+
+                        it('then cancelled fade away completes after the timeout', function () {
+                            ctrl.$onChanges();
+                            timeout.flush(ctrl.fadeAfter);
+                            timeout.verifyNoPendingTasks();
+                        });
+                    });
+
+                    it('violations fade away once the timeout has been reached', function () {
+                        timeout.flush(ctrl.fadeAfter);
+                        expect(ctrl.src).toEqual([]);
+                    });
                 });
             });
         });
