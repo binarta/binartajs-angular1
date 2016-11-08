@@ -1831,7 +1831,46 @@
                     $ctrl.$onInit();
                     expect($ctrl.onConfirmed).toHaveBeenCalledWith({token: 't'});
                 }));
-            })
+            });
+
+            describe('ViolationsController', function () {
+                var ctrl, timeout;
+                beforeEach(inject(function (_$timeout_, $controller) {
+                    ctrl = $controller('ViolationsController');
+                    ctrl.src = ['violation'];
+                    ctrl.fadeAfter = 100;
+                    timeout=_$timeout_;
+
+                }));
+
+                it('violations get deleted', function () {
+                    ctrl.$onChanges();
+                    timeout.flush();
+                    expect(ctrl.src).toEqual([]);
+                });
+
+                it('violations get deleted after some seconds', function () {
+                    ctrl.$onChanges();
+                    timeout.flush(99);
+                    expect(ctrl.src).toEqual(['violation']);
+                    timeout.flush(1);
+                    expect(ctrl.src).toEqual([]);
+                });
+
+                it('there stay no trailing timeouts', function () {
+                   ctrl.$onChanges();
+                    timeout.flush(50);
+                    ctrl.$onChanges();
+                    timeout.flush(100);
+                    timeout.verifyNoPendingTasks();
+                });
+
+                it('when there are no errors', function () {
+                    ctrl.src=undefined;
+                    ctrl.$onChanges();
+                    timeout.verifyNoPendingTasks();
+                });
+            });
         });
 
         function expectApplicationListenerUninstalled(listenerName) {
@@ -1930,6 +1969,8 @@
         $ctrl.constructorArguments = arguments;
         $ctrl.customAttribute = 'custom-attribute';
     }
+
+
 })();
 
 var $ = function () {
