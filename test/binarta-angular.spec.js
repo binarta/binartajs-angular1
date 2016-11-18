@@ -1836,8 +1836,8 @@
             describe('ViolationsController', function () {
                 var ctrl, timeout;
 
-                beforeEach(inject(function (_$timeout_, $controller) {
-                    ctrl = $controller('ViolationsController');
+                beforeEach(inject(function (_$timeout_, $componentController) {
+                    ctrl = $componentController('binViolations');
                     ctrl.fadeAfter = 100;
                     timeout = _$timeout_;
                 }));

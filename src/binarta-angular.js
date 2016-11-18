@@ -7,8 +7,7 @@
         .factory('binartaIsInitialised', ['$q', 'binarta', 'binartaGatewaysAreInitialised', 'binartaConfigIsInitialised', 'binartaCachesAreInitialised', IsInitialisedFactory])
         .component('binContentHeader', new ContentHeaderComponent())
         .component('binViolations', new ViolationsComponent())
-        .controller('ContentHeaderController', ['binarta', ContentHeaderController])
-        .controller('ViolationsController', ['$timeout', ViolationsController]);
+        .controller('ContentHeaderController', ['binarta', ContentHeaderController]);
 
     function BinartaProvider() {
         this.ui = new UI();
@@ -72,7 +71,7 @@
             fadeAfter: '@',
             codePrefix: '@'
         };
-        this.controller = 'ViolationsController';
+        this.controller = ['$timeout', ViolationsController];
         this.templateUrl = 'bin-all-violations.html';
     }
 
