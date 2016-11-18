@@ -225,7 +225,13 @@
             binarta.schedule(function () {
                 $ctrl.addDestroyHandler(binarta.application.config.observePublic(k, cb).disconnect);
             });
-        }
+        };
+
+        self.find = function (k, cb) {
+            binarta.schedule(function () {
+                binarta.application.config.findPublic(k, cb);
+            });
+        };
     }
 
     function ComponentControllerConfig($ctrl) {

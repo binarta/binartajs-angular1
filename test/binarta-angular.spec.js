@@ -797,6 +797,31 @@
                         expect(spy).not.toHaveBeenCalledWith('-')
                     });
                 });
+
+                describe('find public config', function () {
+                    describe('with known value', function () {
+                        beforeEach(function () {
+                            binarta.application.gateway.addPublicConfig({id: 'k', value: 'v'});
+                            binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                            $ctrl.config.public.find('k', spy);
+                        });
+
+                        it('triggers immediately with current known config value', function () {
+                            expect(spy).toHaveBeenCalledWith('v')
+                        });
+                    });
+
+                    describe('with unknown value', function () {
+                        beforeEach(function () {
+                            binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                            $ctrl.config.public.find('k', spy);
+                        });
+
+                        it('triggers immediately with current known config value', function () {
+                            expect(spy).toHaveBeenCalledWith('')
+                        });
+                    });
+                });
             });
 
             function expectHref(a) {
