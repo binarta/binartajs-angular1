@@ -65,6 +65,30 @@
             this.inverted = binarta.invertedHeaderTitles;
         }
     }
+
+    function ViolationsComponent() {
+        this.bindings = {
+            src: '<',
+            fadeAfter: '@',
+            codePrefix: '@'
+        };
+        this.controller = 'ViolationsController';
+        this.templateUrl = 'bin-all-violations.html';
+    }
+
+    function ViolationsController($timeout) {
+        var ctrl = this;
+        var promise;
+
+        this.$onChanges = function () {
+            if (ctrl.src) {
+                if (promise) $timeout.cancel(promise);
+                promise = $timeout(function () {
+                    ctrl.src = [];
+                }, ctrl.fadeAfter);
+            }
+        }
+    }
 })();
 
 var binComponentControllerExtenders = [];
@@ -115,28 +139,4 @@ function binComponentController(ConcreteController) {
     }
 
     return AbstractController;
-}
-
-function ViolationsComponent() {
-    this.bindings = {
-        src: '<',
-        fadeAfter: '@',
-        codePrefix: '@'
-    };
-    this.controller = 'ViolationsController';
-    this.templateUrl = 'bin-all-violations.html';
-}
-
-function ViolationsController($timeout) {
-    var ctrl = this;
-    var promise;
-
-    this.$onChanges = function () {
-        if (ctrl.src) {
-            if (promise) $timeout.cancel(promise);
-            promise = $timeout(function () {
-                ctrl.src = [];
-            }, ctrl.fadeAfter);
-        }
-    }
 }
