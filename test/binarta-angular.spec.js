@@ -102,8 +102,8 @@
         describe('ContentHeaderController', function () {
             var $ctrl;
 
-            beforeEach(inject(function ($controller) {
-                $ctrl = $controller('ContentHeaderController');
+            beforeEach(inject(function ($componentController) {
+                $ctrl = $componentController('binContentHeader');
             }));
 
             it('titles are not inverted by default', function () {

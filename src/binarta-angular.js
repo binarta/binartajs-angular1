@@ -6,8 +6,7 @@
         .factory('binartaCachesAreInitialised', ['$q', 'binartaConfigIsInitialised', CachesAreInitialisedFactory])
         .factory('binartaIsInitialised', ['$q', 'binarta', 'binartaGatewaysAreInitialised', 'binartaConfigIsInitialised', 'binartaCachesAreInitialised', IsInitialisedFactory])
         .component('binContentHeader', new ContentHeaderComponent())
-        .component('binViolations', new ViolationsComponent())
-        .controller('ContentHeaderController', ['binarta', ContentHeaderController]);
+        .component('binViolations', new ViolationsComponent());
 
     function BinartaProvider() {
         this.ui = new UI();
@@ -55,7 +54,7 @@
             titleKey: '@',
             subTitleKey: '@'
         };
-        this.controller = 'ContentHeaderController';
+        this.controller = ['binarta', ContentHeaderController];
         this.templateUrl = 'bin-all-content-header.html'
     }
 
