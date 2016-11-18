@@ -19,7 +19,7 @@ var minifyHtmlOpts = {
 };
 
 gulp.task('all-bootstrap3', function () {
-    gulp.src('template/bootstrap3/bin-all-*.html')
+    gulp.src(['template/bin-all-*.html', 'template/bootstrap3/bin-all-*.html'])
         .pipe(minifyHtml(minifyHtmlOpts))
         .pipe(templateCache('binarta-all-tpls-bootstrap3-angular1.js', {standalone: true, module: 'binarta-alljs-tpls-angular1'}))
         .pipe(gulp.dest('src'));

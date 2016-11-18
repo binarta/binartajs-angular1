@@ -167,6 +167,25 @@
             });
         });
 
+        describe('binPlatformSignature component', function () {
+            var ctrl;
+
+            beforeEach(inject(function ($componentController) {
+                ctrl = $componentController('binPlatformSignature');
+            }));
+
+            it('use Binarta signature by default', function () {
+                binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                expect(ctrl.signature).toEqual('binarta');
+            });
+
+            it('use brand-name from config', function () {
+                binarta.application.config.cache('platform.brand', 'websters');
+                binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                expect(ctrl.signature).toEqual('websters');
+            });
+        });
+
         describe('component controller decorator', function () {
             var spy1, spy2;
 

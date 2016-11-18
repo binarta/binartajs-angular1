@@ -6,7 +6,8 @@
         .factory('binartaCachesAreInitialised', ['$q', 'binartaConfigIsInitialised', CachesAreInitialisedFactory])
         .factory('binartaIsInitialised', ['$q', 'binarta', 'binartaGatewaysAreInitialised', 'binartaConfigIsInitialised', 'binartaCachesAreInitialised', IsInitialisedFactory])
         .component('binContentHeader', new ContentHeaderComponent())
-        .component('binViolations', new ViolationsComponent());
+        .component('binViolations', new ViolationsComponent())
+        .component('binPlatformSignature', new PlatformSignatureComponent());
 
     function BinartaProvider() {
         this.ui = new UI();
@@ -86,6 +87,20 @@
                 }, ctrl.fadeAfter);
             }
         }
+    }
+
+    function PlatformSignatureComponent() {
+        this.templateUrl = 'bin-all-platform-signature.html';
+
+        this.controller = ['binarta', binComponentController(function (binarta) {
+            var $ctrl = this;
+
+            $ctrl.config.public.find('platform.brand', setSignature);
+
+            function setSignature(name) {
+                $ctrl.signature = name || 'binarta';
+            }
+        })];
     }
 })();
 
