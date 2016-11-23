@@ -1,0 +1,16 @@
+{
+  "msgs": {
+    "nl": {
+      "platform.signature.websters": "Straf werk van <strong>de Websters</strong>"
+    },
+    "en": {
+      "platform.signature.websters": "Crafted by <strong>the Websters</strong>"
+    },
+    "fr": {
+      "platform.signature.websters": "Crafted by <strong>the Websters</strong>"
+    },
+    "de": {
+      "platform.signature.websters": "Crafted by <strong>the Websters</strong>"
+    }
+  }
+}

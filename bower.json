@@ -1,6 +1,9 @@
 {
   "name": "binartajs-angular1",
-  "main": "./src/binarta-angular.js",
+  "main": [
+    "./src/binarta-angular.js",
+    "./metadata-system.json"
+  ],
   "dependencies": {
     "binartajs": "1.*.*",
     "binarta.web.storage.angular": "0.*.*",
