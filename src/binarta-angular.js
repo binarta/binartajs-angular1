@@ -92,13 +92,25 @@
     function PlatformSignatureComponent() {
         this.templateUrl = 'bin-all-platform-signature.html';
 
-        this.controller = ['binarta', binComponentController(function (binarta) {
+        this.controller = ['$document', 'binarta', binComponentController(function ($document, binarta) {
             var $ctrl = this;
 
             $ctrl.config.public.find('platform.brand', setSignature);
 
             function setSignature(name) {
                 $ctrl.signature = name || 'binarta';
+                setWebAuthorMetaTag($ctrl.signature);
+            }
+
+            function setWebAuthorMetaTag(signature) {
+                var head = $document.find('head');
+                var metaName = 'web_author';
+                var result = head.find('meta[name="' + metaName + '"]');
+                if (result.length == 0) head.prepend('<meta name="' + metaName + '" content="' + capitalize(signature) + '">');
+            }
+
+            function capitalize(signature) {
+                return signature.charAt(0).toUpperCase() + signature.slice(1);
             }
         })];
     }

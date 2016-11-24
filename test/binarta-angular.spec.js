@@ -168,21 +168,54 @@
         });
 
         describe('binPlatformSignature component', function () {
-            var ctrl;
+            var ctrl, $document, headSpy, metaSpy;
 
-            beforeEach(inject(function ($componentController) {
+            beforeEach(inject(function ($componentController, _$document_) {
+                $document = _$document_;
+                headSpy = jasmine.createSpyObj('head', ['find', 'prepend']);
+                headSpy.find.and.returnValue([]);
+                $document.find = jasmine.createSpy('find').and.returnValue(headSpy);
                 ctrl = $componentController('binPlatformSignature');
             }));
 
+            function triggerBinartaSchedule() {
+                binarta.application.adhesiveReading.read('-');
+            }
+
             it('use Binarta signature by default', function () {
-                binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                triggerBinartaSchedule();
                 expect(ctrl.signature).toEqual('binarta');
             });
 
             it('use brand-name from config', function () {
                 binarta.application.config.cache('platform.brand', 'websters');
-                binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                triggerBinartaSchedule();
                 expect(ctrl.signature).toEqual('websters');
+            });
+
+            describe('when metadata tag web_author does not exist', function () {
+                beforeEach(function () {
+                    triggerBinartaSchedule();
+                });
+
+                it('search for meta tag', function () {
+                    expect(headSpy.find).toHaveBeenCalledWith('meta[name="web_author"]');
+                });
+
+                it('web_author meta tag is placed in head', function () {
+                    expect(headSpy.prepend).toHaveBeenCalledWith('<meta name="web_author" content="Binarta">');
+                });
+            });
+
+            describe('when metadata tag web_author already exist', function () {
+                beforeEach(function () {
+                    headSpy.find.and.returnValue([{}]);
+                    triggerBinartaSchedule();
+                });
+
+                it('do nothing', function () {
+                    expect(headSpy.prepend).not.toHaveBeenCalled();
+                });
             });
         });
 
