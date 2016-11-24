@@ -1,16 +1,16 @@
 {
   "msgs": {
     "nl": {
-      "platform.signature.websters": "Straf werk van <strong>de Websters</strong>"
+      "platform.signature.websters": "Straf werk van de <strong>Websters</strong>"
     },
     "en": {
-      "platform.signature.websters": "Crafted by <strong>the Websters</strong>"
+      "platform.signature.websters": "Crafted by the <strong>Websters</strong>"
     },
     "fr": {
-      "platform.signature.websters": "Crafted by <strong>the Websters</strong>"
+      "platform.signature.websters": "Crafted by the <strong>Websters</strong>"
     },
     "de": {
-      "platform.signature.websters": "Crafted by <strong>the Websters</strong>"
+      "platform.signature.websters": "Crafted by the <strong>Websters</strong>"
     }
   }
 }
