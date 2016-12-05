@@ -72,7 +72,7 @@
 
             describe('fetchSectionData', function () {
                 beforeEach(function () {
-                    request = {id: 's', locale:'en'};
+                    request = {id: 's', locale: 'en'};
                     expectedHttpRequest = $http.expectGET('http://host/api/adhesive/reading/stream/n/en/sections');
                 });
 
@@ -564,6 +564,25 @@
                 it('on success', function () {
                     capturedRequest(0).success();
                     expect(ui.confirmedBillingAgreementRequest).toBeTruthy();
+                });
+            });
+
+            describe('find coupon by id', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectGET('http://host/api/entity/coupon?namespace=n&code=c&treatInputAsId=true');
+                    gateway.findCouponById({id: 'c'}, response);
+                });
+
+                it('on success', function () {
+                    expectedHttpRequest.respond(200, 'coupon');
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('coupon');
+                });
+
+                it('on not found', function () {
+                    expectedHttpRequest.respond(404);
+                    $http.flush();
+                    expect(response.notFound).toHaveBeenCalled();
                 });
             });
         });

@@ -1958,6 +1958,132 @@
                     expect($ctrl.onConfirmed).toHaveBeenCalledWith({token: 't'});
                 }));
             });
+
+            describe('bin-coupon component', function () {
+                var $ctrl, order;
+
+                beforeEach(inject(function ($componentController) {
+                    $ctrl = $componentController('binCoupon', null, {});
+
+                    order = {items: []};
+                    binarta.shop.checkout.start(order, [
+                        'summary',
+                        'completed'
+                    ]);
+                }));
+
+                it('expose verification is not disabled to template', function() {
+                    expect($ctrl.isVerificationDisabled()).toBeFalsy();
+                });
+
+                it('is required tests purchase order requirement exists on application profile', function () {
+                    expect($ctrl.isRequired()).toBeFalsy();
+
+                    binarta.application.gateway.updateApplicationProfile({
+                        purchaseOrderRequirements: [{name: 'coupon'}]
+                    });
+                    binarta.application.refresh();
+
+                    expect($ctrl.isRequired()).toBeTruthy();
+                });
+
+                describe('when verifying an unknown coupon code', function () {
+                    beforeEach(function () {
+                        $ctrl.couponCode = '-';
+                        $ctrl.verify();
+                    });
+
+                    it('then expose coupon invalid', function () {
+                        expect($ctrl.couponInvalid).toBeTruthy();
+                    });
+
+                    it('and resetting coupon validation then coupon invalid marker is removed', function () {
+                        $ctrl.resetCouponValidation();
+                        expect($ctrl.couponInvalid).toBeFalsy();
+                    });
+
+                    it('and re-verification resets previous results', function () {
+                        binarta.shop.gateway.addCoupon({id: 'x'});
+                        $ctrl.couponCode = 'x';
+                        $ctrl.verify();
+                        expect($ctrl.couponInvalid).toBeFalsy();
+                    });
+                });
+
+                describe('when verifying a known coupon code', function () {
+                    beforeEach(function () {
+                        binarta.shop.gateway.addCoupon({id: 'x'});
+                        $ctrl.couponCode = 'x';
+                        $ctrl.verify();
+                    });
+
+                    it('then expose coupon valid', function () {
+                        expect($ctrl.couponValid).toBeTruthy();
+                    });
+
+                    it('then apply coupon to checkout order', function () {
+                        binarta.shop.gateway = jasmine.createSpyObj('spy', ['submitOrder']);
+                        binarta.shop.checkout.confirm();
+                        expect(binarta.shop.gateway.submitOrder).toHaveBeenCalledWith({
+                            coupon: 'x',
+                            termsAndConditions: 'accepted',
+                            provider: 'wire-transfer',
+                            items: []
+                        }, jasmine.any(Object));
+                    });
+
+                    it('and resetting coupon validation then coupon valid marker is removed', function () {
+                        $ctrl.resetCouponValidation();
+                        expect($ctrl.couponValid).toBeFalsy();
+                    });
+
+                    it('and re-verification resets previous results', function () {
+                        $ctrl.couponCode = '-';
+                        $ctrl.verify();
+                        expect($ctrl.couponValid).toBeFalsy();
+                    });
+                });
+
+                describe('given a coupon code', function () {
+                    beforeEach(function () {
+                        binarta.shop.gateway = jasmine.createSpyObj('spy', ['submitOrder']);
+                        $ctrl.couponCode = 'x';
+                    });
+
+                    it('when resetting coupon validation the coupon is not exposed on the checkout order', function () {
+                        $ctrl.resetCouponValidation();
+                        binarta.shop.checkout.confirm();
+                        expect(binarta.shop.gateway.submitOrder).toHaveBeenCalledWith({
+                            termsAndConditions: 'accepted',
+                            provider: 'wire-transfer',
+                            items: []
+                        }, jasmine.any(Object));
+                    });
+                });
+
+                describe('given verification is disabled', function() {
+                    beforeEach(inject(function($componentController) {
+                        $ctrl = $componentController('binCoupon', null, {verification: 'disabled'});
+                        binarta.shop.gateway = jasmine.createSpyObj('spy', ['submitOrder']);
+                    }));
+
+                    it('then expose verification is disabled to template', function() {
+                        expect($ctrl.isVerificationDisabled()).toBeTruthy();
+                    });
+
+                    it('when resetting coupon validation the coupon code is included on the checkout order without verification', function () {
+                        $ctrl.couponCode = 'x';
+                        $ctrl.resetCouponValidation();
+                        binarta.shop.checkout.confirm();
+                        expect(binarta.shop.gateway.submitOrder).toHaveBeenCalledWith({
+                            coupon: 'x',
+                            termsAndConditions: 'accepted',
+                            provider: 'wire-transfer',
+                            items: []
+                        }, jasmine.any(Object));
+                    });
+                });
+            });
         });
 
         function expectApplicationListenerUninstalled(listenerName) {
