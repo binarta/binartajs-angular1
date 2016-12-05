@@ -25,6 +25,15 @@
         </div>
         <div class="row">
             <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
+                <bin-coupon verification="disabled"></bin-coupon>
+                <p class="help-block" ng-repeat="v in $ctrl.violationReport().coupon"
+                   i18n code="shop.order.coupon.{{::v}}" read-only>
+                    {{::var}}
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
                 <div class="terms-agreement-message">
                     <small ng-init="ppoc.form.termsAndConditions = 'accepted'"
                            i18n code="shop.confirm.terms.message" read-only>

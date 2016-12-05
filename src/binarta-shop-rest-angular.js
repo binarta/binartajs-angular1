@@ -28,6 +28,8 @@
         return function (request) {
             if (request.status == 401)
                 response.unauthenticated();
+            if (request.status == 404)
+                response.notFound();
             if (request.status == 412)
                 response.rejected(request.data);
         };
@@ -178,6 +180,15 @@
                 success: ui.confirmedBillingAgreement
             })
         };
+
+        this.findCouponById = function (request, response) {
+            self.$http({
+                method: 'GET',
+                url: self.config.baseUri + 'api/entity/coupon?namespace=' + this.config.namespace + '&code=' + request.id + '&treatInputAsId=true'
+            }).then(function(it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        }
     }
 
     function GatewayIsInitialisedFactory($q) {

@@ -23,6 +23,7 @@
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
         .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
         .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
+        .component('binCoupon', new CouponComponent())
         .config(['binartaProvider', 'shopProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['shop', WireAngularDependencies])
@@ -104,10 +105,10 @@
         };
 
         function BasketEventListener() {
-            this.itemAdded = function() {
-                if(self.mode == 'add-to-basket-button') {
+            this.itemAdded = function () {
+                if (self.mode == 'add-to-basket-button') {
                     self.itemAdded = true;
-                    $timeout(function() {
+                    $timeout(function () {
                         self.itemAdded = false
                     }, 1000);
                 }
@@ -162,7 +163,7 @@
                 $ctrl.select($ctrl.initialAddress.label);
         };
 
-        this.$onDestroy = function() {
+        this.$onDestroy = function () {
             binarta.checkpoint.profile.eventRegistry.remove(profileEventListener);
         };
 
@@ -285,8 +286,8 @@
         }
 
         function ProfileEventListener($ctrl) {
-            this.updated = function() {
-                if($ctrl.awaitingAddressCreation) {
+            this.updated = function () {
+                if ($ctrl.awaitingAddressCreation) {
                     $ctrl.select($ctrl.form.label);
                     $ctrl.creatingAddress = false;
                     $ctrl.awaitingAddressCreation = false;
@@ -476,6 +477,47 @@
                 confirmationToken: $location.search().token
             });
         }
+    }
+
+    function CouponComponent() {
+        this.bindings = {
+            verification: '@'
+        };
+        this.controller = ['binarta', function (binarta) {
+            var $ctrl = this;
+
+            $ctrl.isRequired = function () {
+                var reqs = binarta.application.profile().purchaseOrderRequirements;
+                return reqs ? reqs.some(function (it) {
+                    return it.name == 'coupon';
+                }) : false;
+            };
+
+            $ctrl.verify = function () {
+                $ctrl.resetCouponValidation();
+                binarta.shop.couponDictionary.findById($ctrl.couponCode, {
+                    success: function () {
+                        $ctrl.couponValid = true;
+                        binarta.shop.checkout.setCouponCode($ctrl.couponCode);
+                    },
+                    notFound: function () {
+                        $ctrl.couponInvalid = true;
+                    }
+                });
+            };
+
+            $ctrl.resetCouponValidation = function () {
+                $ctrl.couponValid = false;
+                $ctrl.couponInvalid = false;
+                if ($ctrl.isVerificationDisabled())
+                    binarta.shop.checkout.setCouponCode($ctrl.couponCode);
+            };
+
+            $ctrl.isVerificationDisabled = function () {
+                return $ctrl.verification == 'disabled';
+            }
+        }];
+        this.templateUrl = 'bin-shop-coupon-component.html';
     }
 
     function UI() {
