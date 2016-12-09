@@ -3,6 +3,7 @@
     "nl": {
       "coupon.code.label": "Coupon Code",
       "coupon.code.submit": "verifiëren",
+      "coupon.code.purpose": "Voer code in om een bestelling te plaatsen.",
       "coupon.code.invalid": "Deze coupon code is ongeldig!",
       "shop.order.coupon.exists": "Deze coupon code is ongeldig!",
       "platform.signature.websters": "Straf werk van de <strong>Websters</strong>"
@@ -11,12 +12,14 @@
       "coupon.code.label": "Coupon Code",
       "coupon.code.submit": "verify",
       "coupon.code.invalid": "This coupon code is invalid!",
+      "coupon.code.purpose": "Enter code to place an order.",
       "shop.order.coupon.exists": "This coupon code is invalid!",
       "platform.signature.websters": "Crafted by the <strong>Websters</strong>"
     },
     "fr": {
       "coupon.code.label": "Code Promo",
       "coupon.code.submit": "vérifier",
+      "coupon.code.purpose": "Entrez le code pour passer une commande.",
       "coupon.code.invalid": "Ce code promo n'est pas valide!",
       "shop.order.coupon.exists": "This coupon code is invalid!",
       "platform.signature.websters": "Crafted by the <strong>Websters</strong>"
@@ -24,6 +27,7 @@
     "de": {
       "coupon.code.label": "Gutscheincode",
       "coupon.code.submit": "überprüfen",
+      "coupon.code.purpose": "Geben Sie den Code ein, um eine Bestellung aufzugeben.",
       "coupon.code.invalid": "Dieser Gutscheincode ist ungültig!",
       "shop.order.coupon.exists": "This coupon code is invalid!",
       "platform.signature.websters": "Crafted by the <strong>Websters</strong>"

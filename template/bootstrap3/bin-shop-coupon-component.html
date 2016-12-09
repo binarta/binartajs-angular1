@@ -1,14 +1,22 @@
 <form class="coupon" ng-if="$ctrl.isRequired()">
     <div class="form-group" ng-class="{'has-warning': $ctrl.couponInvalid, 'has-success': $ctrl.couponValid}">
-        <div class="input-group input-group-sm">
-            <span class="input-group-addon"><i class="fa fa-users"></i></span>
-            <input type="text" class="form-control" i18n code="coupon.code.label"
-                   placeholder="{{var}}"
-                   ng-model="$ctrl.couponCode"
-                   ng-change="$ctrl.resetCouponValidation()">
-            <span class="input-group-btn" ng-if="!$ctrl.isVerificationDisabled() && $ctrl.couponCode">
-                <button class="btn btn-success" type="submit" ng-submit="$ctrl.verify()" i18n code="coupon.code.submit">{{var}}</button>
-            </span>
+        <div class="row">
+            <div class="col-xs-12 col-sm-6">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                    <input type="text" class="form-control" i18n code="coupon.code.label"
+                           placeholder="{{var}}"
+                           ng-model="$ctrl.couponCode"
+                           ng-change="$ctrl.resetCouponValidation()">
+                    <span class="input-group-btn" ng-if="!$ctrl.isVerificationDisabled() && $ctrl.couponCode">
+                        <button class="btn btn-success" type="submit" ng-submit="$ctrl.verify()" i18n
+                                code="coupon.code.submit">{{var}}</button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6" i18n code="coupon.code.purpose">
+                {{var}}
+            </div>
         </div>
         <div class="help-block" ng-if="$ctrl.couponCode && $ctrl.couponInvalid" i18n code="coupon.code.invalid">
             {{var}}
