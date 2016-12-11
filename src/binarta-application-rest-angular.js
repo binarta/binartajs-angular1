@@ -20,6 +20,8 @@
         return function (request) {
             if (request.status == 404)
                 response.notFound();
+            if (request.status == 412)
+                response.rejected(request.data, request.status);
         };
     }
 
@@ -62,6 +64,14 @@
             }).then(function (it) {
                 response.success(it.data.value);
             }, toErrorResponse(response));
+        };
+
+        this.submitContactForm = function (request, response) {
+            gateway.$http({
+                method: 'POST',
+                url: gateway.config.baseUri + 'api/contact/us',
+                data: request
+            }).then(response.success, toErrorResponse(response));
         }
     }
 
