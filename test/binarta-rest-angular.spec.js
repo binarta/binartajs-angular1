@@ -84,6 +84,32 @@
                 });
             });
 
+            describe('submitContactForm', function () {
+                beforeEach(function () {
+                    request = {
+                        name: 'Jan',
+                        email: 'jan@company.com',
+                        subject: "Hello",
+                        text: "I would like more info"
+                    };
+                    expectedHttpRequest = $http.expectPOST('http://host/api/contact/us', request);
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, '');
+                    gateway.submitContactForm(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'error');
+                    gateway.submitContactForm(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('error', 412);
+                });
+            });
+
             ['/', '/en/'].forEach(function (path) {
                 describe('findPublicConfig on ' + path, function () {
                     beforeEach(function () {
