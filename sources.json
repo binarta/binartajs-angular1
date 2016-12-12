@@ -6,7 +6,8 @@
     "binarta-checkpointjs-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-angular.js",
     "binarta-checkpointjs-rest-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-rest-angular.js",
     "binarta-checkpointjs-recaptcha-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-recaptcha-angular.js",
-    "binarta-checkpointjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-tpls-bootstrap3-angular1.js"
+    "binarta-checkpointjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-tpls-bootstrap3-angular1.js",
+    "binarta-alljs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-all-tpls-bootstrap3-angular1.js"
   },
   "shop": {
     "binarta-checkpointjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-shop-tpls-bootstrap3-angular1.js",
