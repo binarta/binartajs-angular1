@@ -12,6 +12,7 @@
   "shop": {
     "binarta-checkpointjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-shop-tpls-bootstrap3-angular1.js",
     "binarta-shopjs-angular1": "bower_components/binartajs-angular1/src/binarta-shop-angular.js",
+    "binarta-shopjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-shop-rest-angular.js",
     "binarta-shopjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-shop-tpls-bootstrap3-angular1.js"
   },
   "e2e":{
