@@ -2,7 +2,8 @@
     angular.module('binarta-shopjs-angular1', [
         'ngRoute',
         'binartajs-angular1',
-        'binarta-shopjs-gateways-angular1'
+        'binarta-shopjs-gateways-angular1',
+        'binarta-checkpointjs-angular1'
     ])
         .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', ShopProvider])
         .component('binBasket', new BasketComponent())
