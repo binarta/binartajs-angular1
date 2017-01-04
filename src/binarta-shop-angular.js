@@ -3,9 +3,10 @@
         'ngRoute',
         'binartajs-angular1',
         'binarta-shopjs-gateways-angular1',
-        'binarta-checkpointjs-angular1'
+        'binarta-checkpointjs-angular1',
+        'binarta-applicationjs-angular1'
     ])
-        .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', ShopProvider])
+        .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', 'applicationProvider', ShopProvider])
         .component('binBasket', new BasketComponent())
         .controller('BinartaBasketController', ['binarta', 'viewport', 'i18nLocation', '$timeout', BinartaBasketController])
         .component('binAddress', new AddressComponent())
@@ -36,8 +37,8 @@
         .run(['binarta', 'UserProfileController.decorator', InstallProfileExtensions])
         .run(['binartaIsInitialised', 'shop', InitCaches]);
 
-    function ShopProvider(gatewayProvider, checkpointProvider) {
-        this.shop = new BinartaShopjs(checkpointProvider.checkpoint);
+    function ShopProvider(gatewayProvider, checkpointProvider, applicationProvider) {
+        this.shop = new BinartaShopjs(checkpointProvider.checkpoint, {application: applicationProvider.application});
         this.shop.gateway = gatewayProvider.gateway;
         this.ui = new UI();
         this.$get = ['$window', '$location', 'localStorage', 'sessionStorage', function ($window, $location, localStorage, sessionStorage) {
@@ -47,7 +48,7 @@
             this.ui.location = $location;
             this.ui.sessionStorage = sessionStorage;
             return this.shop;
-        }]
+        }];
     }
 
     function BasketComponent() {
