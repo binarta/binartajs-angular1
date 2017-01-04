@@ -1054,6 +1054,12 @@
         });
 
         describe('binarta-shopjs-angular1', function () {
+            beforeEach(inject(function (binartaGatewaysAreInitialised) {
+                binarta.application.gateway.updateApplicationProfile({availablePaymentMethods: ['payment-method']});
+                binartaGatewaysAreInitialised.resolve();
+                $rootScope.$digest();
+            }));
+
             it('binarta is extended with shop', function () {
                 expect(binarta.shop).toBeDefined();
             });
@@ -1185,7 +1191,7 @@
                     });
 
                     it('expose payment provider', function () {
-                        expect(ctrl.getPaymentProvider()).toEqual('wire-transfer');
+                        expect(ctrl.getPaymentProvider()).toEqual('payment-method');
                     });
 
                     it('step set payment provider', function () {
@@ -2027,7 +2033,7 @@
                         expect(binarta.shop.gateway.submitOrder).toHaveBeenCalledWith({
                             coupon: 'x',
                             termsAndConditions: 'accepted',
-                            provider: 'wire-transfer',
+                            provider: 'payment-method',
                             items: []
                         }, jasmine.any(Object));
                     });
@@ -2055,7 +2061,7 @@
                         binarta.shop.checkout.confirm();
                         expect(binarta.shop.gateway.submitOrder).toHaveBeenCalledWith({
                             termsAndConditions: 'accepted',
-                            provider: 'wire-transfer',
+                            provider: 'payment-method',
                             items: []
                         }, jasmine.any(Object));
                     });
@@ -2078,7 +2084,7 @@
                         expect(binarta.shop.gateway.submitOrder).toHaveBeenCalledWith({
                             coupon: 'x',
                             termsAndConditions: 'accepted',
-                            provider: 'wire-transfer',
+                            provider: 'payment-method',
                             items: []
                         }, jasmine.any(Object));
                     });
