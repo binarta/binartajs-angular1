@@ -301,7 +301,8 @@
     function PaymentMethodsComponent() {
         this.bindings = {
             onSelect: '<',
-            default: '<'
+            default: '<',
+            violations: '<'
         };
         this.controller = 'BinartaPaymentMethodsController';
         this.templateUrl = 'bin-shop-payment-methods.html';

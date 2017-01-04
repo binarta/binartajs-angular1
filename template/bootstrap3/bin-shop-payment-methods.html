@@ -1,4 +1,4 @@
-<div class="panel panel-default">
+<div class="panel panel-default" ng-class="{'has-error': $ctrl.violations}">
     <div class="panel-heading" i18n code="shop.payment.method.panel.title" read-only>
         <i class="fa fa-credit-card-alt fa-fw"></i> {{::var}}
     </div>
@@ -15,5 +15,10 @@
                 </small>
             </div>
         </div>
+
+        <p class="help-block" ng-repeat="v in $ctrl.violations"
+           i18n code="shop.order.provider.{{::v}}" default="{{::v}}" read-only>
+            {{::var}}
+        </p>
     </div>
 </div>
