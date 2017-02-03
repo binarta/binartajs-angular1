@@ -1,14 +1,14 @@
 <div class="bin-basket-item thumbnail clearfix">
     <div ng-controller="binImageCarouselHeroController as hero"
          ng-init="hero.init({id: item.id, items: item.carousel})">
-        <a class="item-image" ng-href="{{::'/view' + item.id | i18nRoute}}" ng-if="::hero.image">
+        <a class="item-image" bin-href="{{::'/view' + item.id}}" ng-if="::hero.image">
             <img bin-image="{{::hero.image.path}}" read-only>
         </a>
     </div>
 
     <div class="caption">
         <h3 class="item-title">
-            <a ng-href="{{::'/view' + item.id | i18nRoute}}" i18n code="{{::item.id}}" read-only ng-bind="::var"></a>
+            <a bin-href="{{::'/view' + item.id}}" i18n code="{{::item.id}}" read-only ng-bind="::var"></a>
         </h3>
 
         <div class="item-remove" i18n code="shop.remove.item.confirm" read-only>

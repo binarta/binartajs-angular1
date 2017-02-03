@@ -1,4 +1,4 @@
-<a href="{{'/basket' | i18nRoute}}"
+<a bin-href="{{'/basket'}}"
    ng-if="($ctrl.mode == 'link' || $ctrl.mode == 'minimal-link') && $ctrl.preview.quantity > 0">
     <i class="fa fa-shopping-cart fa-fw"></i>
     ({{$ctrl.preview.quantity}}) <span ng-if="$ctrl.mode == 'link'">{{$ctrl.preview.presentablePrice}}</span>
