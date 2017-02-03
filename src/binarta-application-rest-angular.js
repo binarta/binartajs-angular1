@@ -18,9 +18,9 @@
 
     function toErrorResponse(response) {
         return function (request) {
-            if (request.status == 404)
+            if (request.status == 404 && response.notFound)
                 response.notFound();
-            if (request.status == 412)
+            if (request.status == 412 && response.rejected)
                 response.rejected(request.data, request.status);
         };
     }

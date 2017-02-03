@@ -108,6 +108,12 @@
                     $http.flush();
                     expect(response.rejected).toHaveBeenCalledWith('error', 412);
                 });
+
+                it('rejected and response handler is not given', function () {
+                    expectedHttpRequest.respond(412, 'error');
+                    gateway.submitContactForm(request, {});
+                    $http.flush();
+                });
             });
 
             ['/', '/en/'].forEach(function (path) {
@@ -139,6 +145,12 @@
                         gateway.findPublicConfig(request, response);
                         $http.flush();
                         expect(response.notFound).toHaveBeenCalled();
+                    });
+
+                    it('not found and response handler is not given', function () {
+                        expectedHttpRequest.respond(404);
+                        gateway.findPublicConfig(request, {});
+                        $http.flush();
                     });
                 });
             });
