@@ -16,7 +16,7 @@
       "coupon.code.purpose": "Enter code to place an order.",
       "shop.order.coupon.exists": "This coupon code is invalid.",
       "shop.order.provider.required": "Please select a payment method.",
-      "platform.signature.websters": "Crafted by the <strong>Websters</strong>"
+      "platform.signature.websters": "Crafted by <strong>Websters</strong>"
     },
     "fr": {
       "coupon.code.label": "Code Promo",
@@ -25,7 +25,7 @@
       "coupon.code.invalid": "Ce code promo n'est pas valide.",
       "shop.order.coupon.exists": "This coupon code is invalid.",
       "shop.order.provider.required": "Please select a payment method.",
-      "platform.signature.websters": "Crafted by the <strong>Websters</strong>"
+      "platform.signature.websters": "Crafted by <strong>Websters</strong>"
     },
     "de": {
       "coupon.code.label": "Gutscheincode",
@@ -34,7 +34,7 @@
       "coupon.code.invalid": "Dieser Gutscheincode ist ungültig.",
       "shop.order.coupon.exists": "This coupon code is invalid.",
       "shop.order.provider.required": "Please select a payment method.",
-      "platform.signature.websters": "Crafted by the <strong>Websters</strong>"
+      "platform.signature.websters": "Crafted by <strong>Websters</strong>"
     }
   }
 }
