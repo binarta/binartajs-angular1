@@ -580,20 +580,66 @@
                     });
                 });
 
-                it('when no external locale is specified on route', function () {
-                    setPrimaryLanguage(undefined);
-                    $location.path('/');
-                    $rootScope.$broadcast('$routeChangeStart', {params: {}});
-                    $rootScope.$digest();
-                    expect(requestedSectionId).toEqual('/');
+                describe('when no external locale is specified on route', function() {
+                    beforeEach(function() {
+                        setPrimaryLanguage(undefined);
+                        $location.path('/');
+                        $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                        $rootScope.$digest();
+                    });
+
+                    it('then adhesive reading is executed', function () {
+                        expect(requestedSectionId).toEqual('/');
+                    });
+
+                    it('and we change to the same route then adhesive reading is skipped', function() {
+                        requestedSectionId = undefined;
+
+                        $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                        $rootScope.$digest();
+
+                        expect(requestedSectionId).toBeUndefined();
+                    });
+
+                    it('and we change to a different route then adhesive reading is restarted', function() {
+                        $location.path('/custom-page');
+
+                        $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                        $rootScope.$digest();
+
+                        expect(requestedSectionId).toEqual('/custom-page');
+                    });
                 });
 
-                it('when external locale is specified on route then remove locale information from path', function () {
-                    setPrimaryLanguage('en');
-                    $location.path('/en/');
-                    $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
-                    $rootScope.$digest();
-                    expect(requestedSectionId).toEqual('/');
+                describe('when external local is specified on route', function() {
+                    beforeEach(function() {
+                        setPrimaryLanguage('en');
+                        $location.path('/en/');
+                        $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
+                        $rootScope.$digest();
+                    });
+
+                    it('then remove locale information from path', function () {
+                        expect(requestedSectionId).toEqual('/');
+                    });
+
+                    it('and we change to the same route then adhesive reading is skipped', function() {
+                        requestedSectionId = undefined;
+
+                        $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
+                        $rootScope.$digest();
+
+                        expect(requestedSectionId).toBeUndefined();
+                    });
+
+                    it('and we change to a different route then adhesive reading is restarted', function() {
+                        $location.path('/custom-page');
+
+                        $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
+                        $rootScope.$digest();
+
+                        expect(requestedSectionId).toEqual('/custom-page');
+                    });
                 });
             });
 

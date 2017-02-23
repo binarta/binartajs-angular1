@@ -76,7 +76,8 @@
 
         function ApplicationInitializer(app) {
             this.setLocale = function (locale) {
-                if(readRouteOnLocaleChange) {
+                if (readRouteOnLocaleChange) {
+                    app.localeSelected();
                     app.adhesiveReading.readRoute();
                 }
             };
@@ -92,6 +93,14 @@
 
         return function (app) {
             app.eventRegistry.add(new ExternalLocaleListener(app));
+
+            var localeSelected = false;
+            app.localeSelected = function() {
+                localeSelected = true;
+            };
+            app.isLocaleSelected = function() {
+                return localeSelected;
+            };
 
             app.unlocalizedPath = function () {
                 var locale = app.localeForPresentation();
@@ -166,8 +175,11 @@
 
     function InstallRouteChangeListeners($rootScope, application) {
         $rootScope.$on('$routeChangeStart', function (evt, n) {
-            if(n.redirectTo == undefined)
+            if (n.redirectTo == undefined) {
                 application.setLocaleForPresentation(n.params.locale);
+                if(application.isLocaleSelected())
+                    application.adhesiveReading.readRoute();
+            }
         });
     }
 
