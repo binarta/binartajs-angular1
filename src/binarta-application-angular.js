@@ -9,7 +9,7 @@
         .provider('application', ['binartaApplicationGatewayProvider', ApplicationProvider])
         .config(['binartaProvider', 'applicationProvider', ExtendBinarta])
         .factory('binartaReadRouteOnLocaleChange', AlwaysReadRouteOnLocaleChange)
-        .factory('extendBinartaApplication', ['binartaApplicationExternalLocaleIsSet.deferred', '$location', 'binartaReadRouteOnLocaleChange', '$timeout', ExtendBinartaApplicationFactory])
+        .factory('extendBinartaApplication', ['binartaApplicationExternalLocaleIsSet.deferred', '$location', 'binartaReadRouteOnLocaleChange', ExtendBinartaApplicationFactory])
         .factory('binartaApplicationExternalLocaleIsSet.deferred', ['$q', IsInitialisedDeferredFactory])
         .factory('binartaApplicationRefresh', ['$q', IsInitialisedDeferredFactory])
         .factory('binartaApplicationAdhesiveReadingInitialised', ['$q', IsInitialisedDeferredFactory])
@@ -64,7 +64,7 @@
         return true;
     }
 
-    function ExtendBinartaApplicationFactory(externalLocaleD, $location, readRouteOnLocaleChange, $timeout) {
+    function ExtendBinartaApplicationFactory(externalLocaleD, $location, readRouteOnLocaleChange) {
         function ExternalLocaleListener(app) {
             var listener = this;
 
@@ -83,10 +83,7 @@
             };
 
             this.applyLocale = function (locale) {
-                //TODO: Remove this timeout once the double request issue on chrome is fixed (BIN-1021)
-                $timeout(function () {
-                    $location.path('/' + locale + app.unlocalizedPath());
-                }, 2000);
+                $location.path('/' + locale + app.unlocalizedPath());
             };
 
             this.unlocalized = function () {

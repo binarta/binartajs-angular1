@@ -2,13 +2,13 @@
     var ui;
 
     describe('binartajs-angular', function () {
-        var binarta, $rootScope, $compile, $location, $routeParams, $ctrl, localStorage, sessionStorage, $timeout;
+        var binarta, $rootScope, $compile, $location, $routeParams, $ctrl, localStorage, sessionStorage;
 
         beforeEach(function () {
             ui = new UI();
         });
         beforeEach(module('binartajs-angular1-spec'));
-        beforeEach(inject(function (_binarta_, _$rootScope_, _$compile_, _$location_, _$routeParams_, _localStorage_, _sessionStorage_, _$timeout_) {
+        beforeEach(inject(function (_binarta_, _$rootScope_, _$compile_, _$location_, _$routeParams_, _localStorage_, _sessionStorage_) {
             binarta = _binarta_;
             $rootScope = _$rootScope_;
             $compile = _$compile_;
@@ -16,7 +16,6 @@
             $routeParams = _$routeParams_;
             localStorage = _localStorage_;
             sessionStorage = _sessionStorage_;
-            $timeout = _$timeout_;
 
             binarta.checkpoint.profile.signout();
             binarta.shop.basket.clear();
@@ -434,7 +433,6 @@
                     beforeEach(function () {
                         setPrimaryLanguage('en');
                         setLocaleForPresentation(undefined);
-                        $timeout.flush();
                     });
 
                     it('then redirect to localized path', function () {
@@ -496,7 +494,6 @@
                         $location.path('/fr/');
                         setPrimaryLanguage('en');
                         setLocaleForPresentation('fr');
-                        $timeout.flush();
                     });
 
                     it('then redirect to the primary language', function () {
@@ -544,7 +541,6 @@
                         $location.path('/en/');
                         setSupportedLanguages(['en', 'fr']);
                         setLocaleForPresentation('en');
-                        $timeout.flush();
                     });
 
                     it('when setting the external locale to the same value then adhesive reading is not executed', function () {
@@ -565,7 +561,6 @@
                     it('when removing language support for a language matching the external locale then redirect to the primary language', function () {
                         setPrimaryLanguage('fr');
                         binarta.application.refreshEvents();
-                        $timeout.flush();
                         expect($location.path()).toEqual('/fr/');
                     });
                 });
