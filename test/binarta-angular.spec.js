@@ -315,6 +315,26 @@
                 expect(isApplicationRefreshedListener).toHaveBeenCalled();
             });
 
+            describe('when binarta gateways are initialised and an application profile was manually loaded then skip application refresh', function () {
+                beforeEach(function() {
+                    binarta.application.setProfile({name: 'test-application-profile'});
+                    binarta.application.gateway = {
+                        clear: function () {
+                        }
+                    };
+                    binartaGatewaysAreInitialised.resolve();
+                    $rootScope.$digest();
+                });
+
+                it('and application refresh listener is resolved', function () {
+                    expect(isApplicationRefreshedListener).toHaveBeenCalled();
+                });
+
+                it('and application is initialised listener is resolved', function () {
+                    expect(applicationIsInitialisedListener).toHaveBeenCalled();
+                });
+            });
+
             it('application caches are not initialised before the binarta config is initialised', function () {
                 expect(areApplicationCachesInitialisedListener).not.toHaveBeenCalled();
             });
@@ -580,8 +600,8 @@
                     });
                 });
 
-                describe('when no external locale is specified on route', function() {
-                    beforeEach(function() {
+                describe('when no external locale is specified on route', function () {
+                    beforeEach(function () {
                         setPrimaryLanguage(undefined);
                         $location.path('/');
                         $rootScope.$broadcast('$routeChangeStart', {params: {}});
@@ -592,7 +612,7 @@
                         expect(requestedSectionId).toEqual('/');
                     });
 
-                    it('and we change to the same route then adhesive reading is skipped', function() {
+                    it('and we change to the same route then adhesive reading is skipped', function () {
                         requestedSectionId = undefined;
 
                         $rootScope.$broadcast('$routeChangeStart', {params: {}});
@@ -601,7 +621,7 @@
                         expect(requestedSectionId).toBeUndefined();
                     });
 
-                    it('and we change to a different route then adhesive reading is restarted', function() {
+                    it('and we change to a different route then adhesive reading is restarted', function () {
                         $location.path('/custom-page');
 
                         $rootScope.$broadcast('$routeChangeStart', {params: {}});
@@ -611,8 +631,8 @@
                     });
                 });
 
-                describe('when external local is specified on route', function() {
-                    beforeEach(function() {
+                describe('when external local is specified on route', function () {
+                    beforeEach(function () {
                         setPrimaryLanguage('en');
                         $location.path('/en/');
                         $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
@@ -623,7 +643,7 @@
                         expect(requestedSectionId).toEqual('/');
                     });
 
-                    it('and we change to the same route then adhesive reading is skipped', function() {
+                    it('and we change to the same route then adhesive reading is skipped', function () {
                         requestedSectionId = undefined;
 
                         $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
@@ -632,7 +652,7 @@
                         expect(requestedSectionId).toBeUndefined();
                     });
 
-                    it('and we change to a different route then adhesive reading is restarted', function() {
+                    it('and we change to a different route then adhesive reading is restarted', function () {
                         $location.path('/custom-page');
 
                         $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
@@ -2024,7 +2044,7 @@
                     ]);
                 }));
 
-                it('expose verification is not disabled to template', function() {
+                it('expose verification is not disabled to template', function () {
                     expect($ctrl.isVerificationDisabled()).toBeFalsy();
                 });
 
@@ -2113,13 +2133,13 @@
                     });
                 });
 
-                describe('given verification is disabled', function() {
-                    beforeEach(inject(function($componentController) {
+                describe('given verification is disabled', function () {
+                    beforeEach(inject(function ($componentController) {
                         $ctrl = $componentController('binCoupon', null, {verification: 'disabled'});
                         binarta.shop.gateway = jasmine.createSpyObj('spy', ['submitOrder']);
                     }));
 
-                    it('then expose verification is disabled to template', function() {
+                    it('then expose verification is disabled to template', function () {
                         expect($ctrl.isVerificationDisabled()).toBeTruthy();
                     });
 

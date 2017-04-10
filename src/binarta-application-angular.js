@@ -95,10 +95,10 @@
             app.eventRegistry.add(new ExternalLocaleListener(app));
 
             var localeSelected = false;
-            app.localeSelected = function() {
+            app.localeSelected = function () {
                 localeSelected = true;
             };
-            app.isLocaleSelected = function() {
+            app.isLocaleSelected = function () {
                 return localeSelected;
             };
 
@@ -177,7 +177,7 @@
         $rootScope.$on('$routeChangeStart', function (evt, n) {
             if (n.redirectTo == undefined) {
                 application.setLocaleForPresentation(n.params.locale);
-                if(application.isLocaleSelected())
+                if (application.isLocaleSelected())
                     application.adhesiveReading.readRoute();
             }
         });
@@ -185,10 +185,14 @@
 
     function InitConfig(gatewaysAreInitialised, refreshD, applicationD, application) {
         gatewaysAreInitialised.promise.then(function () {
-            application.refresh(function () {
+            var onRefresh = function () {
                 refreshD.resolve();
                 applicationD.resolve();
-            });
+            };
+            if (application.isRefreshed())
+                onRefresh();
+            else
+                application.refresh(onRefresh());
         });
     }
 
