@@ -382,6 +382,10 @@
         function EventListener($location) {
             this.goto = function (step) {
                 $location.path('/checkout/' + self.status());
+            };
+
+            this.setCouponCode = function (code) {
+                cache = {};
             }
         }
     }
@@ -491,7 +495,7 @@
             var $ctrl = this;
 
             $ctrl.isRequired = function () {
-                if($ctrl.required)
+                if ($ctrl.required)
                     return true;
                 var reqs = binarta.application.profile().purchaseOrderRequirements;
                 return reqs ? reqs.some(function (it) {

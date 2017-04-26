@@ -1145,6 +1145,12 @@
                     expect(ctrl.order()).toEqual(binarta.shop.checkout.context().order);
                 });
 
+                it('the checkout order is cached after the initial lookup', function () {
+                    ctrl.order();
+                    binarta.shop.checkout.persist({order: {}});
+                    expect(ctrl.order()).not.toEqual(binarta.shop.checkout.context().order);
+                });
+
                 it('starting while idle has no effect', function () {
                     $location.path('/checkout/start');
                     ctrl.start();
@@ -1253,7 +1259,7 @@
 
                 describe('on summary step', function () {
                     beforeEach(function () {
-                        binarta.shop.checkout.start({}, ['summary', 'completed']);
+                        binarta.shop.checkout.start({items: []}, ['summary', 'completed']);
                     });
 
                     it('expose payment provider', function () {
@@ -1263,6 +1269,13 @@
                     it('step set payment provider', function () {
                         ctrl.setPaymentProvider('payment-provider');
                         expect(ctrl.order().provider).toEqual('payment-provider');
+                    });
+
+                    it('setting a coupon code on checkout resets the order cache on the controller', function () {
+                        ctrl.$onInit();
+                        ctrl.order(); // populate cache
+                        binarta.shop.checkout.setCouponCode('coupon-code'); // resets cache
+                        expect(ctrl.order().coupon).toEqual('coupon-code');
                     });
                 });
 
@@ -2161,7 +2174,7 @@
                         $ctrl = $componentController('binCoupon', null, {required: true});
                     }));
 
-                    it('then is required is true', function() {
+                    it('then is required is true', function () {
                         expect($ctrl.isRequired()).toBeTruthy();
                     });
                 });
