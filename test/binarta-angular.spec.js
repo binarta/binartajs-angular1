@@ -316,7 +316,7 @@
             });
 
             describe('when binarta gateways are initialised and an application profile was manually loaded then skip application refresh', function () {
-                beforeEach(function() {
+                beforeEach(function () {
                     binarta.application.setProfile({name: 'test-application-profile'});
                     binarta.application.gateway = {
                         clear: function () {
@@ -2153,6 +2153,16 @@
                             provider: 'payment-method',
                             items: []
                         }, jasmine.any(Object));
+                    });
+                });
+
+                describe('given required', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binCoupon', null, {required: true});
+                    }));
+
+                    it('then is required is true', function() {
+                        expect($ctrl.isRequired()).toBeTruthy();
                     });
                 });
             });

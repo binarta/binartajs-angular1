@@ -484,12 +484,15 @@
 
     function CouponComponent() {
         this.bindings = {
-            verification: '@'
+            verification: '@',
+            required: '@'
         };
         this.controller = ['binarta', function (binarta) {
             var $ctrl = this;
 
             $ctrl.isRequired = function () {
+                if($ctrl.required)
+                    return true;
                 var reqs = binarta.application.profile().purchaseOrderRequirements;
                 return reqs ? reqs.some(function (it) {
                     return it.name == 'coupon';
@@ -498,7 +501,7 @@
 
             $ctrl.verify = function () {
                 $ctrl.resetCouponValidation();
-                binarta.shop.couponDictionary.findById($ctrl.couponCode, {
+                binarta.shop.couponDictionary.contains($ctrl.couponCode, {
                     success: function () {
                         $ctrl.couponValid = true;
                         binarta.shop.checkout.setCouponCode($ctrl.couponCode);

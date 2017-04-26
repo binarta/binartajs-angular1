@@ -623,6 +623,28 @@
                     expect(response.notFound).toHaveBeenCalled();
                 });
             });
+
+            describe('contains coupon', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectPOST('http://host/api/usecase', {
+                        headers: {usecase: 'market.shop.coupon.dictionary.contains'},
+                        payload: {id: 'c'}
+                    });
+                    gateway.containsCoupon({id: 'c'}, response);
+                });
+
+                it('on success', function () {
+                    expectedHttpRequest.respond(200, {contains: true});
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+
+                it('on not found', function () {
+                    expectedHttpRequest.respond(200, {contains: false});
+                    $http.flush();
+                    expect(response.notFound).toHaveBeenCalled();
+                });
+            });
         });
 
         function capturedRequest(idx) {

@@ -185,8 +185,22 @@
             self.$http({
                 method: 'GET',
                 url: self.config.baseUri + 'api/entity/coupon?namespace=' + this.config.namespace + '&code=' + request.id + '&treatInputAsId=true'
-            }).then(function(it) {
+            }).then(function (it) {
                 response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.containsCoupon = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/usecase',
+                withCredentials: true,
+                data: {
+                    headers: {usecase: 'market.shop.coupon.dictionary.contains'},
+                    payload: {id: request.id}
+                }
+            }).then(function(it) {
+                it.data.contains ? response.success() : response.notFound()
             }, toErrorResponse(response));
         }
     }
