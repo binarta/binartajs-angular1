@@ -1146,9 +1146,10 @@
                 });
 
                 it('the checkout order is cached after the initial lookup', function () {
+                    binarta.shop.checkout.persist({order: 'x'});
                     ctrl.order();
-                    binarta.shop.checkout.persist({order: {}});
-                    expect(ctrl.order()).not.toEqual(binarta.shop.checkout.context().order);
+                    binarta.shop.checkout.persist({order: 'y'});
+                    expect(ctrl.order()).toEqual('x');
                 });
 
                 it('starting while idle has no effect', function () {
@@ -1386,6 +1387,12 @@
                     it('exposes the previewed order', function () {
                         expect(ctrl.preview).toEqual(ctrl.order);
                     });
+
+                    it('on changes repopulate preview', function () {
+                        ctrl.preview = undefined;
+                        ctrl.$onChanges();
+                        expect(ctrl.preview).toEqual(ctrl.order);
+                    });
                 });
 
                 describe('in detailed mode', function () {
@@ -1400,6 +1407,12 @@
                     it('exposes the previewed order', function () {
                         expect(ctrl.preview.items[0].id).toEqual('i');
                         expect(ctrl.preview.items[0].quantity).toEqual(1);
+                    });
+
+                    it('on changes do not update preview', function () {
+                        ctrl.preview = '-';
+                        ctrl.$onChanges();
+                        expect(ctrl.preview).toEqual('-');
                     });
 
                     describe('on checkout', function () {

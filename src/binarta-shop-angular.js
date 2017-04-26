@@ -82,6 +82,11 @@
             }
         };
 
+        this.$onChanges = function() {
+            if(self.mode == 'summary')
+                refreshFromPreview();
+        };
+
         this.$onDestroy = function () {
             binarta.checkpoint.profile.eventRegistry.remove(profileEventListener);
             binarta.shop.basket.eventRegistry.remove(basketEventListener);

@@ -20,11 +20,11 @@
                     <i class="fa fa-shopping-cart fa-fw"></i> {{::var}}
                 </div>
                 <div class="panel-body">
-                    <div class="row" ng-repeat="item in ::$ctrl.preview.items">
+                    <div class="row" ng-repeat="item in $ctrl.preview.items">
                         <div class="col-xs-8" i18n code="{{::item.id}}" read-only>
                             {{::var}} ({{::item.quantity}})
                         </div>
-                        <div class="col-xs-4 text-right" ng-bind="::item.presentableTotal"></div>
+                        <div class="col-xs-4 text-right" ng-bind="item.presentableTotal"></div>
                         <div class="col-xs-12">
                             <hr>
                         </div>
@@ -35,7 +35,7 @@
                             <div class="col-xs-8 col-sm-10" i18n code="shop.prices.subtotal.label" read-only>
                                 <strong>{{::var}}</strong>
                             </div>
-                            <div class="col-xs-4 col-sm-2" ng-bind="::$ctrl.preview.presentableItemTotal"></div>
+                            <div class="col-xs-4 col-sm-2" ng-bind="$ctrl.preview.presentableItemTotal"></div>
                         </div>
                         <div class="row" ng-repeat="item in $ctrl.preview.additionalCharges">
                             <div class="col-xs-8 col-sm-10"
@@ -43,14 +43,14 @@
                                  read-only>
                                 <strong>{{::var}}</strong>
                             </div>
-                            <div class="col-xs-4 col-sm-2" ng-bind="::item.presentableValue"></div>
+                            <div class="col-xs-4 col-sm-2" ng-bind="item.presentableValue"></div>
                         </div>
                         <div class="row">
                             <div class="col-xs-8 col-sm-10" i18n code="shop.prices.total.label" read-only>
                                 <strong>{{::var}}</strong>
                             </div>
                             <div class="col-xs-4 col-sm-2">
-                                <div class="basket-total-price" ng-bind="::$ctrl.preview.presentablePrice"></div>
+                                <div class="basket-total-price" ng-bind="$ctrl.preview.presentablePrice"></div>
                             </div>
                         </div>
                     </div>
