@@ -7,6 +7,10 @@
       "coupon.code.invalid": "Deze coupon code is ongeldig.",
       "shop.order.coupon.exists": "Deze coupon code is ongeldig.",
       "shop.order.provider.required": "Gelieve een betaalmethode te kiezen.",
+      "shop.prices.subtotal.label":"Subtotaal",
+      "shop.prices.vat.label":"BTW",
+      "shop.prices.discounted.total.label": "Totaal (-korting)",
+      "shop.prices.total.label": "Totaal",
       "platform.signature.websters": "Straf werk van de <strong>Websters</strong>"
     },
     "en": {
@@ -16,6 +20,10 @@
       "coupon.code.purpose": "Enter code to place an order.",
       "shop.order.coupon.exists": "This coupon code is invalid.",
       "shop.order.provider.required": "Please select a payment method.",
+      "shop.prices.subtotal.label":"Subtotal",
+      "shop.prices.vat.label":"VAT",
+      "shop.prices.discounted.total.label": "Total (-discount)",
+      "shop.prices.total.label": "Total",
       "platform.signature.websters": "Crafted by <strong>Websters</strong>"
     },
     "fr": {
@@ -25,6 +33,10 @@
       "coupon.code.invalid": "Ce code promo n'est pas valide.",
       "shop.order.coupon.exists": "Ce code promo n'est pas valide.",
       "shop.order.provider.required": "S'il vous plaît sélectionner un mode de paiement.",
+      "shop.prices.subtotal.label":"Subtotal",
+      "shop.prices.vat.label":"TVA",
+      "shop.prices.discounted.total.label": "Total (-réduction)",
+      "shop.prices.total.label": "Total",
       "platform.signature.websters": "Crafted by <strong>Websters</strong>"
     },
     "de": {
@@ -34,6 +46,10 @@
       "coupon.code.invalid": "Dieser Gutscheincode ist ungültig.",
       "shop.order.coupon.exists": "This coupon code is invalid.",
       "shop.order.provider.required": "Please select a payment method.",
+      "shop.prices.subtotal.label":"Zwischensumme",
+      "shop.prices.vat.label":"MwSt",
+      "shop.prices.discounted.total.label": "Gesamt (-reduktion)",
+      "shop.prices.total.label": "Gesamt",
       "platform.signature.websters": "Crafted by <strong>Websters</strong>"
     }
   }

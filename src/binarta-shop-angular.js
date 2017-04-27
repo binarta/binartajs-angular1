@@ -92,6 +92,10 @@
             binarta.shop.basket.eventRegistry.remove(basketEventListener);
         };
 
+        this.isDiscounted = function() {
+            return self.preview && self.preview.coupon;
+        };
+
         this.addToBasket = function () {
             binarta.shop.basket.add({item: {id: self.item.id, price: self.item.price, quantity: self.quantity}});
         };

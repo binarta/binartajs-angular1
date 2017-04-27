@@ -46,7 +46,10 @@
                             <div class="col-xs-4 col-sm-2" ng-bind="item.presentableValue"></div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-8 col-sm-10" i18n code="shop.prices.total.label" read-only>
+                            <div ng-if="!$ctrl.isDiscounted()" class="col-xs-8 col-sm-10" i18n code="shop.prices.total.label" read-only>
+                                <strong>{{::var}}</strong>
+                            </div>
+                            <div ng-if="$ctrl.isDiscounted()" class="col-xs-8 col-sm-10" i18n code="shop.prices.discounted.total.label" read-only>
                                 <strong>{{::var}}</strong>
                             </div>
                             <div class="col-xs-4 col-sm-2">

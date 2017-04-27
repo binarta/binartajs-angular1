@@ -1393,6 +1393,15 @@
                         ctrl.$onChanges();
                         expect(ctrl.preview).toEqual(ctrl.order);
                     });
+
+                    it('a regular order is not considered to be discounted', function() {
+                        expect(ctrl.isDiscounted()).toBeFalsy();
+                    });
+
+                    it('an order with coupon code is considered to be discounted', function() {
+                        ctrl.order.coupon = '-';
+                        expect(ctrl.isDiscounted()).toBeTruthy();
+                    });
                 });
 
                 describe('in detailed mode', function () {
