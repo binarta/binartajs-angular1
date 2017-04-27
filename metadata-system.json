@@ -23,8 +23,8 @@
       "coupon.code.submit": "vérifier",
       "coupon.code.purpose": "Entrez le code pour passer une commande.",
       "coupon.code.invalid": "Ce code promo n'est pas valide.",
-      "shop.order.coupon.exists": "This coupon code is invalid.",
-      "shop.order.provider.required": "Please select a payment method.",
+      "shop.order.coupon.exists": "Ce code promo n'est pas valide.",
+      "shop.order.provider.required": "S'il vous plaît sélectionner un mode de paiement.",
       "platform.signature.websters": "Crafted by <strong>Websters</strong>"
     },
     "de": {
