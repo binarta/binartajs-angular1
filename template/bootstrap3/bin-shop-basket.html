@@ -20,7 +20,23 @@
                     <i class="fa fa-shopping-cart fa-fw"></i> {{::var}}
                 </div>
                 <div class="panel-body">
-                    <div class="row" ng-repeat="item in $ctrl.preview.items">
+                    <div class="row">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th i18n code="shop.basket.summary.item.label" read-only>{{::var}}</th>
+                                <th class="text-right" i18n code="shop.basket.summary.quantity.label" read-only>{{::var}}</th>
+                                <th class="text-right" i18n code="shop.basket.summary.price.label" read-only>{{::var}}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="item in $ctrl.preview.items">
+                                <td i18n code="{{::item.id}}" read-only>{{::var}}</td>
+                                <td class="text-right">{{::item.quantity}}</td>
+                                <td class="text-right" ng-bind="item.presentableTotal"></td>
+                            </tr>
+                            </tbody>
+                        </table>
                         <div class="col-xs-8" i18n code="{{::item.id}}" read-only>
                             {{::var}} ({{::item.quantity}})
                         </div>
