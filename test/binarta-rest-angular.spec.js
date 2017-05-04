@@ -291,7 +291,7 @@
 
             describe('fetch billing profile', function () {
                 beforeEach(function () {
-                    expectedHttpRequest = $http.expectGET('http://host/api/customer', expectHeaders([
+                    expectedHttpRequest = $http.expectPOST('http://host/api/view-customer-profile', undefined, expectHeaders([
                         expectHeader('Accept-Language', binarta.application.locale())
                     ]));
                 });

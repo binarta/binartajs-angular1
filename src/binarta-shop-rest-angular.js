@@ -40,8 +40,8 @@
 
         this.fetchBillingProfile = function (response) {
             self.$http({
-                method: 'GET',
-                url: self.config.baseUri + 'api/customer',
+                method: 'POST',
+                url: self.config.baseUri + 'api/view-customer-profile',
                 withCredentials: true,
                 headers: {'Accept-Language': self.binarta.application.locale()}
             }).then(function (it) {
