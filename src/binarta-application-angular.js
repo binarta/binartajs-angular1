@@ -148,7 +148,8 @@
         };
 
         this.apply = function (a, ctx) {
-            a.href = '/#!' + (ctx.locale ? '/' + ctx.locale : '') + ctx.href;
+            var prefix = (ctx.locale ? '/' + ctx.locale : '');
+            a.href = (application.primaryLanguage() == ctx.locale ? '' : prefix) + ctx.href;
         }
     }
 
