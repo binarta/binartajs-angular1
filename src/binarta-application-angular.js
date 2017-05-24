@@ -21,7 +21,7 @@
         .directive('binHref', ['application', BinHrefDirectiveFactory])
         .directive('binDhref', ['application', BinDhrefDirectiveFactory])
         .run(['application', WireAngularDependencies])
-        .run(['$rootScope', 'application', InstallRouteChangeListeners])
+        .run(['$rootScope', 'application', '$location', InstallRouteChangeListeners])
         .run([
             'binartaGatewaysAreInitialised',
             'binartaApplicationRefresh',
@@ -75,10 +75,16 @@
         }
 
         function ApplicationInitializer(app) {
+            var self = this;
+
             this.setLocale = function (locale) {
                 if (readRouteOnLocaleChange) {
                     app.localeSelected();
-                    app.adhesiveReading.readRoute();
+                    if (self.cache) {
+                        app.adhesiveReading.cache(app.unlocalizedPath(), self.cache);
+                        self.cache = undefined;
+                    } else
+                        app.adhesiveReading.readRoute();
                 }
             };
 
@@ -112,7 +118,12 @@
                 app.adhesiveReading.read(app.unlocalizedPath());
             };
 
-            app.eventRegistry.add(new ApplicationInitializer(app));
+            var initializer = new ApplicationInitializer(app);
+            app.adhesiveReading.preload = function (stream) {
+                initializer.cache = stream;
+            };
+
+            app.eventRegistry.add(initializer);
         }
     }
 
@@ -174,7 +185,7 @@
         binarta = application.binarta;
     }
 
-    function InstallRouteChangeListeners($rootScope, application) {
+    function InstallRouteChangeListeners($rootScope, application, $location) {
         $rootScope.$on('$routeChangeStart', function (evt, n) {
             if (n.redirectTo == undefined) {
                 application.setLocaleForPresentation(n.params.locale);
