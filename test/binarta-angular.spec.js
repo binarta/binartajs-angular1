@@ -455,15 +455,15 @@
                         setLocaleForPresentation(undefined);
                     });
 
-                    it('then redirect to localized path', function () {
-                        expect($location.path()).toEqual('/en/');
+                    it('then stay on unlocalized path', function () {
+                        expect($location.path()).toEqual('/');
                     });
 
-                    it('then application caches are not initialised', function () {
+                    it('then application caches are initialised', function () {
                         binartaConfigIsInitialised.resolve();
                         $rootScope.$digest();
-                        expect(isAdhesiveReadingInitialisedListener).not.toHaveBeenCalled();
-                        expect(areApplicationCachesInitialisedListener).not.toHaveBeenCalled();
+                        expect(isAdhesiveReadingInitialisedListener).toHaveBeenCalled();
+                        expect(areApplicationCachesInitialisedListener).toHaveBeenCalled();
                     });
                 });
 
@@ -631,6 +631,49 @@
                     });
                 });
 
+                describe('when preloading', function () {
+                    beforeEach(function () {
+                        binarta.application.adhesiveReading.preload([{
+                            type: 'requested.section',
+                            id: 'cached'
+                        }]);
+                    });
+
+                    it('skip fetch section data', function () {
+                        var delegate = binarta.application.gateway;
+                        binarta.application.gateway = {
+                            fetchApplicationProfile: delegate.fetchApplicationProfile,
+                            fetchSectionData: function () {
+                                throw new Error('UnsupportedOperationException');
+                            },
+                            clear: delegate.clear
+                        };
+                        setPrimaryLanguage(undefined);
+                        $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                        $rootScope.$digest();
+                    });
+
+                    describe('given supported languages and requested route', function() {
+                        beforeEach(function() {
+                            setSupportedLanguages(['en', 'nl']);
+                            $location.path('/');
+                            $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
+                            $rootScope.$digest();
+                        });
+
+                        it('then preloaded data is processed', function () {
+                            expect(requestedSectionId).toEqual('cached');
+                        });
+
+                        it('then changing locale fetches new section data', function () {
+                            $location.path('/nl/');
+                            $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'nl'}});
+                            $rootScope.$digest();
+                            expect(requestedSectionId).toEqual('/');
+                        });
+                    });
+                });
+
                 describe('when external local is specified on route', function () {
                     beforeEach(function () {
                         setPrimaryLanguage('en');
@@ -679,7 +722,7 @@
             describe('<a bin-href="?"></a>', function () {
                 var a;
 
-                beforeEach(function() {
+                beforeEach(function () {
                     binarta.application.setProfile({supportedLanguages: ['en', 'fr']});
                     binarta.application.setLocaleForPresentation(undefined);
                 });
@@ -762,7 +805,7 @@
             describe('<a bin-dhref="?"></a>', function () {
                 var a;
 
-                beforeEach(function() {
+                beforeEach(function () {
                     binarta.application.setProfile({supportedLanguages: ['en', 'fr']});
                     binarta.application.setLocaleForPresentation(undefined);
                 });
@@ -1418,11 +1461,11 @@
                         expect(ctrl.preview).toEqual(ctrl.order);
                     });
 
-                    it('a regular order is not considered to be discounted', function() {
+                    it('a regular order is not considered to be discounted', function () {
                         expect(ctrl.isDiscounted()).toBeFalsy();
                     });
 
-                    it('an order with coupon code is considered to be discounted', function() {
+                    it('an order with coupon code is considered to be discounted', function () {
                         ctrl.order.coupon = '-';
                         expect(ctrl.isDiscounted()).toBeTruthy();
                     });
