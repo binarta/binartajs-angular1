@@ -18,8 +18,8 @@
         .factory('binartaApplicationConfigIsInitialised', ['$q', 'binartaApplicationExternalLocaleIsSet.deferred', 'binartaApplicationRefresh', IsConfigInitialisedFactory])
         .factory('binartaApplicationCachesAreInitialised', ['binartaApplicationCachesAreInitialised.deferred', AreCachesInitialisedFactory])
         .factory('binartaApplicationIsInitialised', ['binartaApplicationIsInitialised.deferred', IsApplicationInitialisedFactory])
-        .directive('binHref', ['application', BinHrefDirectiveFactory])
-        .directive('binDhref', ['application', BinDhrefDirectiveFactory])
+        .directive('binHref', ['$location', 'application', BinHrefDirectiveFactory])
+        .directive('binDhref', ['$location', 'application', BinDhrefDirectiveFactory])
         .run(['application', WireAngularDependencies])
         .run(['$rootScope', 'application', '$location', InstallRouteChangeListeners])
         .run([
@@ -127,8 +127,9 @@
         }
     }
 
-    function DefaultBinHrefDirective(application, attributeName) {
-        var directive = this;
+    function DefaultBinHrefDirective($location, application, attributeName) {
+        var directive = this,
+            hashbang = '#!';
 
         this.attributeName = attributeName || 'binHref';
         this.restrict = 'A';
@@ -139,7 +140,7 @@
 
         this.linkWithContext = function ($scope, els, attrs, ctx) {
             var a = els[0];
-            if (a.nodeName == 'A') {
+            if (a.nodeName === 'A') {
                 var listener = new ExternalLocaleListener(a, ctx);
                 application.eventRegistry.add(listener);
                 $scope.$on('$destroy', function () {
@@ -159,17 +160,22 @@
         };
 
         this.apply = function (a, ctx) {
-            var prefix = (ctx.locale ? '/' + ctx.locale : '');
-            a.href = (application.primaryLanguage() == ctx.locale ? '' : prefix) + ctx.href;
+            var hashbangPrefix = shouldRetainHashbang() ? '/' + hashbang : '';
+            var localePrefix = application.primaryLanguage() === ctx.locale ? '' : (ctx.locale ? '/' + ctx.locale : '');
+            a.href = hashbangPrefix + localePrefix + ctx.href;
+        };
+
+        function shouldRetainHashbang() {
+            return $location.absUrl().indexOf(hashbang) !== -1;
         }
     }
 
-    function BinHrefDirectiveFactory(application) {
-        return new DefaultBinHrefDirective(application);
+    function BinHrefDirectiveFactory($location, application) {
+        return new DefaultBinHrefDirective($location, application);
     }
 
-    function BinDhrefDirectiveFactory(application) {
-        var directive = new DefaultBinHrefDirective(application, 'binDhref');
+    function BinDhrefDirectiveFactory($location, application) {
+        var directive = new DefaultBinHrefDirective($location, application, 'binDhref');
         var superLinkWithContext = directive.linkWithContext;
         directive.linkWithContext = function ($scope, els, attrs, ctx) {
             superLinkWithContext($scope, els, attrs, ctx);

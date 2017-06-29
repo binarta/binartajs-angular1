@@ -787,6 +787,20 @@
                     expectHref(a).toEqual('/fr/');
                 });
 
+                describe('when current path contains a hashbang (#!)', function () {
+                    beforeEach(function () {
+                        $location.absUrl = function () {
+                            return 'http://test/#!/';
+                        };
+                    });
+
+                    it('retain hashbang in href', function () {
+                        a = $compile('<a bin-href="/"></a>')($rootScope.$new())[0];
+                        $rootScope.$digest();
+                        expectHref(a).toEqual('/#!/');
+                    });
+                });
+
                 it('when $scope is destroyed changes to the external locale are no longer picked up', function () {
                     var $scope = $rootScope.$new();
                     a = $compile('<a bin-href="/"></a>')($scope)[0];
@@ -868,6 +882,20 @@
                     binarta.application.setLocaleForPresentation('fr');
                     $rootScope.$digest();
                     expectHref(a).toEqual('/fr/');
+                });
+
+                describe('when current path contains a hashbang (#!)', function () {
+                    beforeEach(function () {
+                        $location.absUrl = function () {
+                            return 'http://test/#!/';
+                        };
+                    });
+
+                    it('retain hashbang in href', function () {
+                        a = $compile('<a bin-dhref="/"></a>')($rootScope.$new())[0];
+                        $rootScope.$digest();
+                        expectHref(a).toEqual('/#!/');
+                    });
                 });
 
                 it('when $scope is destroyed changes to the external locale are no longer picked up', function () {
