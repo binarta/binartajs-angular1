@@ -92,10 +92,18 @@
     function PlatformSignatureComponent() {
         this.templateUrl = 'bin-all-platform-signature.html';
 
+        this.bindings = {
+            mode: '@'
+        };
+
         this.controller = ['$document', 'binarta', binComponentController(function ($document, binarta) {
             var $ctrl = this;
 
             $ctrl.config.public.find('platform.brand', setSignature);
+
+            $ctrl.getModeClass = function () {
+                return 'bin-platform-signature' + ($ctrl.mode ? '-' + $ctrl.mode : '');
+            };
 
             function setSignature(name) {
                 $ctrl.signature = name || 'binarta';
