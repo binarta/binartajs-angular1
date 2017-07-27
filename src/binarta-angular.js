@@ -7,7 +7,11 @@
         .factory('binartaIsInitialised', ['$q', 'binarta', 'binartaGatewaysAreInitialised', 'binartaConfigIsInitialised', 'binartaCachesAreInitialised', IsInitialisedFactory])
         .component('binContentHeader', new ContentHeaderComponent())
         .component('binViolations', new ViolationsComponent())
-        .component('binPlatformSignature', new PlatformSignatureComponent());
+        .component('binPlatformSignature', new PlatformSignatureComponent())
+        .component('binContactAddress', new BinContactAddressComponent())
+        .component('binContactPhone', new BinContactPhoneComponent())
+        .component('binContactPhoneInfo', new BinContactPhoneInfoComponent())
+        .component('binContactEmail', new BinContactEmailComponent());
 
     function BinartaProvider() {
         this.ui = new UI();
@@ -121,6 +125,26 @@
                 return signature.charAt(0).toUpperCase() + signature.slice(1);
             }
         })];
+    }
+
+    function BinContactAddressComponent() {
+        this.template = '<span i18n code="contact.address" editor="input">' +
+            '<a ng-href="//maps.google.com/maps?q={{var|binEncodeUriComponent}}" target="_blank" ng-bind="var"></a>' +
+            '</span>';
+    }
+
+    function BinContactPhoneComponent() {
+        this.template = '<span i18n code="contact.phone" editor="input"><a ng-href="tel:{{var}}" ng-bind="var"></a></span>';
+    }
+
+    function BinContactPhoneInfoComponent() {
+        this.template = '<span i18n code="contact.phone.info" editor="input" ng-bind="var"></span>';
+    }
+
+    function BinContactEmailComponent() {
+        this.template = '<span bin-config key="application.email" scope="public" input-type="email">' +
+            '<a ng-href="mailto:{{config.value}}" ng-bind="config.value"></a>' +
+            '</span>';
     }
 })();
 
