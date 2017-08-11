@@ -1057,6 +1057,12 @@
             }
         });
 
+        describe('binarta-mediajs-angular1', function () {
+            it('media module is exposed on binarta', function () {
+                expect(binarta.media.images).toBeDefined();
+            });
+        });
+
         describe('binarta-checkpointjs-angular1', function () {
             var db;
 
@@ -2319,6 +2325,7 @@
     installBackendStrategy('inmem');
     angular.module('binartajs-angular1-spec', [
         'binarta-applicationjs-angular1',
+        'binarta-mediajs-angular1',
         'binarta-checkpointjs-angular1',
         'binarta-shopjs-angular1'
     ])
