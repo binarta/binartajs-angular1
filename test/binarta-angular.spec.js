@@ -653,8 +653,8 @@
                         $rootScope.$digest();
                     });
 
-                    describe('given supported languages and requested route', function() {
-                        beforeEach(function() {
+                    describe('given supported languages and requested route', function () {
+                        beforeEach(function () {
                             setSupportedLanguages(['en', 'nl']);
                             $location.path('/');
                             $rootScope.$broadcast('$routeChangeStart', {params: {locale: 'en'}});
@@ -1058,8 +1058,12 @@
         });
 
         describe('binarta-mediajs-angular1', function () {
-            it('media module is exposed on binarta', function () {
-                expect(binarta.media.images).toBeDefined();
+            describe('images sub module', function() {
+                fit('toURL is decorated to add the section parameter', function () {
+                    $location.path('/en/');
+                    binarta.application.setLocaleForPresentation('en');
+                    expect(binarta.media.images.toURL({path: 'bg.img', width: 200})).toEqual('bg.img?width=200&section=/');
+                });
             });
         });
 
