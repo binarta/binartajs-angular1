@@ -1059,7 +1059,7 @@
 
         describe('binarta-mediajs-angular1', function () {
             describe('images sub module', function() {
-                fit('toURL is decorated to add the section parameter', function () {
+                it('toURL is decorated to add the section parameter', function () {
                     $location.path('/en/');
                     binarta.application.setLocaleForPresentation('en');
                     expect(binarta.media.images.toURL({path: 'bg.img', width: 200})).toEqual('bg.img?width=200&section=/');
