@@ -73,14 +73,17 @@
             describe('fetchSectionData', function () {
                 beforeEach(function () {
                     request = {id: 's', locale: 'en'};
-                    expectedHttpRequest = $http.expectGET('http://host/api/adhesive/reading/stream/n/en/sections');
+                    expectedHttpRequest = $http.expectGET('http://host/api/adhesive/reading/snapshot/n/en/sections');
                 });
 
                 it('success', function () {
-                    expectedHttpRequest.respond(200, 'stream');
+                    expectedHttpRequest.respond(200, {timestamp: '20170907121510300+05:00', stream: 'stream'});
                     gateway.fetchSectionData(request, response);
                     $http.flush();
-                    expect(response.success).toHaveBeenCalledWith('stream');
+                    expect(response.success).toHaveBeenCalledWith({
+                        timestamp: moment('20170907121510300+05:00', 'YYYYMMDDHHmmssSSSZ'),
+                        stream: 'stream'
+                    });
                 });
             });
 
