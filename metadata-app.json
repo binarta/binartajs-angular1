@@ -1,0 +1,24 @@
+{
+  "msgs": {
+    "nl": {
+      "contact.address": "Mijn adres, Leuven",
+      "contact.phone": "012 34 56 78",
+      "contact.phone.info": "info"
+    },
+    "en": {
+      "contact.address": "My address, Leuven",
+      "contact.phone": "012 34 56 78",
+      "contact.phone.info": "info"
+    },
+    "fr": {
+      "contact.address": "Mon adresse, Louvain",
+      "contact.phone": "012 34 56 78",
+      "contact.phone.info": "info"
+    },
+    "de": {
+      "contact.address": "Meine Adresse, Leuven",
+      "contact.phone": "012 34 56 78",
+      "contact.phone.info": "info"
+    }
+  }
+}
