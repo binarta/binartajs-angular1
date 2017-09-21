@@ -14,8 +14,10 @@
             config.namespace = 'n';
             config.baseUri = 'http://host/';
 
+            $http.expectGET('http://host/api/adhesive/reading/snapshot/n/default').respond(200, {timestamp: '20170906121510300+05:00', stream: []});
             binarta.application.setLocale('default');
             binarta.application.setLocaleForPresentation('en');
+            $http.flush();
 
             ui = new UI();
             response = jasmine.createSpyObj('response', [
@@ -70,15 +72,15 @@
                 });
             });
 
-            describe('fetchSectionData', function () {
+            describe('fetchAdhesiveSnapshot', function () {
                 beforeEach(function () {
-                    request = {id: 's', locale: 'en'};
-                    expectedHttpRequest = $http.expectGET('http://host/api/adhesive/reading/snapshot/n/en/sections');
+                    request = {locale: 'en'};
+                    expectedHttpRequest = $http.expectGET('http://host/api/adhesive/reading/snapshot/n/en');
                 });
 
                 it('success', function () {
                     expectedHttpRequest.respond(200, {timestamp: '20170907121510300+05:00', stream: 'stream'});
-                    gateway.fetchSectionData(request, response);
+                    gateway.fetchAdhesiveSnapshot(request, response);
                     $http.flush();
                     expect(response.success).toHaveBeenCalledWith({
                         timestamp: moment('20170907121510300+05:00', 'YYYYMMDDHHmmssSSSZ'),
