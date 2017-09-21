@@ -77,17 +77,6 @@
         function ApplicationInitializer(app) {
             var self = this;
 
-            this.setLocale = function (locale) {
-                if (readRouteOnLocaleChange) {
-                    app.localeSelected();
-                    if (self.cache) {
-                        app.adhesiveReading.cache(app.unlocalizedPath(), self.cache);
-                        self.cache = undefined;
-                    } else
-                        app.adhesiveReading.readRoute();
-                }
-            };
-
             this.applyLocale = function (locale) {
                 $location.path('/' + locale + app.unlocalizedPath());
             };
@@ -114,15 +103,7 @@
                 return locale ? path.replace('/' + locale, '') : path;
             };
 
-            app.adhesiveReading.readRoute = function () {
-                app.adhesiveReading.read(app.unlocalizedPath());
-            };
-
             var initializer = new ApplicationInitializer(app);
-            app.adhesiveReading.preload = function (stream) {
-                initializer.cache = stream;
-            };
-
             app.eventRegistry.add(initializer);
         }
     }
@@ -195,8 +176,6 @@
         $rootScope.$on('$routeChangeStart', function (evt, n) {
             if (n.redirectTo == undefined) {
                 application.setLocaleForPresentation(n.params.locale);
-                if (application.isLocaleSelected())
-                    application.adhesiveReading.readRoute();
             }
         });
     }

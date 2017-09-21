@@ -38,10 +38,10 @@
             });
         };
 
-        this.fetchSectionData = function (request, response) {
+        this.fetchAdhesiveSnapshot = function(request, response) {
             gateway.$http({
                 method: 'GET',
-                url: gateway.config.baseUri + 'api/adhesive/reading/snapshot/' + gateway.config.namespace + '/' + request.locale + '/section' + request.id
+                url: gateway.config.baseUri + 'api/adhesive/reading/snapshot/' + gateway.config.namespace + '/' + request.locale
             }).then(function (it) {
                 it.data.timestamp = moment(it.data.timestamp, 'YYYYMMDDHHmmssSSSZ');
                 response.success(it.data);

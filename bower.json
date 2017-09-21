@@ -9,8 +9,8 @@
     "binarta.web.storage.angular": "0.*.*",
     "binarta.config.angular": "0.*.*",
     "binarta.rest.client.angular": "0.*.*",
-    "binarta.recaptcha.angular":"v0.*.*",
-    "binarta.viewport.angular":"v0.*.*",
+    "binarta.recaptcha.angular": "v0.*.*",
+    "binarta.viewport.angular": "v0.*.*",
     "angular": "1.5.*",
     "angular-route": "1.5.*"
   },
