@@ -8,6 +8,7 @@
         .component('binCheckpoint', new CheckpointComponent())
         .controller('CheckpointController', ['binarta', CheckpointController])
         .component('binUserProfile', new UserProfileComponent())
+        .component('binSignin', new SigninComponent())
         .service('UserProfileController.decorator', UserProfileControllerDecorator)
         .controller('UserProfileController', ['binarta', 'UserProfileController.decorator', UserProfileController])
         .config(['binartaProvider', 'checkpointProvider', ExtendBinarta])
@@ -141,6 +142,39 @@
         this.cancel = function() {
             binarta.checkpoint.profile.cancel();
         }
+    }
+
+    function SigninComponent() {
+        this.templateUrl = 'bin-all-signin.html';
+
+        this.controller = ['binarta', function (binarta) {
+            var $ctrl = this;
+
+            $ctrl.$onInit = function () {
+                var observer = binarta.checkpoint.profile.eventRegistry.observe({
+                    signedin: onSignedIn,
+                    signedout: onSignedOut
+                });
+
+                binarta.checkpoint.profile.isAuthenticated() ? onSignedIn() : onSignedOut();
+
+                $ctrl.signout = function () {
+                    binarta.checkpoint.profile.signout();
+                };
+
+                $ctrl.$onDestroy = function () {
+                    observer.disconnect();
+                };
+            };
+
+            function onSignedIn() {
+                $ctrl.authenticated = true;
+            }
+
+            function onSignedOut() {
+                $ctrl.authenticated = false;
+            }
+        }];
     }
 
     function ExtendBinarta(binarta, checkpointProvider) {

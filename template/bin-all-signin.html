@@ -1,0 +1,8 @@
+<a bin-href="/signin" ng-if="!$ctrl.authenticated">
+    <i class="fa fa-user fa-fw"></i>
+    <span i18n code="checkpoint.login.link" read-only ng-bind="var"></span>
+</a>
+<a bin-href="/" ng-click="$ctrl.signout()" ng-if="$ctrl.authenticated">
+    <i class="fa fa-user fa-fw"></i>
+    <span i18n code="checkpoint.logout.link" read-only ng-bind="var"></span>
+</a>
