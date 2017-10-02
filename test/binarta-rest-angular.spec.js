@@ -14,7 +14,10 @@
             config.namespace = 'n';
             config.baseUri = 'http://host/';
 
-            $http.expectGET('http://host/api/adhesive/reading/snapshot/n/default').respond(200, {timestamp: '20170906121510300+05:00', stream: []});
+            $http.expectGET('http://host/api/adhesive/reading/snapshot/n/default').respond(200, {
+                timestamp: '20170906121510300+05:00',
+                stream: []
+            });
             binarta.application.setLocale('default');
             binarta.application.setLocaleForPresentation('en');
             $http.flush();
@@ -24,6 +27,7 @@
                 'success',
                 'rejected',
                 'unauthenticated',
+                'forbidden',
                 'activeAccountMetadata',
                 'notFound'
             ]);
@@ -121,10 +125,50 @@
                 });
             });
 
+            describe('addConfig', function () {
+                beforeEach(function () {
+                    request = {id: 'k', value: 'v', scope: 's'};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/config', {
+                        namespace: "n",
+                        id: "k",
+                        value: 'v',
+                        scope: 's'
+                    });
+                });
+
+                it('unauthorized', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.addConfig(request, response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('forbidden', function () {
+                    expectedHttpRequest.respond(403);
+                    gateway.addConfig(request, response);
+                    $http.flush();
+                    expect(response.forbidden).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violations');
+                    gateway.addConfig(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violations', 412);
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, {value: 'v'});
+                    gateway.addConfig(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('v');
+                });
+            });
+
             ['/', '/en/'].forEach(function (path) {
                 describe('findPublicConfig on ' + path, function () {
                     beforeEach(function () {
-                        $location.path('/en/');
+                        $location.path(path);
                         request = {id: 'k'};
                         expectedHttpRequest = $http.expectPOST('http://host/api/usecase', {
                             headers: {
@@ -155,6 +199,57 @@
                     it('not found and response handler is not given', function () {
                         expectedHttpRequest.respond(404);
                         gateway.findPublicConfig(request, {});
+                        $http.flush();
+                    });
+                });
+
+                describe('findConfig on ' + path, function () {
+                    beforeEach(function () {
+                        $location.path(path);
+                        request = {id: 'k'};
+                        expectedHttpRequest = $http.expectPOST('http://host/api/usecase', {
+                            headers: {
+                                usecase: "resolve.config",
+                                namespace: "n",
+                                section: '/'
+                            },
+                            payload: {
+                                key: "k"
+                            }
+                        });
+                    });
+
+                    it('unauthorized', function () {
+                        expectedHttpRequest.respond(401);
+                        gateway.findConfig(request, response);
+                        $http.flush();
+                        expect(response.unauthenticated).toHaveBeenCalled();
+                    });
+
+                    it('forbidden', function () {
+                        expectedHttpRequest.respond(403);
+                        gateway.findConfig(request, response);
+                        $http.flush();
+                        expect(response.forbidden).toHaveBeenCalled();
+                    });
+
+                    it('success', function () {
+                        expectedHttpRequest.respond(200, {value: 'v'});
+                        gateway.findConfig(request, response);
+                        $http.flush();
+                        expect(response.success).toHaveBeenCalledWith('v');
+                    });
+
+                    it('not found', function () {
+                        expectedHttpRequest.respond(404);
+                        gateway.findConfig(request, response);
+                        $http.flush();
+                        expect(response.notFound).toHaveBeenCalled();
+                    });
+
+                    it('not found and response handler is not given', function () {
+                        expectedHttpRequest.respond(404);
+                        gateway.findConfig(request, {});
                         $http.flush();
                     });
                 });
