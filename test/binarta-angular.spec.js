@@ -2,13 +2,13 @@
     var ui;
 
     describe('binartajs-angular', function () {
-        var binarta, $rootScope, $compile, $location, $routeParams, $ctrl, localStorage, sessionStorage;
+        var binarta, $rootScope, $compile, $location, $routeParams, $ctrl, localStorage, sessionStorage, config;
 
         beforeEach(function () {
             ui = new UI();
         });
         beforeEach(module('binartajs-angular1-spec'));
-        beforeEach(inject(function (_binarta_, _$rootScope_, _$compile_, _$location_, _$routeParams_, _localStorage_, _sessionStorage_) {
+        beforeEach(inject(function (_binarta_, _$rootScope_, _$compile_, _$location_, _$routeParams_, _localStorage_, _sessionStorage_, _config_) {
             binarta = _binarta_;
             $rootScope = _$rootScope_;
             $compile = _$compile_;
@@ -16,6 +16,7 @@
             $routeParams = _$routeParams_;
             localStorage = _localStorage_;
             sessionStorage = _sessionStorage_;
+            config = _config_;
 
             binarta.checkpoint.profile.signout();
             binarta.shop.basket.clear();
@@ -939,10 +940,18 @@
 
         describe('binarta-mediajs-angular1', function () {
             describe('images sub module', function() {
-                it('toURL is decorated to add the section parameter', function () {
+                beforeEach(function () {
+                    config.namespace = 'N';
                     $location.path('/en/');
                     binarta.application.setLocaleForPresentation('en');
+                });
+
+                it('toURL is decorated to add the section parameter', function () {
                     expect(binarta.media.images.toURL({path: 'bg.img', width: 200})).toEqual('bg.img?width=200&section=/');
+                });
+
+                it('toRelativeURL creates a valid relative image url', function () {
+                    expect(binarta.media.images.toRelativeURL({path: 'bg.img', width: 200})).toEqual('image/N/bg.img?width=200&section=/');
                 });
             });
         });

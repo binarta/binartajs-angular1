@@ -1,9 +1,10 @@
 (function () {
     angular.module('binarta-mediajs-angular1', [
+        'config',
         'binarta-checkpointjs-angular1'
     ])
         .provider('binartaMedia', ['applicationProvider', 'checkpointProvider', MediaProvider])
-        .factory('extendBinartaMediaFactory', ['binarta', ExtendBinartaMediaFactory])
+        .factory('extendBinartaMediaFactory', ['binarta', 'config', ExtendBinartaMediaFactory])
         .config(['binartaProvider', 'binartaMediaProvider', ExtendBinarta])
         .run(['binartaMedia', Init]);
 
@@ -21,7 +22,7 @@
         }]
     }
 
-    function ExtendBinartaMediaFactory(binarta) {
+    function ExtendBinartaMediaFactory(binarta, config) {
         function toURL(delegate) {
             return function (args) {
                 args.section = binarta.application.unlocalizedPath();
@@ -29,8 +30,15 @@
             }
         }
 
+        function toRelativeURL(delegate) {
+            return function (args) {
+                return 'image/' + config.namespace + '/' + toURL(delegate)(args);
+            }
+        }
+
         return function (media) {
             media.images.toURL = toURL(media.images.toURL);
+            media.images.toRelativeURL = toRelativeURL(media.images.toURL);
         }
     }
 

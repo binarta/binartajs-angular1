@@ -15,6 +15,7 @@ module.exports = function(config) {
             {pattern:'bower_components/binartajs/src/gateways.inmem.js'},
             {pattern:'bower_components/binarta.web.storage/src/web.storage.js'},
             {pattern:'bower_components/binarta.web.storage.angular/src/web.storage.js'},
+            {pattern:'bower_components/thk-config-mock/src/config.mock.js'},
             {pattern:'src/**/*.js'},
             {pattern:'test/**/binarta-angular.spec.js'}
         ],
