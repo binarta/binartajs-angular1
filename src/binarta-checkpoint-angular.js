@@ -2,11 +2,12 @@
     angular.module('binarta-checkpointjs-angular1', [
         'ngRoute',
         'binartajs-angular1',
-        'binarta-checkpointjs-gateways-angular1'
+        'binarta-checkpointjs-gateways-angular1',
+        'config'
     ])
         .provider('checkpoint', ['binartaCheckpointGatewayProvider', CheckpointProvider])
         .component('binCheckpoint', new CheckpointComponent())
-        .controller('CheckpointController', ['binarta', CheckpointController])
+        .controller('CheckpointController', ['binarta', 'config', CheckpointController])
         .component('binUserProfile', new UserProfileComponent())
         .component('binSignin', new SigninComponent())
         .service('UserProfileController.decorator', UserProfileControllerDecorator)
@@ -39,7 +40,7 @@
         this.templateUrl = 'bin-checkpoint-form.html';
     }
 
-    function CheckpointController(binarta) {
+    function CheckpointController(binarta, config) {
         var self = this;
 
         this.$onInit = function () {
@@ -52,6 +53,7 @@
         this.switchToSigninMode = function () {
             clearForm();
             this.mode = 'signin';
+            this.recaptchaPublicKey = undefined;
             self.submit = function () {
                 $('form input[type="password"]').trigger('change');
                 binarta.checkpoint.signinForm.submit({
@@ -66,6 +68,7 @@
         this.switchToRegistrationMode = function () {
             clearForm();
             this.mode = 'registration';
+            this.recaptchaPublicKey = config.recaptchaPublicKey;
             self.submit = function () {
                 $('form input[type="password"]').trigger('change');
                 binarta.checkpoint.registrationForm.submit({

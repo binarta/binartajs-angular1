@@ -976,7 +976,8 @@
             describe('CheckpointController', function () {
                 var ctrl;
 
-                beforeEach(inject(function ($controller) {
+                beforeEach(inject(function ($controller, config) {
+                    config.recaptchaPublicKey = 'recaptcha-public-key';
                     ctrl = $controller('CheckpointController');
                 }));
 
@@ -1058,6 +1059,10 @@
                         ctrl.$onInit();
                     });
 
+                    it('should expose the public recaptcha key', function() {
+                        expect(ctrl.recaptchaPublicKey).toEqual(config.recaptchaPublicKey);
+                    });
+
                     it('then system is still in idle state', function () {
                         expect(ctrl.status()).toEqual('idle');
                     });
@@ -1109,6 +1114,12 @@
                         expect(ctrl.vat).toBeUndefined();
                         expect(ctrl.captcha).toBeUndefined();
                     });
+
+                    it('should remove the recaptcha key when switching to signin mode', function() {
+                        ctrl.switchToSigninMode();
+
+                        expect(ctrl.recaptchaPublicKey).toBeUndefined();
+                    })
                 });
             });
         });
