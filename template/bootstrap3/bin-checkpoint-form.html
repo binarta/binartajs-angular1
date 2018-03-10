@@ -74,7 +74,7 @@
     <hr>
 
     <div class="form-group" ng-class="{'has-error': violations.captcha}">
-        <div class="captcha" vc-recaptcha ng-model="$ctrl.captcha" key="6LfF8usSAAAAAKeLHU0D3Xjlqv6SqVwymcqB-SHg"
+        <div class="captcha" vc-recaptcha ng-model="$ctrl.captcha" key="$ctrl.recaptchaPublicKey"
              theme="white">
         </div>
         <p class="help-block" ng-repeat="v in $ctrl.violationReport().captcha"
