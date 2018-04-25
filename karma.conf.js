@@ -17,7 +17,8 @@ module.exports = function(config) {
             {pattern:'bower_components/binarta.web.storage.angular/src/web.storage.js'},
             {pattern:'bower_components/thk-config-mock/src/config.mock.js'},
             {pattern:'src/**/*.js'},
-            {pattern:'test/**/binarta-angular.spec.js'}
+            {pattern:'test/**/binarta-angular.spec.js'},
+            {pattern:'test/recaptcha.mock.js'}
         ],
         browsers:['PhantomJS'],
         reporters: ['dots', 'junit'],
