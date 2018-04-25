@@ -794,6 +794,43 @@
             });
         });
 
+        describe('human resources db', function() {
+            var db;
+
+            beforeEach(inject(function(restBinartaHumanResourcesGateway) {
+                db = restBinartaHumanResourcesGateway;
+            }));
+
+            describe('search', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectGET('http://host/api/vacancies/n/l');
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'search-results');
+                    request.locale = 'l';
+                    db.search(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('search-results');
+                });
+            });
+
+            describe('get', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectGET('http://host/api/vacancies/n/i/l');
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'position');
+                    request.id = 'i';
+                    request.locale = 'l';
+                    db.get(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('position');
+                });
+            });
+        });
+
         function capturedRequest(idx) {
             return rest.calls.argsFor(idx)[0];
         }
@@ -809,7 +846,8 @@
         'binarta-applicationjs-rest-angular1',
         'binarta-checkpointjs-rest-angular1',
         'binarta-publisherjs-rest-angular1',
-        'binarta-shopjs-rest-angular1'
+        'binarta-shopjs-rest-angular1',
+        'binarta-humanresourcesjs-rest-angular1'
     ]).factory('binartaReadRouteOnLocaleChange', function () {
         return false;
     });
