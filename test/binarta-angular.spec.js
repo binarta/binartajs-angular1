@@ -52,7 +52,7 @@
                 });
             }));
 
-            it('does not resolve when only gateways are initialised', function () {
+            fit('does not resolve when only gateways are initialised', function () {
                 binartaGatewaysAreInitialised.resolve();
                 $rootScope.$digest();
                 expect(initialisedBinarta).toBeUndefined();
@@ -2377,6 +2377,18 @@
             });
         });
 
+        describe('binarta-humanresourcesjs-angular1', function() {
+            beforeEach(function () {
+                config.namespace = 'N';
+                $location.path('/en/');
+                binarta.application.setLocaleForPresentation('en');
+            });
+
+            it('installs humanresources handler on binarta', function() {
+                expect(binarta.humanresources).toBeDefined();
+            });
+        });
+
         function expectApplicationListenerUninstalled(listenerName) {
             expectEventListenerUninstalled(binarta.application.eventRegistry, listenerName);
         }
@@ -2401,7 +2413,8 @@
         'binarta-mediajs-angular1',
         'binarta-checkpointjs-angular1',
         'binarta-publisherjs-angular1',
-        'binarta-shopjs-angular1'
+        'binarta-shopjs-angular1',
+        'binarta-humanresourcesjs-angular1'
     ])
         .service('$window', MockWindow)
         .factory('i18nLocation', MockI18nLocationFactory)
@@ -2458,6 +2471,8 @@
             .provider('binartaPublisherGateway', [strategy + 'BinartaPublisherGatewayProvider', proxy]);
         angular.module('binarta-shopjs-gateways-angular1', ['binarta-shopjs-' + strategy + '-angular1'])
             .provider('binartaShopGateway', [strategy + 'BinartaShopGatewayProvider', proxy]);
+        angular.module('binarta-humanresourcesjs-gateways-angular1', ['binarta-humanresourcesjs-' + strategy + '-angular1'])
+            .provider('binartaHumanResourcesGateway', [strategy + 'BinartaHumanResourcesGatewayProvider', proxy]);
 
         function proxy(gateway) {
             return gateway;

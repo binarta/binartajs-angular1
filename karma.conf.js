@@ -13,6 +13,7 @@ module.exports = function(config) {
             {pattern:'bower_components/binartajs/src/media.js'},
             {pattern:'bower_components/binartajs/src/publisher.js'},
             {pattern:'bower_components/binartajs/src/shop.js'},
+            {pattern:'bower_components/binartajs/src/humanresources.js'},
             {pattern:'bower_components/binartajs/src/gateways.inmem.js'},
             {pattern:'bower_components/binarta.web.storage/src/web.storage.js'},
             {pattern:'bower_components/binarta.web.storage.angular/src/web.storage.js'},
@@ -21,7 +22,7 @@ module.exports = function(config) {
             {pattern:'test/**/binarta-angular.spec.js'},
             {pattern:'test/recaptcha.mock.js'}
         ],
-        browsers:['PhantomJS'],
+        browsers:['Chrome'],
         reporters: ['dots', 'junit'],
         junitReporter: {
             outputFile: 'test-results.xml',

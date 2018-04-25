@@ -11,14 +11,17 @@
   },
   "blog": {
     "binarta-publisherjs-angular1": "bower_components/binartajs-angular1/src/binarta-publisher-angular.js",
+    "binarta-publisherjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-publisher-rest-angular.js",
     "binarta-publisherjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-publisher-tpls-bootstrap3-angular1.js"
   },
   "shop": {
     "binarta-checkpointjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-shop-tpls-bootstrap3-angular1.js",
+    "binarta-checkpointjs-recaptcha-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-recaptcha-angular.js",
     "binarta-shopjs-angular1": "bower_components/binartajs-angular1/src/binarta-shop-angular.js",
     "binarta-shopjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-shop-rest-angular.js",
     "binarta-shopjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-shop-tpls-bootstrap3-angular1.js",
-    "binarta-checkpointjs-recaptcha-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-recaptcha-angular.js"
+    "binarta-humanresourcesjs-angular1": "bower_components/binartajs-angular1/src/binarta-humanresources-angular.js",
+    "binarta-humanresourcesjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-humanresources-rest-angular.js"
   },
   "e2e": {
     "binarta-applicationjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-application-inmem-angular.js",
