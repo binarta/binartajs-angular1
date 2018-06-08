@@ -1,3 +1,4 @@
+@bin-basket-circle-size: 150px;
 bin-basket {
   cursor: pointer;
   &.modern-basket {
@@ -28,15 +29,15 @@ bin-basket {
       justify-content: flex-start;
       align-items: flex-start;
       padding: 10px 25px;
-      width: @cirkle-size;
-      height: @cirkle-size / 2;
-      -webkit-border-bottom-right-radius: @cirkle-size / 2.3;
-      -webkit-border-bottom-left-radius: @cirkle-size / 2.3;
-      -moz-border-radius-bottomright: @cirkle-size / 2.3;
-      -moz-border-radius-bottomleft: @cirkle-size / 2.3;
-      border-bottom-right-radius: @cirkle-size / 2.3;
-      border-bottom-left-radius: @cirkle-size / 2.3;
-      transform: translateX(@cirkle-size / 2);
+      width: @bin-basket-circle-size;
+      height: @bin-basket-circle-size / 2;
+      -webkit-border-bottom-right-radius: @bin-basket-circle-size / 2.3;
+      -webkit-border-bottom-left-radius: @bin-basket-circle-size / 2.3;
+      -moz-border-radius-bottomright: @bin-basket-circle-size / 2.3;
+      -moz-border-radius-bottomleft: @bin-basket-circle-size / 2.3;
+      border-bottom-right-radius: @bin-basket-circle-size / 2.3;
+      border-bottom-left-radius: @bin-basket-circle-size / 2.3;
+      transform: translateX(@bin-basket-circle-size / 2);
       animation: slideUp 1s;
       animation-fill-mode: forwards;
       a {
@@ -116,6 +117,11 @@ bin-basket {
       justify-content: space-between;
       padding: 15px 0;
       text-transform: lowercase;
+      .item-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
       .item-quantity {
         padding-left: 20px;
       }
