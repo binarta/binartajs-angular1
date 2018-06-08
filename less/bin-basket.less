@@ -23,6 +23,34 @@ bin-basket {
         font-size: 15px;
       }
     }
+    &.isOverTreshold {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 10px 25px;
+      width: @cirkle-size;
+      height: @cirkle-size / 2;
+      -webkit-border-bottom-right-radius: @cirkle-size / 2.3;
+      -webkit-border-bottom-left-radius: @cirkle-size / 2.3;
+      -moz-border-radius-bottomright: @cirkle-size / 2.3;
+      -moz-border-radius-bottomleft: @cirkle-size / 2.3;
+      border-bottom-right-radius: @cirkle-size / 2.3;
+      border-bottom-left-radius: @cirkle-size / 2.3;
+      transform: translateX(@cirkle-size / 2);
+      animation: slideUp 1s;
+      animation-fill-mode: forwards;
+      a {
+        align-items: center;
+        display: flex;
+        flex-direction: column-reverse;
+        justify-content: center;
+        width: 40px;
+      }
+    }
+    &.isUnderTreshold {
+      animation: slideDown 1s;
+      animation-fill-mode: forwards;
+    }
   }
   .basket-items-dropdown {
     background-color: white;
