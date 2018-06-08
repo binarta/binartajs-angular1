@@ -8,11 +8,10 @@
     <span class="total-quantity">{{$ctrl.preview.quantity}}</span>
     <div class="basket-items-dropdown" ng-if="$ctrl.isDropdownActive">
         <a ng-click="$ctrl.onCloseDropdownClick()" class="close-dropdown-btn">
-            <i class="fa fa-times" aria-hidden="true"></i>
+            <i class="fa fa-window-close-o" aria-hidden="true"></i>
         </a>
         <ul>
             <li ng-repeat="item in $ctrl.preview.items">
-                <div class="item-quantity">{{::item.quantity}} <i class="fa fa-times" aria-hidden="true"></i></div>
                 <div class="item-name" i18n code="{{::item.id}}" read-only>{{::var}}</div>
                 <div class="item-total" ng-bind="item.presentableTotal"></div>
             </li>

@@ -1,22 +1,28 @@
 bin-basket {
+  cursor: pointer;
   .basket-items-dropdown {
     background-color: white;
-    bottom: 50px;
+    top: 50px;
     color: inherit;
-    left: 1vw;
     list-style: none;
-    margin: 15px 0;
     padding: 20px 30px;
     position: fixed;
     text-align: left;
-    width: 98vw;
     z-index: @zindex-dropdown;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-    &:focus {
-      outline: 0;
-    }
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: 0;
+    width: 100vw;
+    -webkit-box-shadow: 0px 0px 24px -3px rgba(0, 0, 0, 0.7);
+    -moz-box-shadow: 0px 0px 24px -3px rgba(0, 0, 0, 0.7);
+    box-shadow: 0px 0px 24px -3px rgba(0, 0, 0, 0.7);
+    -webkit-border-bottom-right-radius: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+    -moz-border-radius-bottomright: 10px;
+    -moz-border-radius-bottomleft: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
     &:after {
       background: white;
       content: '';
@@ -32,9 +38,16 @@ bin-basket {
       -moz-transform: rotate(45deg);
       -o-transform: rotate(45deg);
       -ms-transform: rotate(45deg);
+      bottom: unset;
+      left: unset;
+      right: 25px;
+      top: -5px;
+    }
+    &:focus {
+      outline: 0;
     }
     ul {
-      color: #434343;  
+      color: #434343;
       padding: 0;
       margin: 0;
       .btn {
@@ -72,22 +85,6 @@ bin-basket {
       position: absolute;
       top: 10px;
       right: 10px;
-    }
-    @media (min-width: @grid-float-breakpoint) {
-      position: absolute;
-      display: flex;
-      flex-direction: column;
-      top: 100%;
-      right: 0;
-      left: unset;
-      bottom: unset;
-      width: 433px;
-      &:after {
-        bottom: unset;
-        left: unset;
-        right: 25px;
-        top: -5px;
-      }
     }
   }
   .container-fluid {
