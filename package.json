@@ -6,7 +6,8 @@
     "templates": "npm run templates:all",
     "templates:all": "gulp",
     "templates:default": "gulp templates-bootstrap3",
-    "templates:shop": "gulp templates-shop-bootstrap3"
+    "templates:shop": "gulp templates-shop-bootstrap3",
+    "postinstall": "bower install"
   },
   "devDependencies": {
     "gulp": "^3.8.10",
