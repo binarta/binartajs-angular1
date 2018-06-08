@@ -71,14 +71,22 @@
         this.quantity = 1;
 
         this.$onInit = function () {
-            if (['summary', 'detailed', 'link', 'minimal-link', 'add-to-basket-button'].indexOf(self.mode) > -1) {
+            if (['summary', 'detailed', 'link', 'minimal-link', 'add-to-basket-button', 'dropdown-link'].indexOf(self.mode) > -1) {
                 if (self.mode == 'summary') {
                     binarta.checkpoint.profile.eventRegistry.add(profileEventListener);
                     refreshFromPreview();
                 }
-                if (['detailed', 'link', 'minimal-link', 'add-to-basket-button'].indexOf(self.mode) > -1) {
+                if (['detailed', 'link', 'minimal-link', 'add-to-basket-button', 'dropdown-link'].indexOf(self.mode) > -1) {
                     binarta.shop.basket.eventRegistry.add(basketEventListener);
                     refreshFromBasket();
+                }
+                if (this.mode === 'dropdown-link') {   
+                    this.onDropdownClick = function () {
+                        this.isDropdownActive = !this.isDropdownActive;
+                    };
+                    this.onCloseDropdownClick = function () {
+                        this.isDropdownActive = false;
+                    };
                 }
             }
         };

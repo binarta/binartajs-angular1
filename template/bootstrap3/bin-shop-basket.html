@@ -3,6 +3,27 @@
     <i class="fa fa-shopping-cart fa-fw"></i>
     ({{$ctrl.preview.quantity}}) <span ng-if="$ctrl.mode == 'link'">{{$ctrl.preview.presentablePrice}}</span>
 </a>
+<a ng-click="$ctrl.onDropdownClick()" ng-if="$ctrl.mode == 'dropdown-link' && $ctrl.preview.quantity > 0">
+    <i class="fa fa-shopping-cart fa-fw"></i>
+    <span class="total-quantity">{{$ctrl.preview.quantity}}</span>
+    <div class="basket-items-dropdown" ng-if="$ctrl.isDropdownActive">
+        <a ng-click="$ctrl.onCloseDropdownClick()" class="close-dropdown-btn">
+            <i class="fa fa-times" aria-hidden="true"></i>
+        </a>
+        <ul>
+            <li ng-repeat="item in $ctrl.preview.items">
+                <div class="item-quantity">{{::item.quantity}} <i class="fa fa-times" aria-hidden="true"></i></div>
+                <div class="item-name" i18n code="{{::item.id}}" read-only>{{::var}}</div>
+                <div class="item-total" ng-bind="item.presentableTotal"></div>
+            </li>
+            <a class="btn btn-primary"
+               bin-href="{{'/basket'}}"
+               i18n code="shop.checkout.button">
+                {{var}}
+            </a>
+        </ul>
+    </div>
+</a>
 <div ng-if="$ctrl.mode == 'add-to-basket-button'">
     <button class="btn btn-success" ng-hide="$ctrl.itemAdded"
             ng-click="$ctrl.addToBasket()" i18n code="catalog.item.add.to.basket.button" read-only>
@@ -74,7 +95,7 @@
         </div>
     </div>
 </div>
-<div class="container" ng-if="$ctrl.mode == 'detailed'">
+<div class="container-fluid" ng-if="$ctrl.mode == 'detailed'">
     <div class="row" ng-if="$ctrl.preview.items.length == 0">
         <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
             <div class="bin-status-visual">
@@ -84,110 +105,9 @@
         </div>
     </div>
     <div class="row" ng-if="$ctrl.preview.items.length > 0">
-        <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
-            <div class="bin-basket-items" ng-if="$ctrl.viewport.visibleXs()">
-                <div class="row" ng-repeat="item in $ctrl.preview.items">
-                    <div class="col-xs-12">
-                        <ng-include src="'bin-shop-basket-list-item-default.html'"></ng-include>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bin-basket-items" ng-if="$ctrl.viewport.visibleSm()">
-                <div bin-split-in-rows="$ctrl.preview.items" columns="3">
-                    <div class="row" ng-repeat="row in rows track by row.id">
-                        <div class="col-sm-4" ng-repeat="item in row.items">
-                            <ng-include src="'bin-shop-basket-list-item-default.html'"></ng-include>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bin-basket-items" ng-if="$ctrl.viewport.visibleMd() || $ctrl.viewport.visibleLg()">
-                <div bin-split-in-rows="$ctrl.preview.items" columns="4">
-                    <div class="row" ng-repeat="row in rows track by row.id">
-                        <div class="col-md-3" ng-repeat="item in row.items">
-                            <ng-include src="'bin-shop-basket-list-item-default.html'"></ng-include>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bin-basket-prices text-right">
-                <div ng-if="updatingPrices">
-                    <div class="row">
-                        <div class="col-xs-8 col-sm-10" i18n code="shop.prices.subtotal.label" read-only>
-                            <strong>{{::var}}</strong>
-                        </div>
-                        <div class="col-xs-4 col-sm-2">
-                            <i class="fa fa-spinner fa-spin"></i>
-                        </div>
-                    </div>
-                    <div class="row" ng-repeat="item in $ctrl.preview.additionalCharges">
-                        <div class="col-xs-8 col-sm-10" i18n code="shop.prices.{{::item.label}}.label" read-only>
-                            <strong>{{::var}}</strong>
-                        </div>
-                        <div class="col-xs-4 col-sm-2">
-                            <i class="fa fa-spinner fa-spin"></i>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-8 col-sm-10" i18n code="shop.prices.total.label" read-only>
-                            <strong>{{::var}}</strong>
-                        </div>
-                        <div class="col-xs-4 col-sm-2">
-                            <div class="basket-total-price">
-                                <i class="fa fa-spinner fa-spin"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div ng-if="!updatingPrices">
-                    <div class="row">
-                        <div class="col-xs-8 col-sm-10" i18n code="shop.prices.subtotal.label" read-only>
-                            <strong>{{::var}}</strong>
-                        </div>
-                        <div class="col-xs-4 col-sm-2">
-                            {{$ctrl.preview.presentableItemTotal}}
-                        </div>
-                    </div>
-                    <div class="row" ng-repeat="item in $ctrl.preview.additionalCharges">
-                        <div class="col-xs-8 col-sm-10"
-                             i18n code="shop.prices.{{::item.label}}.label" default="{{::item.label}}" read-only>
-                            <strong>{{::var}}</strong>
-                        </div>
-                        <div class="col-xs-4 col-sm-2">
-                            {{item.presentableValue}}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-8 col-sm-10" i18n code="shop.prices.total.label" read-only>
-                            <strong>{{::var}}</strong>
-                        </div>
-                        <div class="col-xs-4 col-sm-2">
-                            <div class="basket-total-price">
-                                {{$ctrl.preview.presentablePrice}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-xs-12">
-                    <hr>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-xs-12 text-right">
-                    <button class="btn btn-success pull-right"
-                            i18n code="shop.checkout.button" read-only
-                            ng-click="$ctrl.checkout()">
-                        <i class="fa fa-caret-right fa-fw"></i> {{::var}}
-                    </button>
-                </div>
-            </div>
+        <div class="col-xs-12">
+            <div ng-include="'bin-shop-basket-list.html'" class="col-xs-12 col-md-8"></div>
+            <div ng-include="'bin-shop-basket-summary.html'" class="col-xs-12 col-md-4"></div>
         </div>
     </div>
 </div>
