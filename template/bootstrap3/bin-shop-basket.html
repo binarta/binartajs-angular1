@@ -15,12 +15,12 @@
                 <div class="item-name" i18n code="{{::item.id}}" read-only>{{::var}}</div>
                 <div class="item-total" ng-bind="item.presentableTotal"></div>
             </li>
-            <a class="btn btn-primary"
-               bin-href="{{'/basket'}}"
-               i18n code="shop.checkout.button">
-                {{var}}
-            </a>
         </ul>
+        <a class="btn btn-primary btn-go-to-checkout"
+            bin-href="{{'/basket'}}"
+            i18n code="shop.checkout.button">
+            {{var}}
+        </a>
     </div>
 </a>
 <div ng-if="$ctrl.mode == 'add-to-basket-button'">
