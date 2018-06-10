@@ -1563,6 +1563,13 @@
                                 ctrl.onCloseDropdownClick();
                                 expect(ctrl.isDropdownActive).toBeFalsy();
                             });
+
+                            it('should close the dropdown on routechange', function () {
+                                ctrl.isDropdownActive = true;
+                                $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                                $rootScope.$digest();
+                                expect(ctrl.isDropdownActive).toBeFalsy();
+                            });
                         }
                     });
                 });
