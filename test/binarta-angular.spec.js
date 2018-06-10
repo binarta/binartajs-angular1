@@ -1543,7 +1543,7 @@
                     'minimal-link',
                     'dropdown-link',
                 ].forEach(function (mode) {
-                    describe('in ' + mode + ' mode', function () {
+                    fdescribe('in ' + mode + ' mode', function () {
                         commonLinkTests(mode);
 
                         if (mode === 'dropdown-link') {
@@ -1561,6 +1561,13 @@
                             it('should close the dropdown', function() {
                                 ctrl.isDropdownActive = true;
                                 ctrl.onCloseDropdownClick();
+                                expect(ctrl.isDropdownActive).toBeFalsy();
+                            });
+
+                            it('should close the dropdown on routechange', function () {
+                                ctrl.isDropdownActive = true;
+                                $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                                $rootScope.$digest();
                                 expect(ctrl.isDropdownActive).toBeFalsy();
                             });
                         }

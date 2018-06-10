@@ -9,7 +9,7 @@
     ])
         .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', 'applicationProvider', ShopProvider])
         .component('binBasket', new BasketComponent())
-        .controller('BinartaBasketController', ['binarta', 'viewport', 'i18nLocation', '$timeout', BinartaBasketController])
+        .controller('BinartaBasketController', ['binarta', 'viewport', 'i18nLocation', '$timeout', '$rootScope', BinartaBasketController])
         .component('binAddress', new AddressComponent())
         .controller('BinartaAddressController', ['binarta', BinartaAddressController])
         .component('binPaymentMethods', new PaymentMethodsComponent())
@@ -62,7 +62,7 @@
         this.templateUrl = 'bin-shop-basket.html';
     }
 
-    function BinartaBasketController(binarta, viewport, $location, $timeout) {
+    function BinartaBasketController(binarta, viewport, $location, $timeout, $rootScope) {
         var profileEventListener = new ProfileEventListener();
         var basketEventListener = new BasketEventListener();
         var self = this;
@@ -87,6 +87,9 @@
                     this.onCloseDropdownClick = function () {
                         this.isDropdownActive = false;
                     };
+                    $rootScope.$on("$routeChangeStart", function(event, next, current) {
+                        self.isDropdownActive = false;
+                    });
                 }
             }
         };
