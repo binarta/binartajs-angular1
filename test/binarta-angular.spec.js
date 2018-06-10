@@ -1543,7 +1543,7 @@
                     'minimal-link',
                     'dropdown-link',
                 ].forEach(function (mode) {
-                    describe('in ' + mode + ' mode', function () {
+                    fdescribe('in ' + mode + ' mode', function () {
                         commonLinkTests(mode);
 
                         if (mode === 'dropdown-link') {
