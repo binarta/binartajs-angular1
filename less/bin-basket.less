@@ -2,21 +2,21 @@
 bin-basket {
   cursor: pointer;
   &.modern-basket {
-    background: @brand-primary;
-    color: white;
-    padding: 8px 10px;
-    padding-right: 30px;
-    position: fixed;
-    right: 0;
-    top: 0;
-    -webkit-border-bottom-left-radius: 10px;
-    -moz-border-radius-bottomleft: 10px;
-    border-bottom-left-radius: 10px;
-    -webkit-box-shadow: 0px 0px 24px -3px rgba(0, 0, 0, 0.7);
-    -moz-box-shadow: 0px 0px 24px -3px rgba(0, 0, 0, 0.7);
-    box-shadow: 0px 0px 24px -3px rgba(0, 0, 0, 0.7);
     >a {
-      color: inherit;
+      background: @brand-primary;
+      color: white;
+      display: flex;
+      position: fixed;
+      right: 0;
+      top: 0;
+      -webkit-border-bottom-left-radius: 10px;
+      -moz-border-radius-bottomleft: 10px;
+      border-bottom-left-radius: 10px;
+      -webkit-box-shadow: 0px 0px 24px -3px rgba(0, 0, 0, 0.7);
+      -moz-box-shadow: 0px 0px 24px -3px rgba(0, 0, 0, 0.7);
+      box-shadow: 0px 0px 24px -3px rgba(0, 0, 0, 0.7);
+      padding: 8px 10px;
+      padding-right: 30px;
       i {
         font-size: inherit;
       }
@@ -146,10 +146,16 @@ bin-basket {
   }
   @media (min-width: @grid-float-breakpoint) {
     &.modern-basket {
-      top: 50px;
-      -webkit-border-top-left-radius: 10px;
-      -moz-border-radius-topleft: 10px;
-      border-top-left-radius: 10px;
+      >a {
+        top: 50px;
+        -webkit-border-top-left-radius: 10px;
+        -moz-border-radius-topleft: 10px;
+        border-top-left-radius: 10px;
+        >i,
+        >span {
+          line-height: 2rem;
+        }
+      }
     }
     .basket-items-dropdown {
       left: unset;
