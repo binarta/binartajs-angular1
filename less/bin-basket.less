@@ -1,4 +1,3 @@
-@bin-basket-circle-size: 150px;
 bin-basket {
   cursor: pointer;
   &.modern-basket {
@@ -19,30 +18,6 @@ bin-basket {
       span {
         font-size: 15px;
       }
-    }
-    &.is-over-threshold {
-      display: flex;
-      justify-content: flex-start;
-      align-items: flex-start;
-      padding: 10px 25px;
-      width: @bin-basket-circle-size;
-      height: @bin-basket-circle-size / 2;
-      border-bottom-right-radius: @bin-basket-circle-size / 2.3;
-      border-bottom-left-radius: @bin-basket-circle-size / 2.3;
-      transform: translateX(@bin-basket-circle-size / 2);
-      animation: slideUp 1s;
-      animation-fill-mode: forwards;
-      a {
-        align-items: center;
-        display: flex;
-        flex-direction: column-reverse;
-        justify-content: center;
-        width: 40px;
-      }
-    }
-    &.is-under-threshold {
-      animation: slideDown 1s;
-      animation-fill-mode: forwards;
     }
     @keyframes slideUp {
       from {
