@@ -1474,72 +1474,99 @@
                     });
                 });
 
+                function commonLinkTests(mode) {
+                    beforeEach(function () {
+                        ctrl.mode = mode;
+                        binarta.shop.basket.add({
+                            item: {id: 'i', price: 100, quantity: 1}
+                        });
+                        ctrl.$onInit();
+                    });
+
+                    it('preview exposes the order from the basket', function () {
+                        expect(ctrl.preview.items[0].id).toEqual('i');
+                    });
+
+                    it('increment item quantity', function () {
+                        ctrl.preview.items[0].incrementQuantity();
+                        ctrl.preview.items[0].incrementQuantity();
+                        expect(ctrl.preview.quantity).toEqual(3);
+                        expect(binarta.shop.basket.toOrder().quantity).toEqual(3);
+                    });
+
+                    it('decrement item quantity', function () {
+                        ctrl.preview.items[0].incrementQuantity();
+                        ctrl.preview.items[0].incrementQuantity();
+
+                        ctrl.preview.items[0].decrementQuantity();
+                        expect(ctrl.preview.quantity).toEqual(2);
+                        expect(binarta.shop.basket.toOrder().quantity).toEqual(2);
+
+                        ctrl.preview.items[0].decrementQuantity();
+                        expect(ctrl.preview.quantity).toEqual(1);
+                        expect(binarta.shop.basket.toOrder().quantity).toEqual(1);
+                    });
+
+                    it('update to a specific quantity', function () {
+                        ctrl.preview.items[0].quantity = 10;
+
+                        ctrl.preview.items[0].update();
+
+                        expect(ctrl.preview.quantity).toEqual(10);
+                        expect(binarta.shop.basket.toOrder().quantity).toEqual(10);
+                    });
+
+                    it('remove an item from the basket', function () {
+                        ctrl.preview.items[0].remove();
+
+                        expect(ctrl.preview.quantity).toEqual(0);
+                        expect(binarta.shop.basket.toOrder().items.length).toEqual(0);
+                    });
+
+                    it('when basket is cleared previewed contents are updated', function () {
+                        binarta.shop.basket.clear();
+                        expect(ctrl.preview.quantity).toEqual(0);
+                    });
+
+                    it('$onInit installs a basket event listener', function () {
+                        expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeFalsy();
+                    });
+
+                    it('$onDestroy will remove basket event listener', function () {
+                        ctrl.$onDestroy();
+                        expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
+                    });
+                }
+
                 [
                     'link',
-                    'minimal-link'
+                    'minimal-link',
+                    'dropdown-link',
                 ].forEach(function (mode) {
                     describe('in ' + mode + ' mode', function () {
-                        beforeEach(function () {
-                            ctrl.mode = mode;
-                            binarta.shop.basket.add({
-                                item: {id: 'i', price: 100, quantity: 1}
+                        commonLinkTests(mode);
+
+                        if (mode === 'dropdown-link') {
+                            it('should toggle isDropdownActive', function () {
+                                ctrl.onDropdownClick();
+                                expect(ctrl.isDropdownActive).toBeTruthy();
+                                ctrl.onDropdownClick();
+                                expect(ctrl.isDropdownActive).toBeFalsy();
                             });
-                            ctrl.$onInit();
-                        });
 
-                        it('preview exposes the order from the basket', function () {
-                            expect(ctrl.preview.items[0].id).toEqual('i');
-                        });
+                            it('should close the dropdown', function() {
+                                ctrl.isDropdownActive = true;
+                                ctrl.onCloseDropdownClick();
+                                expect(ctrl.isDropdownActive).toBeFalsy();
+                            });
 
-                        it('increment item quantity', function () {
-                            ctrl.preview.items[0].incrementQuantity();
-                            ctrl.preview.items[0].incrementQuantity();
-                            expect(ctrl.preview.quantity).toEqual(3);
-                            expect(binarta.shop.basket.toOrder().quantity).toEqual(3);
-                        });
-
-                        it('decrement item quantity', function () {
-                            ctrl.preview.items[0].incrementQuantity();
-                            ctrl.preview.items[0].incrementQuantity();
-
-                            ctrl.preview.items[0].decrementQuantity();
-                            expect(ctrl.preview.quantity).toEqual(2);
-                            expect(binarta.shop.basket.toOrder().quantity).toEqual(2);
-
-                            ctrl.preview.items[0].decrementQuantity();
-                            expect(ctrl.preview.quantity).toEqual(1);
-                            expect(binarta.shop.basket.toOrder().quantity).toEqual(1);
-                        });
-
-                        it('update to a specific quantity', function () {
-                            ctrl.preview.items[0].quantity = 10;
-
-                            ctrl.preview.items[0].update();
-
-                            expect(ctrl.preview.quantity).toEqual(10);
-                            expect(binarta.shop.basket.toOrder().quantity).toEqual(10);
-                        });
-
-                        it('remove an item from the basket', function () {
-                            ctrl.preview.items[0].remove();
-
-                            expect(ctrl.preview.quantity).toEqual(0);
-                            expect(binarta.shop.basket.toOrder().items.length).toEqual(0);
-                        });
-
-                        it('when basket is cleared previewed contents are updated', function () {
-                            binarta.shop.basket.clear();
-                            expect(ctrl.preview.quantity).toEqual(0);
-                        });
-
-                        it('$onInit installs a basket event listener', function () {
-                            expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeFalsy();
-                        });
-
-                        it('$onDestroy will remove basket event listener', function () {
-                            ctrl.$onDestroy();
-                            expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
-                        });
+                            it('should close the dropdown on routechange', function () {
+                                ctrl.isDropdownActive = true;
+                                $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                                $rootScope.$digest();
+                                expect(ctrl.isDropdownActive).toBeFalsy();
+                            });
+                        }
                     });
                 });
 
