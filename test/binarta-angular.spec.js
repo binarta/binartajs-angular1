@@ -1547,10 +1547,6 @@
                         commonLinkTests(mode);
 
                         if (mode === 'dropdown-link') {
-                            it('should have a onDropdownClick function', function () {
-                                expect(ctrl.onDropdownClick).toEqual(jasmine.any(Function));
-                            });
-
                             it('should toggle isDropdownActive', function () {
                                 ctrl.onDropdownClick();
                                 expect(ctrl.isDropdownActive).toBeTruthy();
