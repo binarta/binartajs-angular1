@@ -26,11 +26,11 @@
     </div>
 </div>
 <div ng-if="$ctrl.mode == 'add-to-basket-button'">
-    <button class="btn btn-success" ng-hide="$ctrl.itemAdded"
+    <button class="btn btn-primary" ng-hide="$ctrl.itemAdded"
             ng-click="$ctrl.addToBasket()" i18n code="catalog.item.add.to.basket.button" read-only>
         <i class="fa fa-shopping-cart fa-fw"></i> {{var}}
     </button>
-    <button class="btn btn-success" ng-show="$ctrl.itemAdded" i18n code="catalog.item.add.to.basket.button.success" read-only disabled>
+    <button class="btn btn-primary" ng-show="$ctrl.itemAdded" i18n code="catalog.item.add.to.basket.button.success" read-only disabled>
         <i class="fa fa-shopping-cart fa-fw"></i> {{var}}
     </button>
 </div>
