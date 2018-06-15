@@ -3,9 +3,11 @@
     <i class="fa fa-shopping-cart fa-fw"></i>
     ({{$ctrl.preview.quantity}}) <span ng-if="$ctrl.mode == 'link'">{{$ctrl.preview.presentablePrice}}</span>
 </a>
-<a ng-click="$ctrl.onDropdownClick()" ng-if="$ctrl.mode == 'dropdown-link' && $ctrl.preview.quantity > 0">
-    <i class="fa fa-shopping-cart fa-fw"></i>
-    <span class="total-quantity">{{$ctrl.preview.quantity}}</span>
+<div ng-if="$ctrl.mode == 'dropdown-link'">
+    <a ng-click="$ctrl.onDropdownClick()" ng-if="$ctrl.preview.quantity > 0" class="btn-basket">
+        <i class="fa fa-shopping-cart fa-fw"></i>
+        <span class="total-quantity">{{$ctrl.preview.quantity}}</span>
+    </a>
     <div class="basket-items-dropdown" ng-show="$ctrl.isDropdownActive">
         <a ng-click="$ctrl.onCloseDropdownClick()" class="close-dropdown-btn">
             <i class="fa fa-window-close-o" aria-hidden="true"></i>
@@ -22,7 +24,7 @@
             {{var}}
         </a>
     </div>
-</a>
+</div>
 <div ng-if="$ctrl.mode == 'add-to-basket-button'">
     <button class="btn btn-success" ng-hide="$ctrl.itemAdded"
             ng-click="$ctrl.addToBasket()" i18n code="catalog.item.add.to.basket.button" read-only>
