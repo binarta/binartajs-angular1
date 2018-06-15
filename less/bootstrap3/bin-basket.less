@@ -139,3 +139,28 @@ bin-basket {
     }
   }
 }
+
+body.bin-menu {
+  bin-basket {
+    &.modern-basket {
+      a.btn-basket {
+        top: 60px;
+        @media(min-width: @screen-sm-min) {
+          top: 90px;
+        }
+      }
+    }
+    .basket-items-dropdown {
+      top: 60px;
+      ul {
+        max-height: 60vh;
+      }
+      @media(min-width: @screen-sm-min) {
+        top: 140px;
+        ul {
+          max-height: 50vh;
+        }
+      }
+    }
+  }
+}
