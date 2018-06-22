@@ -9,9 +9,11 @@
         .component('binCheckpoint', new CheckpointComponent())
         .controller('CheckpointController', ['binarta', 'config', CheckpointController])
         .component('binUserProfile', new UserProfileComponent())
+        .component('binDeleteUserProfile', new DeleteUserProfileComponent())
         .component('binSignin', new SigninComponent())
         .service('UserProfileController.decorator', UserProfileControllerDecorator)
         .controller('UserProfileController', ['binarta', 'UserProfileController.decorator', UserProfileController])
+        .controller('DeleteUserProfileController', ['binarta', 'i18nLocation', DeleteUserProfileController])
         .config(['binartaProvider', 'checkpointProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['checkpoint', WireAngularDependencies]);
@@ -107,6 +109,26 @@
         this.violationReport = emptyViolationReport;
     }
 
+    function DeleteUserProfileComponent() {
+        this.controller = 'DeleteUserProfileController';
+        this.templateUrl = 'bin-checkpoint-delete-profile-component.html';
+    }
+
+    function DeleteUserProfileController(binarta, $location) {
+        var self = this;
+        self.working = false;
+
+        this.submit = function () {
+            self.working = true;
+            binarta.checkpoint.profile.delete({
+                success: function () {
+                    self.working = false;
+                    $location.path('/');
+                }
+            });
+        }
+    }
+
     function UserProfileComponent() {
         this.controller = 'UserProfileController';
         this.templateUrl = 'bin-checkpoint-profile-component.html';
@@ -133,18 +155,18 @@
         this.status = binarta.checkpoint.profile.status;
         this.email = binarta.checkpoint.profile.email;
 
-        this.edit = function() {
+        this.edit = function () {
             binarta.checkpoint.profile.edit();
             self.form = binarta.checkpoint.profile.updateRequest();
         };
 
-        this.update = function() {
+        this.update = function () {
             binarta.checkpoint.profile.update();
         };
 
-        this.cancel = function() {
+        this.cancel = function () {
             binarta.checkpoint.profile.cancel();
-        }
+        };
     }
 
     function SigninComponent() {
