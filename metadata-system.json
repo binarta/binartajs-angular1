@@ -15,7 +15,11 @@
       "shop.prices.discounted.total.label": "Totaal (-korting)",
       "shop.prices.total.label": "Totaal",
       "platform.signature.websters": "Straf werk van de <strong>Websters</strong>",
-      "email.mismatch": "Het opgegeven e-mail adres is niet gekend in ons systeem!"
+      "email.mismatch": "Het opgegeven e-mail adres is niet gekend in ons systeem!",
+      "checkout.roadmap.cart": "Winkelwagentje",
+      "checkout.roadmap.delivery": "Levering",
+      "checkout.roadmap.payment": "Betaling",
+      "checkout.roadmap.confirm.order": "Bevestig bestelling"
     },
     "en": {
       "coupon.code.label": "Coupon Code",
@@ -32,7 +36,11 @@
       "shop.prices.discounted.total.label": "Total (-discount)",
       "shop.prices.total.label": "Total",
       "platform.signature.websters": "Crafted by <strong>Websters</strong>",
-      "email.mismatch": "The specified e-mail address is not known in our system!"
+      "email.mismatch": "The specified e-mail address is not known in our system!",
+      "checkout.roadmap.cart": "Cart",
+      "checkout.roadmap.delivery": "Delivery",
+      "checkout.roadmap.payment": "Payment",
+      "checkout.roadmap.confirm.order": "Confirm order"
     },
     "fr": {
       "coupon.code.label": "Code Promo",
@@ -49,7 +57,11 @@
       "shop.prices.discounted.total.label": "Total (-réduction)",
       "shop.prices.total.label": "Total",
       "platform.signature.websters": "Crafted by <strong>Websters</strong>",
-      "email.mismatch": "L'addresse e-mail spécifiée est inconnue dans notre système!"
+      "email.mismatch": "L'addresse e-mail spécifiée est inconnue dans notre système!",
+      "checkout.roadmap.cart": "Cart",
+      "checkout.roadmap.delivery": "Delivery",
+      "checkout.roadmap.payment": "Payment",
+      "checkout.roadmap.confirm.order": "Confirm order"
     },
     "de": {
       "coupon.code.label": "Gutscheincode",
@@ -66,7 +78,11 @@
       "shop.prices.discounted.total.label": "Gesamt (-reduktion)",
       "shop.prices.total.label": "Gesamt",
       "platform.signature.websters": "Crafted by <strong>Websters</strong>",
-      "email.mismatch":"Die angegebene e-mail-adresse ist in unserem system nicht bekannt!"
+      "email.mismatch": "Die angegebene e-mail-adresse ist in unserem system nicht bekannt!",
+      "checkout.roadmap.cart": "Cart",
+      "checkout.roadmap.delivery": "Delivery",
+      "checkout.roadmap.payment": "Payment",
+      "checkout.roadmap.confirm.order": "Confirm order"
     }
   }
 }
