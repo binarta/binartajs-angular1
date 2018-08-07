@@ -451,7 +451,7 @@
 
             describe('fetch addresses', function () {
                 beforeEach(function () {
-                    expectedHttpRequest = $http.expectGET('http://host/api/query/customer-address/listByPrincipal', expectHeaders([
+                    expectedHttpRequest = $http.expectPOST('http://host/api/query/customer-address/listByPrincipal', {"args": {"dummy": "dummy"}}, expectHeaders([
                         expectHeader('Accept-Language', binarta.application.locale())
                     ]));
                 });
