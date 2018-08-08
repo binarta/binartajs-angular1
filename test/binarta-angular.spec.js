@@ -2043,6 +2043,19 @@
                     $ctrl.$onInit();
                     expect($ctrl.onSelect).toHaveBeenCalledWith('payment-method');
                 });
+
+                it('should check if the payment method is available', function () {
+                  expect($ctrl.isPaymentMethodAvailable('payment-method')).toBe(true);
+                  expect($ctrl.isPaymentMethodAvailable('no-payment-method-available')).toBe(false);
+                });
+
+                it('should set Paypal as default when this payment method is available', function () {
+                  binarta.application.profile().availablePaymentMethods = ['wire-transfer', 'paypal-classic'];
+                  $ctrl.$onInit();
+                  expect($ctrl.onSelect).toHaveBeenCalledWith('paypal-classic');
+                });
+                
+                
             });
 
             describe('PaymentController', function () {

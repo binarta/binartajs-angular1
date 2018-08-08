@@ -18,7 +18,11 @@
       "shop.account.deletion.button": "Account Verwijderen",
       "shop.account.deletion.confirmation.label":"Bent u zeker dat je jouw account wil verwijderen? Deze stap kan niet ongedaan gemaakt worden.",
       "platform.signature.websters": "Straf werk van de <strong>Websters</strong>",
-      "email.mismatch": "Het opgegeven e-mail adres is niet gekend in ons systeem!"
+      "email.mismatch": "Het opgegeven e-mail adres is niet gekend in ons systeem!",
+      "checkout.roadmap.cart": "Winkelwagentje",
+      "checkout.roadmap.delivery": "Levering",
+      "checkout.roadmap.payment": "Betaling",
+      "checkout.roadmap.confirm.order": "Bevestig bestelling"
     },
     "en": {
       "coupon.code.label": "Coupon Code",
@@ -38,7 +42,11 @@
       "shop.account.deletion.button": "Remove Account",
       "shop.account.deletion.confirmation.label":"Are you sure you wish to remove your account? This step is not reversible.",
       "platform.signature.websters": "Crafted by <strong>Websters</strong>",
-      "email.mismatch": "The specified e-mail address is not known in our system!"
+      "email.mismatch": "The specified e-mail address is not known in our system!",
+      "checkout.roadmap.cart": "Cart",
+      "checkout.roadmap.delivery": "Delivery",
+      "checkout.roadmap.payment": "Payment",
+      "checkout.roadmap.confirm.order": "Confirm order"
     },
     "fr": {
       "coupon.code.label": "Code Promo",
@@ -58,7 +66,11 @@
       "shop.account.deletion.button": "Supprime mon Compte",
       "shop.account.deletion.confirmation.label":"Êtes-vous sûr de vouloir supprimer votre compte? Cette opération n'est pas réversible.",
       "platform.signature.websters": "Crafted by <strong>Websters</strong>",
-      "email.mismatch": "L'addresse e-mail spécifiée est inconnue dans notre système!"
+      "email.mismatch": "L'addresse e-mail spécifiée est inconnue dans notre système!",
+      "checkout.roadmap.cart": "Cart",
+      "checkout.roadmap.delivery": "Delivery",
+      "checkout.roadmap.payment": "Payment",
+      "checkout.roadmap.confirm.order": "Confirm order"
     },
     "de": {
       "coupon.code.label": "Gutscheincode",
@@ -78,7 +90,11 @@
       "shop.account.deletion.button": "Konto entfernen",
       "shop.account.deletion.confirmation.label": "Möchten Sie Ihr Konto wirklich löschen? Dieser Schritt ist nicht umkehrbar.",
       "platform.signature.websters": "Crafted by <strong>Websters</strong>",
-      "email.mismatch":"Die angegebene e-mail-adresse ist in unserem system nicht bekannt!"
+      "email.mismatch": "Die angegebene e-mail-adresse ist in unserem system nicht bekannt!",
+      "checkout.roadmap.cart": "Cart",
+      "checkout.roadmap.delivery": "Delivery",
+      "checkout.roadmap.payment": "Payment",
+      "checkout.roadmap.confirm.order": "Confirm order"
     }
   }
 }
