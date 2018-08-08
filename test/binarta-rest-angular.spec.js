@@ -308,6 +308,21 @@
                 });
             });
 
+            describe('delete', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectPOST('http://host/api/usecase', {
+                        headers: {usecase: 'user.profile.remove'}
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.delete(response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
             describe('register', function () {
                 beforeEach(function () {
                     request = {
@@ -436,7 +451,7 @@
 
             describe('fetch addresses', function () {
                 beforeEach(function () {
-                    expectedHttpRequest = $http.expectGET('http://host/api/query/customer-address/listByPrincipal', expectHeaders([
+                    expectedHttpRequest = $http.expectPOST('http://host/api/query/customer-address/listByPrincipal', {"args": {"dummy": "dummy"}}, expectHeaders([
                         expectHeader('Accept-Language', binarta.application.locale())
                     ]));
                 });

@@ -55,6 +55,17 @@
             }).then(response.unauthenticated);
         };
 
+        this.delete = function (response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/usecase',
+                withCredentials: true,
+                data: {
+                    headers: {usecase: 'user.profile.remove'}
+                }
+            }).then(response.success);
+        };
+
         this.fetchAccountMetadata = function (response) {
             self.$http({
                 method: 'GET',

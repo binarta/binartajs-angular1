@@ -61,10 +61,11 @@
 
         this.fetchAddresses = function (response) {
             self.$http({
-                method: 'GET',
+                method: 'POST',
                 url: self.config.baseUri + 'api/query/customer-address/listByPrincipal',
                 withCredentials: true,
-                headers: {'Accept-Language': self.binarta.application.locale()}
+                headers: {'Accept-Language': self.binarta.application.locale()},
+                data: {"args": {"dummy": "dummy"}}
             }).then(function (it) {
                 response.success(it.data);
             }, toErrorResponse(response));
@@ -199,7 +200,7 @@
                     headers: {usecase: 'market.shop.coupon.dictionary.contains'},
                     payload: {id: request.id}
                 }
-            }).then(function(it) {
+            }).then(function (it) {
                 it.data.contains ? response.success() : response.notFound()
             }, toErrorResponse(response));
         }
