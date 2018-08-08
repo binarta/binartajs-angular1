@@ -2044,7 +2044,7 @@
                     expect($ctrl.onSelect).toHaveBeenCalledWith('payment-method');
                 });
 
-                it('should check if the paymentMethodIsAvailable', function () {
+                it('should check if the payment method is available', function () {
                   expect($ctrl.isPaymentMethodAvailable('payment-method')).toBe(true);
                   expect($ctrl.isPaymentMethodAvailable('no-payment-method-available')).toBe(false);
                 });
