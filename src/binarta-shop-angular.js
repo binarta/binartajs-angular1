@@ -336,11 +336,19 @@
             if ($ctrl.default) {
                 $ctrl.paymentProvider = $ctrl.default;
                 $ctrl.select();
+            } else if ($ctrl.isPaymentMethodAvailable('paypal-classic')) {
+                $ctrl.paymentProvider = 'paypal-classic';
+                $ctrl.select();
             }
         };
 
         $ctrl.availablePaymentMethods = function () {
             return binarta.application.profile().availablePaymentMethods;
+        };
+
+        $ctrl.isPaymentMethodAvailable = function (paymentMethod) {
+            var availablePaymentMethods = $ctrl.availablePaymentMethods();
+            return availablePaymentMethods ? availablePaymentMethods.indexOf(paymentMethod) > -1 : false;
         };
 
         $ctrl.select = function () {
