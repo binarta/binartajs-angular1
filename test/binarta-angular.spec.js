@@ -1230,10 +1230,38 @@
             });
         });
 
-        describe('binarta-publisherjs-angular1', function() {
-            it('sandbox', function() {
+        describe('binarta-publisherjs-angular1', function () {
+            beforeEach(function () {
+                binarta.publisher.db = jasmine.createSpyObj('db', ['findAllPublishedBlogsForLocale']);
+            });
 
-            })
+            describe('bin-blog-previews component', function () {
+                beforeEach(inject(function ($componentController) {
+                    $ctrl = $componentController('binBlogPreviews', null, {});
+                }));
+
+                it('load an initial set of published blog posts when the component initialises and binarta has initialised', function () {
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    expect(binarta.publisher.db.findAllPublishedBlogsForLocale).toHaveBeenCalled();
+                });
+
+                describe('$onInit', function () {
+                    beforeEach(function () {
+                        $ctrl.$onInit();
+                    });
+
+                    it('previews are resolved from the underlying binarta cache', function () {
+                        binarta.publisher.blog.published.cache = ['a', 'b', 'c'];
+                        expect($ctrl.previews()).toEqual(['a', 'b', 'c']);
+                    });
+
+                    it('previews are limited to the first 5', function () {
+                        binarta.publisher.blog.published.cache = ['a', 'b', 'c', 'd', 'e', 'f'];
+                        expect($ctrl.previews()).toEqual(['a', 'b', 'c', 'd', 'e']);
+                    });
+                });
+            });
         });
 
         describe('binarta-shopjs-angular1', function () {
@@ -2372,6 +2400,7 @@
         'binarta-applicationjs-angular1',
         'binarta-mediajs-angular1',
         'binarta-checkpointjs-angular1',
+        'binarta-publisherjs-angular1',
         'binarta-shopjs-angular1'
     ])
         .service('$window', MockWindow)
@@ -2425,6 +2454,8 @@
             .provider('binartaApplicationGateway', [strategy + 'BinartaApplicationGatewayProvider', proxy]);
         angular.module('binarta-checkpointjs-gateways-angular1', ['binarta-checkpointjs-' + strategy + '-angular1'])
             .provider('binartaCheckpointGateway', [strategy + 'BinartaCheckpointGatewayProvider', proxy]);
+        angular.module('binarta-publisherjs-gateways-angular1', ['binarta-publisherjs-' + strategy + '-angular1'])
+            .provider('binartaPublisherGateway', [strategy + 'BinartaPublisherGatewayProvider', proxy]);
         angular.module('binarta-shopjs-gateways-angular1', ['binarta-shopjs-' + strategy + '-angular1'])
             .provider('binartaShopGateway', [strategy + 'BinartaShopGatewayProvider', proxy]);
 

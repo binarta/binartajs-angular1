@@ -397,6 +397,38 @@
             })
         });
 
+        describe('publisher gateway', function () {
+            var db;
+
+            beforeEach(inject(function (restBinartaPublisherGateway) {
+                db = restBinartaPublisherGateway;
+                response = jasmine.createSpyObj('response', ['success']);
+            }));
+
+            describe('findAllPublishedBlogsForLocale', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'find.all.published.blogs.for.locale',
+                            namespace: 'n',
+                            locale: 'en'
+                        },
+                        payload: {
+                            subset: {offset: 0, max: 5}
+                        }
+                    });
+                    request = {locale: 'en', subset: {offset: 0, max: 5}}
+                });
+
+                it('returns blog posts', function () {
+                    expectedHttpRequest.respond(200, 'posts');
+                    db.findAllPublishedBlogsForLocale(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('posts')
+                });
+            });
+        });
+
         describe('shop gateway', function () {
             var gateway;
 
@@ -776,6 +808,7 @@
         'binarta-applicationjs-angular1',
         'binarta-applicationjs-rest-angular1',
         'binarta-checkpointjs-rest-angular1',
+        'binarta-publisherjs-rest-angular1',
         'binarta-shopjs-rest-angular1'
     ]).factory('binartaReadRouteOnLocaleChange', function () {
         return false;

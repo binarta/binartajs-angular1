@@ -11,6 +11,7 @@ module.exports = function(config) {
             {pattern:'bower_components/binartajs/src/application.js'},
             {pattern:'bower_components/binartajs/src/checkpoint.js'},
             {pattern:'bower_components/binartajs/src/media.js'},
+            {pattern:'bower_components/binartajs/src/publisher.js'},
             {pattern:'bower_components/binartajs/src/shop.js'},
             {pattern:'bower_components/binartajs/src/gateways.inmem.js'},
             {pattern:'bower_components/binarta.web.storage/src/web.storage.js'},
