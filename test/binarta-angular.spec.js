@@ -1230,6 +1230,12 @@
             });
         });
 
+        describe('binarta-publisherjs-angular1', function() {
+            it('sandbox', function() {
+
+            })
+        });
+
         describe('binarta-shopjs-angular1', function () {
             beforeEach(inject(function (binartaGatewaysAreInitialised) {
                 binarta.application.gateway.updateApplicationProfile({availablePaymentMethods: ['payment-method']});

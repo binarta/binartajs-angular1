@@ -9,6 +9,10 @@
     "binarta-mediajs-angular1": "bower_components/binartajs-angular1/src/binarta-media-angular.js",
     "binarta-alljs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-all-tpls-bootstrap3-angular1.js"
   },
+  "blog": {
+    "binarta-publisherjs-angular1": "bower_components/binartajs-angular1/src/binarta-publisher-angular.js",
+    "binarta-publisherjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-publisher-tpls-bootstrap3-angular1.js"
+  },
   "shop": {
     "binarta-checkpointjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-shop-tpls-bootstrap3-angular1.js",
     "binarta-shopjs-angular1": "bower_components/binartajs-angular1/src/binarta-shop-angular.js",
@@ -16,7 +20,7 @@
     "binarta-shopjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-shop-tpls-bootstrap3-angular1.js",
     "binarta-checkpointjs-recaptcha-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-recaptcha-angular.js"
   },
-  "e2e":{
+  "e2e": {
     "binarta-applicationjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-application-inmem-angular.js",
     "binarta-checkpointjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-inmem-angular.js",
     "binarta-shopjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-shop-inmem-angular.js"
