@@ -1,1 +1,52 @@
-<div>bin-publisher-blog-previews.html</div>
+<article class="row bin-article" ng-hide="(item.publicationTime | amDifference : null : 'minutes') > 0 && !editing"
+         ng-repeat="item in $ctrl.previews() track by item.id">
+    <div class="col-sm-4">
+        <div class="bin-article-image-wrapper">
+            <span ng-if="item.body != '' || editing">
+                <a bin-href="{{::'/view' + (item.localizedId || item.id)}}">
+                    <img class="img-responsive" bin-image="images{{::item.id}}/cover.img" alt="blog post cover image">
+                </a>
+            </span>
+            <span ng-if="item.body == '' && !editing">
+                <img class="img-responsive" bin-image="images{{::item.id}}/cover.img" alt="blog post cover image">
+            </span>
+        </div>
+    </div>
+    <div class="col-sm-8">
+        <div class="well clearfix bin-article-heading">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h2 class="inline bin-article-title">
+                        <a bin-href="{{::'/view' + (item.localizedId || item.id)}}" ng-if="item.body != '' || editing"
+                           i18n code="{{::item.id}}" default="{{::item.id}}" read-only no-locale>
+                            {{::var}}
+                        </a>
+                        <span ng-if="item.body == '' && !editing"
+                              i18n code="{{::item.id}}" default="{{::item.id}}" read-only no-locale>
+                            {{::var}}
+                        </span>
+                    </h2>
+                    <ul class="list-inline">
+                        <li>
+                            <i class="fa fa-clock-o fa-fw"></i>
+                            {{::item.publicationTime | amDateFormat:'LL'}}
+                            <span class="badge" ng-if="::(item.publicationTime | amDifference : null : 'minutes') > 0"
+                                  i18n code="blog.article.scheduled.label" read-only ng-bind="::var"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <p class="bin-article-lead" i18n code="{{::item.id}}.lead" editor="full" read-only no-locale ng-bind-html="::var|trust"></p>
+
+        <span i18n code="blog.read.more" read-only ng-if="body != ''">
+            <a bin-href="{{::'/view' + (item.localizedId || item.id)}}" class="read-more" title="Read More">
+                {{::var}}
+            </a>
+        </span>
+    </div>
+    <div class="col-sm-8 col-sm-offset-4">
+        <hr>
+    </div>
+</article>
