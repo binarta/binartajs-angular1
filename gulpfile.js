@@ -41,6 +41,13 @@ gulp.task('checkpoint-shop-bootstrap3', function () {
         .pipe(gulp.dest('src'));
 });
 
+gulp.task('publisher-bootstrap3', function () {
+    gulp.src('template/bootstrap3/bin-publisher-*.html')
+        .pipe(minifyHtml(minifyHtmlOpts))
+        .pipe(templateCache('binarta-publisher-tpls-bootstrap3-angular1.js', {standalone: true, module: 'binarta-publisherjs-tpls-angular1'}))
+        .pipe(gulp.dest('src'));
+});
+
 gulp.task('shop-bootstrap3', function () {
     gulp.src('template/bootstrap3/bin-shop-*.html')
         .pipe(minifyHtml(minifyHtmlOpts))
@@ -57,5 +64,6 @@ gulp.task('default', [
     'all-bootstrap3',
     'checkpoint-bootstrap3',
     'checkpoint-shop-bootstrap3',
+    'publisher-bootstrap3',
     'shop-bootstrap3'
 ]);
