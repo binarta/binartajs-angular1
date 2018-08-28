@@ -5,18 +5,22 @@
         'binarta-publisherjs-gateways-angular1'
     ])
         .provider('publisher', ['binartaPublisherGatewayProvider', PublisherProvider])
-        .component('binBlogPreviews', new BlogPreviewsComponent())
+        .component('binBlogFeed', new BlogFeedComponent())
+        .directive('binBlogFeedResults', blogFeedResults)
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
         .run(['publisher', WireAngularDependencies]);
 
-    function BlogPreviewsComponent() {
-        this.templateUrl = 'bin-publisher-blog-previews.html';
+    function BlogFeedComponent() {
+        this.bindings = {
+            count: '@'
+        };
+
         this.controller = ['binarta', binComponentController(function (binarta) {
             var $ctrl = this;
 
             $ctrl.addInitHandler(function () {
-                $ctrl.previews = function () {
-                    return binarta.publisher.blog.published.posts({max: 5});
+                $ctrl.posts = function () {
+                    return binarta.publisher.blog.published.posts({max: $ctrl.count || 5});
                 }
             });
 
@@ -26,6 +30,20 @@
                 });
             });
         })]
+    }
+
+    function blogFeedResults() {
+        return {
+            restrict: 'E',
+            scope: true,
+            require: '^^binBlogFeed',
+            controller: function() {},
+            controllerAs: '$ctrl',
+            bindToController: true,
+            link: function (scope, el, attrs, ctrl) {
+                scope.$ctrl.posts = ctrl.posts;
+            }
+        }
     }
 
     function PublisherProvider(db) {
