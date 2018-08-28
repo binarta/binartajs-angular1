@@ -52,7 +52,7 @@
                 });
             }));
 
-            fit('does not resolve when only gateways are initialised', function () {
+            it('does not resolve when only gateways are initialised', function () {
                 binartaGatewaysAreInitialised.resolve();
                 $rootScope.$digest();
                 expect(initialisedBinarta).toBeUndefined();
@@ -1235,9 +1235,9 @@
                 binarta.publisher.db = jasmine.createSpyObj('db', ['findAllPublishedBlogsForLocale']);
             });
 
-            describe('bin-blog-previews component', function () {
+            describe('bin-blog-feed component', function () {
                 beforeEach(inject(function ($componentController) {
-                    $ctrl = $componentController('binBlogPreviews', null, {});
+                    $ctrl = $componentController('binBlogFeed', null, {});
                 }));
 
                 it('load an initial set of published blog posts when the component initialises and binarta has initialised', function () {
@@ -1251,16 +1251,24 @@
                         $ctrl.$onInit();
                     });
 
-                    it('previews are resolved from the underlying binarta cache', function () {
+                    it('posts are resolved from the underlying binarta cache', function () {
                         binarta.publisher.blog.published.cache = ['a', 'b', 'c'];
-                        expect($ctrl.previews()).toEqual(['a', 'b', 'c']);
+                        expect($ctrl.posts()).toEqual(['a', 'b', 'c']);
                     });
 
-                    it('previews are limited to the first 5', function () {
+                    it('posts are limited to the first 5', function () {
                         binarta.publisher.blog.published.cache = ['a', 'b', 'c', 'd', 'e', 'f'];
-                        expect($ctrl.previews()).toEqual(['a', 'b', 'c', 'd', 'e']);
+                        expect($ctrl.posts()).toEqual(['a', 'b', 'c', 'd', 'e']);
                     });
                 });
+
+                it('posts can be limited to a custom count', inject(function ($componentController) {
+                    $ctrl = $componentController('binBlogFeed', null, {count:3});
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    binarta.publisher.blog.published.cache = ['a', 'b', 'c', 'd'];
+                    expect($ctrl.posts()).toEqual(['a', 'b', 'c']);
+                }));
             });
         });
 
@@ -2377,14 +2385,14 @@
             });
         });
 
-        describe('binarta-humanresourcesjs-angular1', function() {
+        describe('binarta-humanresourcesjs-angular1', function () {
             beforeEach(function () {
                 config.namespace = 'N';
                 $location.path('/en/');
                 binarta.application.setLocaleForPresentation('en');
             });
 
-            it('installs humanresources handler on binarta', function() {
+            it('installs humanresources handler on binarta', function () {
                 expect(binarta.humanresources).toBeDefined();
             });
         });
