@@ -7,6 +7,7 @@
         .provider('publisher', ['binartaPublisherGatewayProvider', PublisherProvider])
         .component('binBlogFeed', new BlogFeedComponent())
         .directive('binBlogFeedResults', blogFeedResults)
+        .component('binBlogPost', new BlogPostComponent())
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
         .run(['publisher', WireAngularDependencies]);
 
@@ -37,12 +38,24 @@
             restrict: 'E',
             scope: true,
             require: '^^binBlogFeed',
-            controller: function() {},
+            controller: function () {
+            },
             controllerAs: '$ctrl',
             bindToController: true,
             link: function (scope, el, attrs, ctrl) {
                 scope.$ctrl.posts = ctrl.posts;
             }
+        }
+    }
+
+    function BlogPostComponent() {
+        this.bindings = {
+            post: '<',
+            templateUrl: '@'
+        };
+        this.templateUrl = 'bin-publisher-default-post.html';
+        this.controller = function () {
+
         }
     }
 

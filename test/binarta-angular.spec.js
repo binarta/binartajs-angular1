@@ -1263,12 +1263,26 @@
                 });
 
                 it('posts can be limited to a custom count', inject(function ($componentController) {
-                    $ctrl = $componentController('binBlogFeed', null, {count:3});
+                    $ctrl = $componentController('binBlogFeed', null, {count: 3});
                     $ctrl.$onInit();
                     binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
                     binarta.publisher.blog.published.cache = ['a', 'b', 'c', 'd'];
                     expect($ctrl.posts()).toEqual(['a', 'b', 'c']);
                 }));
+            });
+
+            describe('bin-blog-post', function () {
+                beforeEach(inject(function ($componentController) {
+                    $ctrl = $componentController('binBlogPost', null, {
+                        post: 'post',
+                        templateUrl: 'template-url'
+                    });
+                }));
+
+                it('bindings', function () {
+                    expect($ctrl.post).toEqual('post');
+                    expect($ctrl.templateUrl).toEqual('template-url');
+                });
             });
         });
 
