@@ -1,0 +1,9 @@
+<div class="bin-add-article-button" ng-if="$ctrl.status != 'disabled'">
+    <button type="button" class="bin-btn bin-btn-primary bin-btn-floated" ng-disabled="$ctrl.status != 'idle'"
+            ng-click="$ctrl.add()"
+            i18n code="blog.article.add.new.button" read-only watch-on-code>
+        <span ng-hide="$ctrl.status == 'drafting'"><i class="fa fa-plus fa-fw"></i></span>
+        <span ng-show="$ctrl.status == 'drafting'"><i class="fa fa-spinner fa-spin fa-fw"></i></span>
+        <span ng-bind="var"></span>
+    </button>
+</div>

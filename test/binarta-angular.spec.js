@@ -1016,6 +1016,45 @@
                         });
                     });
                 });
+
+                describe('observe application lock', function () {
+                    var spy;
+
+                    beforeEach(function () {
+                        spy = jasmine.createSpyObj('handler', ['editing', 'viewing']);
+                    });
+
+                    it('triggers viewing when lock is currently open', function () {
+                        $ctrl.lock.addHandler(spy);
+                        expect(spy.viewing).toHaveBeenCalled();
+                    });
+
+                    it('triggers editing when lock is currently closed', function () {
+                        binarta.application.lock.reserve();
+                        $ctrl.lock.addHandler(spy);
+                        expect(spy.editing).toHaveBeenCalled();
+                    });
+
+                    it('triggers editing when lock is closed', function () {
+                        $ctrl.lock.addHandler(spy);
+                        binarta.application.lock.reserve();
+                        expect(spy.viewing).toHaveBeenCalled();
+                    });
+
+                    it('triggers viewing when lock is released', function () {
+                        $ctrl.lock.addHandler(spy);
+                        binarta.application.lock.reserve();
+                        binarta.application.lock.release();
+                        expect(spy.viewing.calls.count()).toEqual(2);
+                    });
+
+                    it('no events are received after the controller has been destroyed', function () {
+                        $ctrl.lock.addHandler(spy);
+                        $ctrl.$onDestroy();
+                        binarta.application.lock.reserve();
+                        expect(spy.editing).not.toHaveBeenCalled();
+                    });
+                });
             });
 
             function expectHref(a) {
@@ -1228,6 +1267,59 @@
                     })
                 });
             });
+
+            describe('component controller decorator', function () {
+                var spy;
+
+                beforeEach(inject(function ($controller) {
+                    spy = jasmine.createSpyObj('handler', ['gained', 'lost']);
+                    $ctrl = $controller('TestComponentController'); // Mind how this controller has been declared
+                }));
+
+                describe('observing permission changes', function () {
+                    it('since we are signed out the permission handler is not executed', function () {
+                        $ctrl.profile.addWithPermissionHandler('p1', spy);
+                        expect(spy.gained).not.toHaveBeenCalled()
+                    });
+
+                    it('when we sign in without the requested permission the handler is not executed', function () {
+                        $ctrl.profile.addWithPermissionHandler('?', spy);
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                        expect(spy.gained).not.toHaveBeenCalled()
+                    });
+
+                    it('when we sign in with the requested permission the handler is executed', function () {
+                        $ctrl.profile.addWithPermissionHandler('p1', spy);
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                        expect(spy.gained).toHaveBeenCalled()
+                    });
+
+                    it('when we are already signed in with the requested permission the handler is executed', function () {
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                        $ctrl.profile.addWithPermissionHandler('p1', spy);
+                        expect(spy.gained).toHaveBeenCalled()
+                    });
+
+                    it('when the controller is destroyed and we gain the requested permission afterwards then the handler is not executed', function () {
+                        $ctrl.profile.addWithPermissionHandler('p1', spy);
+                        $ctrl.$onDestroy();
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                        expect(spy.gained).not.toHaveBeenCalled()
+                    });
+
+                    it('when we sign out the handler is executed', function () {
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                        $ctrl.profile.addWithPermissionHandler('p1', spy);
+                        binarta.checkpoint.profile.signout();
+                        expect(spy.lost).toHaveBeenCalled()
+                    });
+                });
+            })
         });
 
         describe('binarta-publisherjs-angular1', function () {
@@ -1282,6 +1374,121 @@
                 it('bindings', function () {
                     expect($ctrl.post).toEqual('post');
                     expect($ctrl.templateUrl).toEqual('template-url');
+                });
+            });
+
+            describe('bin-add-blog-post', function () {
+                beforeEach(inject(function ($componentController) {
+                    $ctrl = $componentController('binAddBlogPost', null, {});
+                }));
+
+                it('is initially in disabled status', function () {
+                    expect($ctrl.status).toEqual('disabled');
+                });
+
+                it('in disabled status adding a draft is ignored', function () {
+                    binarta.publisher.db = {
+                        add: function () {
+                            throw new Error();
+                        }
+                    };
+                    $ctrl.add();
+                });
+
+                describe('when user has permission to add blog posts', function () {
+                    beforeEach(function () {
+                        $ctrl.$onInit();
+                        binarta.checkpoint.gateway.addPermission('new.blog.post');
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                    });
+
+                    it('remain in disabled status as the application lock is still open', function () {
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+
+                    describe('and application lock is acquired', function () {
+                        beforeEach(function () {
+                            binarta.application.lock.reserve();
+                        });
+
+                        it('enter idle status', function () {
+                            expect($ctrl.status).toEqual('idle');
+                        });
+
+                        it('return to disabled status on signout', function () {
+                            binarta.checkpoint.profile.signout();
+                            expect($ctrl.status).toEqual('disabled');
+                        });
+
+                        it('return to disabled status when the application lock is released', function () {
+                            binarta.application.lock.release();
+                            expect($ctrl.status).toEqual('disabled');
+                        });
+
+                        it('in idle status adding a draft is possible', function () {
+                            binarta.publisher.db = jasmine.createSpyObj('db', ['add']);
+                            $ctrl.add();
+                            expect(binarta.publisher.db.add).toHaveBeenCalled();
+                        });
+
+                        describe('while adding a draft', function() {
+                            beforeEach(function() {
+                                binarta.publisher.db = jasmine.createSpyObj('db', ['add']);
+                                $ctrl.add();
+                            });
+
+                            it('we are in drafting status', function () {
+                                expect($ctrl.status).toEqual('drafting');
+                            });
+
+                            it('adding a draft is ignored', function () {
+                                binarta.publisher.db = {
+                                    add: function () {
+                                        throw new Error();
+                                    }
+                                };
+                                $ctrl.add();
+                            });
+                        });
+
+                        describe('when draft is created', function() {
+                            beforeEach(function() {
+                                binarta.publisher.db = {
+                                    add: function (request, response) {
+                                        response.success('/id');
+                                    }
+                                };
+                                $ctrl.add();
+                            });
+
+                            it('we return to idle status', function () {
+                                expect($ctrl.status).toEqual('idle');
+                            });
+
+                            it('we redirect to the detail page', function() {
+                                expect($location.path()).toEqual('/view/id');
+                            });
+                        });
+                    });
+                });
+
+                describe('when the application lock is acquired', function () {
+                    beforeEach(function () {
+                        binarta.application.lock.reserve();
+                    });
+
+                    it('remain in disabled status as the user still needs permission', function () {
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+
+                    it('enter idle status when permission is gained', function () {
+                        $ctrl.$onInit();
+                        binarta.checkpoint.gateway.addPermission('new.blog.post');
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                        expect($ctrl.status).toEqual('idle');
+                    });
                 });
             });
         });

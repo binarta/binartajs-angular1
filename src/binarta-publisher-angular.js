@@ -8,6 +8,7 @@
         .component('binBlogFeed', new BlogFeedComponent())
         .directive('binBlogFeedResults', blogFeedResults)
         .component('binBlogPost', new BlogPostComponent())
+        .component('binAddBlogPost', new AddBlogPostComponent())
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
         .run(['publisher', WireAngularDependencies]);
 
@@ -57,6 +58,54 @@
         this.controller = function () {
 
         }
+    }
+
+    function AddBlogPostComponent() {
+        this.templateUrl = 'bin-publisher-add-post.html';
+        this.controller = ['binarta', 'i18nLocation', binComponentController(function (binarta, $location) {
+            var $ctrl = this;
+            var $lock, $status = 'disabled';
+
+            $ctrl.status = $status;
+
+            $ctrl.profile.addWithPermissionHandler('new.blog.post', {
+                gained: function () {
+                    $status = 'idle';
+                    evaluateStatus();
+                },
+                lost: function () {
+                    $status = 'disabled';
+                    evaluateStatus();
+                }
+            });
+
+            $ctrl.lock.addHandler({
+                editing: function () {
+                    $lock = 'editing';
+                    evaluateStatus();
+                },
+                viewing: function () {
+                    $lock = 'viewing';
+                    evaluateStatus();
+                }
+            });
+
+            $ctrl.add = function () {
+                if ($ctrl.status == 'idle') {
+                    $ctrl.status = 'drafting';
+                    binarta.publisher.blog.add({
+                        success: function (id) {
+                            $ctrl.status = 'idle';
+                            $location.path('/view' + id)
+                        }
+                    });
+                }
+            };
+
+            function evaluateStatus() {
+                $ctrl.status = $lock == 'editing' && $status != 'disabled' ? $status : 'disabled';
+            }
+        })]
     }
 
     function PublisherProvider(db) {
