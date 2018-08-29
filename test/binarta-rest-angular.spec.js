@@ -427,6 +427,25 @@
                     expect(response.success).toHaveBeenCalledWith('posts')
                 });
             });
+
+            describe('add', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'new.blog.post',
+                            namespace: 'n',
+                            locale: 'en'
+                        }
+                    });
+                });
+
+                it('returns newly created id', function () {
+                    expectedHttpRequest.respond(200, 'id');
+                    db.add({locale: 'en'}, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('id')
+                });
+            });
         });
 
         describe('shop gateway', function () {
@@ -794,10 +813,10 @@
             });
         });
 
-        describe('human resources db', function() {
+        describe('human resources db', function () {
             var db;
 
-            beforeEach(inject(function(restBinartaHumanResourcesGateway) {
+            beforeEach(inject(function (restBinartaHumanResourcesGateway) {
                 db = restBinartaHumanResourcesGateway;
             }));
 

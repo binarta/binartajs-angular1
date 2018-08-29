@@ -255,7 +255,23 @@
 
     binComponentControllerExtenders.push(function ($ctrl) {
         $ctrl.config = new ComponentControllerConfig($ctrl);
+        $ctrl.lock = new ComponentControllerLock($ctrl);
     });
+
+    function ComponentControllerLock($ctrl) {
+        var self = this;
+
+        self.addHandler = function (it) {
+            if (binarta.application.lock.status == 'open')
+                it.viewing();
+            else if (binarta.application.lock.status == 'closed')
+                it.editing();
+            var l = binarta.application.eventRegistry.observe(it);
+            $ctrl.addDestroyHandler(function () {
+                l.disconnect();
+            });
+        }
+    }
 
     function ComponentControllerPublicConfig($ctrl) {
         var self = this;

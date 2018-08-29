@@ -1,4 +1,6 @@
 (function () {
+    var binarta;
+
     angular.module('binarta-checkpointjs-angular1', [
         'ngRoute',
         'binartajs-angular1',
@@ -206,7 +208,8 @@
         binarta.addSubSystems({checkpoint: checkpointProvider.checkpoint});
     }
 
-    function WireAngularDependencies() {
+    function WireAngularDependencies(checkpoint) {
+        binarta = checkpoint.binarta;
     }
 
     function InstallRoutes($routeProvider) {
@@ -227,5 +230,29 @@
                 templateUrl: 'bin-checkpoint-cancel-billing-agreement.html',
                 controller: 'CancelBillingAgreementController as ctrl'
             });
+    }
+
+    binComponentControllerExtenders.push(function ($ctrl) {
+        $ctrl.profile = new ComponentControllerProfile($ctrl);
+    });
+
+    function ComponentControllerProfile($ctrl) {
+        var self = this;
+
+        self.addWithPermissionHandler = function (permission, it) {
+            function testForPermissionAndCallHandler() {
+                if (binarta.checkpoint.profile.hasPermission(permission))
+                    it.gained();
+            }
+
+            testForPermissionAndCallHandler();
+            var profileObserver = binarta.checkpoint.profile.eventRegistry.observe({
+                signedin: testForPermissionAndCallHandler,
+                signedout: it.lost
+            });
+            $ctrl.addDestroyHandler(function () {
+                profileObserver.disconnect();
+            });
+        }
     }
 })();

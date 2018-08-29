@@ -56,6 +56,23 @@
             }).then(function (it) {
                 response.success(it.data);
             }, toErrorResponse(response));
+        };
+
+        self.add = function(request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/usecase',
+                withCredentials: true,
+                data: {
+                    headers: {
+                        usecase: 'new.blog.post',
+                        namespace: self.config.namespace,
+                        locale: request.locale
+                    }
+                }
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
         }
     }
 
