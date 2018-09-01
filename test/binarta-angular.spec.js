@@ -1327,7 +1327,7 @@
                 binarta.publisher.db = jasmine.createSpyObj('db', ['findAllPublishedBlogsForLocale']);
             });
 
-            describe('bin-blog-feed component', function () {
+            describe('<bin-blog-feed/>', function () {
                 beforeEach(inject(function ($componentController) {
                     $ctrl = $componentController('binBlogFeed', null, {});
                 }));
@@ -1363,7 +1363,7 @@
                 }));
             });
 
-            describe('bin-blog-post', function () {
+            describe('<bin-blog-post/>', function () {
                 beforeEach(inject(function ($componentController) {
                     $ctrl = $componentController('binBlogPost', null, {
                         post: 'post',
@@ -1377,7 +1377,7 @@
                 });
             });
 
-            describe('bin-add-blog-post', function () {
+            describe('<bin-add-blog-post/>', function () {
                 beforeEach(inject(function ($componentController) {
                     $ctrl = $componentController('binAddBlogPost', null, {});
                 }));
@@ -1432,8 +1432,8 @@
                             expect(binarta.publisher.db.add).toHaveBeenCalled();
                         });
 
-                        describe('while adding a draft', function() {
-                            beforeEach(function() {
+                        describe('while adding a draft', function () {
+                            beforeEach(function () {
                                 binarta.publisher.db = jasmine.createSpyObj('db', ['add']);
                                 $ctrl.add();
                             });
@@ -1452,8 +1452,8 @@
                             });
                         });
 
-                        describe('when draft is created', function() {
-                            beforeEach(function() {
+                        describe('when draft is created', function () {
+                            beforeEach(function () {
                                 binarta.publisher.db = {
                                     add: function (request, response) {
                                         response.success('/id');
@@ -1466,7 +1466,7 @@
                                 expect($ctrl.status).toEqual('idle');
                             });
 
-                            it('we redirect to the detail page', function() {
+                            it('we redirect to the detail page', function () {
                                 expect($location.path()).toEqual('/view/id');
                             });
                         });
@@ -1491,6 +1491,63 @@
                     });
                 });
             });
+
+            describe('<bin-display-blog-post/>', function () {
+                beforeEach(inject(function ($componentController) {
+                    $ctrl = $componentController('binDisplayBlogPost', null, {});
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                }));
+
+                it('starts out in loading status', function () {
+                    expect($ctrl.status).toEqual('loading');
+                });
+
+                it('when blog post is unknown redirect to blog overview', function () {
+                    binarta.publisher.db = {
+                        get: function (request, response) {
+                            response.notFound();
+                        }
+                    };
+                    $ctrl.$onInit();
+                    expect($location.path()).toEqual('/blog');
+                });
+
+                it('passes bound id to db', function () {
+                    binarta.publisher.db = {
+                        get: function (request, response) {
+                            expect(request.id).toEqual('b');
+                        }
+                    };
+                    $ctrl.id = 'b';
+                    $ctrl.$onInit();
+                });
+
+                describe('when blog post is know', function () {
+                    beforeEach(function () {
+                        binarta.publisher.db = {
+                            get: function (request, response) {
+                                response.success('p');
+                            }
+                        };
+                        $ctrl.$onInit();
+                    });
+
+                    it('enters idle status', function () {
+                        expect($ctrl.status).toEqual('idle');
+                    });
+
+                    it('expose post on controller', function () {
+                        expect($ctrl.post()).toEqual('p');
+                    });
+                });
+            });
+
+            it('BinDisplayBlogPostRouteController', inject(function ($routeParams, $controller) {
+                $routeParams.part1 = 'blog';
+                $routeParams.part2 = 'id';
+                $ctrl = $controller('BinDisplayBlogPostRouteController', {});
+                expect($ctrl.id).toEqual('/blog/id');
+            }));
         });
 
         describe('binarta-shopjs-angular1', function () {
