@@ -1498,8 +1498,16 @@
                     binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
                 }));
 
-                it('starts out in loading status', function () {
-                    expect($ctrl.status).toEqual('loading');
+                it('status starts out in idle', function () {
+                    expect($ctrl.status()).toEqual('idle');
+                });
+
+                it('starts out non publishable', function () {
+                    expect($ctrl.isPublishable()).toBeFalsy();
+                });
+
+                it('starts out non withdrawable', function () {
+                    expect($ctrl.isWithdrawable()).toBeFalsy();
                 });
 
                 it('when blog post is unknown redirect to blog overview', function () {
@@ -1522,23 +1530,148 @@
                     $ctrl.$onInit();
                 });
 
-                describe('when blog post is know', function () {
+                describe('when blog post is known', function () {
+                    var post;
+
                     beforeEach(function () {
+                        post = {id: 'p'};
                         binarta.publisher.db = {
                             get: function (request, response) {
-                                response.success('p');
+                                response.success(post);
                             }
                         };
                         $ctrl.$onInit();
                     });
 
                     it('enters idle status', function () {
-                        expect($ctrl.status).toEqual('idle');
+                        expect($ctrl.status()).toEqual('idle');
                     });
 
                     it('expose post on controller', function () {
-                        expect($ctrl.post()).toEqual('p');
+                        expect($ctrl.post()).toEqual(post);
                     });
+
+                    describe('when post is in draft', function () {
+                        beforeEach(function () {
+                            post.status = 'draft';
+                        });
+
+                        describe('and user has permission to publish blog posts', function () {
+                            beforeEach(function () {
+                                binarta.checkpoint.gateway.addPermission('publish.blog.post');
+                                binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                                binarta.checkpoint.profile.refresh();
+                            });
+
+                            it('remain non publishable as the application lock is still open', function () {
+                                expect($ctrl.isPublishable()).toBeFalsy();
+                            });
+
+                            describe('and application lock is acquired', function () {
+                                beforeEach(function () {
+                                    binarta.application.lock.reserve();
+                                });
+
+                                it('become publishable', function () {
+                                    expect($ctrl.isPublishable()).toBeTruthy();
+                                });
+
+                                it('return to non publishable on signout', function () {
+                                    binarta.checkpoint.profile.signout();
+                                    expect($ctrl.isPublishable()).toBeFalsy();
+                                });
+
+                                it('return to non publishable when the application lock is released', function () {
+                                    binarta.application.lock.release();
+                                    expect($ctrl.isPublishable()).toBeFalsy();
+                                });
+
+                                it('publishing passes timestamp to db', function () {
+                                    $ctrl.now = function() {
+                                        return 't';
+                                    };
+                                    binarta.publisher.db = {
+                                        publish: function (request) {
+                                            expect(request.timestamp).toEqual('t');
+                                        }
+                                    };
+                                    $ctrl.publish();
+                                });
+                            });
+                        });
+
+                        describe('and user has permission to withdraw blog posts', function () {
+                            beforeEach(function () {
+                                binarta.checkpoint.gateway.addPermission('withdraw.blog.post');
+                                binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                                binarta.checkpoint.profile.refresh();
+                            });
+
+                            it('remain non withdrawable as the application lock is still open', function () {
+                                expect($ctrl.isWithdrawable()).toBeFalsy();
+                            });
+
+                            it('and application lock is acquired then remain non withdrawable as post is still a draft', function () {
+                                binarta.application.lock.reserve();
+                                expect($ctrl.isWithdrawable()).toBeFalsy();
+                            });
+                        })
+                    });
+
+                    describe('when post is published', function () {
+                        beforeEach(function () {
+                            post.status = 'published';
+                        });
+
+                        describe('and user has permission to withdraw blog posts', function () {
+                            beforeEach(function () {
+                                binarta.checkpoint.gateway.addPermission('withdraw.blog.post');
+                                binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                                binarta.checkpoint.profile.refresh();
+                            });
+
+                            it('remain non withdrawable as the application lock is still open', function () {
+                                expect($ctrl.isWithdrawable()).toBeFalsy();
+                            });
+
+                            describe('and application lock is acquired', function () {
+                                beforeEach(function () {
+                                    binarta.application.lock.reserve();
+                                });
+
+                                it('become withdrawable', function () {
+                                    expect($ctrl.isWithdrawable()).toBeTruthy();
+                                });
+
+                                it('return to non withdrawable on signout', function () {
+                                    binarta.checkpoint.profile.signout();
+                                    expect($ctrl.isWithdrawable()).toBeFalsy();
+                                });
+
+                                it('return to non withdrawable when the application lock is released', function () {
+                                    binarta.application.lock.release();
+                                    expect($ctrl.isWithdrawable()).toBeFalsy();
+                                });
+                            });
+                        });
+
+                        describe('and user has permission to publish blog posts', function () {
+                            beforeEach(function () {
+                                binarta.checkpoint.gateway.addPermission('publish.blog.post');
+                                binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                                binarta.checkpoint.profile.refresh();
+                            });
+
+                            it('remain non publishable as the application lock is still open', function () {
+                                expect($ctrl.isPublishable()).toBeFalsy();
+                            });
+
+                            it('and application lock is acquired then remain non publishable as post is already published', function () {
+                                binarta.application.lock.reserve();
+                                expect($ctrl.isPublishable()).toBeFalsy();
+                            });
+                        })
+                    })
                 });
             });
 
