@@ -119,11 +119,30 @@
         this.controller = ['binarta', 'i18nLocation', binComponentController(function (binarta, $location) {
             var $ctrl = this;
             var post = {};
+            var $lock = 'viewing', publishable, withdrawable;
 
-            $ctrl.status = 'loading';
+            $ctrl.status = function() {
+                return binarta.publisher.blog.get($ctrl.id).status;
+            };
 
             $ctrl.post = function () {
                 return post;
+            };
+
+            $ctrl.isPublishable = function () {
+                return publishable && $lock == 'editing' && post.status == 'draft';
+            };
+
+            $ctrl.isWithdrawable = function () {
+                return withdrawable && $lock == 'editing' && post.status == 'published';
+            };
+
+            $ctrl.publish = function() {
+                binarta.publisher.blog.get($ctrl.id).publish($ctrl.now());
+            };
+
+            $ctrl.now = function() {
+                return moment();
             };
 
             binarta.schedule(function () {
@@ -131,13 +150,40 @@
                     binarta.publisher.blog.get($ctrl.id).render({
                         post: function (it) {
                             post = it;
-                            $ctrl.status = 'idle';
+                            // $ctrl.status = 'idle';
                         },
                         notFound: function () {
                             $location.path('/blog');
                         }
-                    })
+                    });
                 });
+            });
+
+            $ctrl.profile.addWithPermissionHandler('publish.blog.post', {
+                gained: function () {
+                    publishable = true;
+                },
+                lost: function () {
+                    publishable = false;
+                }
+            });
+
+            $ctrl.profile.addWithPermissionHandler('withdraw.blog.post', {
+                gained: function () {
+                    withdrawable = true;
+                },
+                lost: function () {
+                    withdrawable = false;
+                }
+            });
+
+            $ctrl.lock.addHandler({
+                editing: function () {
+                    $lock = 'editing';
+                },
+                viewing: function () {
+                    $lock = 'viewing';
+                }
             });
         })];
     }
@@ -153,6 +199,11 @@
             bindToController: true,
             link: function (scope, el, attrs, ctrl) {
                 scope.$ctrl.post = ctrl.post;
+                scope.$ctrl.status = ctrl.status;
+                scope.$ctrl.publish = ctrl.publish;
+                scope.$ctrl.withdraw = ctrl.withdraw;
+                scope.$ctrl.isPublishable = ctrl.isPublishable;
+                scope.$ctrl.isWithdrawable = ctrl.isWithdrawable;
             }
         }
     }
