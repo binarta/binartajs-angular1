@@ -446,6 +446,28 @@
                     expect(response.success).toHaveBeenCalledWith('id')
                 });
             });
+
+            describe('get', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'display.blog.post',
+                            namespace: 'n',
+                            locale: 'en'
+                        },
+                        payload: {
+                            id: 'b'
+                        }
+                    });
+                });
+
+                it('returns blog post', function () {
+                    expectedHttpRequest.respond(200, 'p');
+                    db.get({locale: 'en', id: 'b'}, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('p');
+                });
+            });
         });
 
         describe('shop gateway', function () {

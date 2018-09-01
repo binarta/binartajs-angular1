@@ -9,7 +9,11 @@
         .directive('binBlogFeedResults', blogFeedResults)
         .component('binBlogPost', new BlogPostComponent())
         .component('binAddBlogPost', new AddBlogPostComponent())
+        .component('binDisplayBlogPost', new DisplayBlogPostComponent())
+        .directive('binDisplayBlogPostResult', displayBlogPostResult)
+        .controller('BinDisplayBlogPostRouteController', ['$routeParams', DisplayBlogPostRouteController])
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
+        .config(['$routeProvider', InstallRoutes])
         .run(['publisher', WireAngularDependencies]);
 
     function BlogFeedComponent() {
@@ -108,6 +112,51 @@
         })]
     }
 
+    function DisplayBlogPostComponent() {
+        this.bindings = {
+            id: '@'
+        };
+        this.controller = ['binarta', 'i18nLocation', binComponentController(function (binarta, $location) {
+            var $ctrl = this;
+            var post = {};
+
+            $ctrl.status = 'loading';
+
+            $ctrl.post = function () {
+                return post;
+            };
+
+            binarta.schedule(function () {
+                $ctrl.addInitHandler(function () {
+                    binarta.publisher.blog.get($ctrl.id).render({
+                        post: function (it) {
+                            post = it;
+                            $ctrl.status = 'idle';
+                        },
+                        notFound: function () {
+                            $location.path('/blog');
+                        }
+                    })
+                });
+            });
+        })];
+    }
+
+    function displayBlogPostResult() {
+        return {
+            restrict: 'E',
+            scope: true,
+            require: '^^binDisplayBlogPost',
+            controller: function () {
+            },
+            controllerAs: '$ctrl',
+            bindToController: true,
+            link: function (scope, el, attrs, ctrl) {
+                scope.$ctrl.post = ctrl.post;
+            }
+        }
+    }
+
     function PublisherProvider(db) {
         this.publisher = new BinartaPublisherjs();
         this.publisher.db = db.gateway;
@@ -117,12 +166,31 @@
         }];
     }
 
+    function DisplayBlogPostRouteController($routeParams) {
+        var $ctrl = this;
+        $ctrl.id = '/' + $routeParams.part1 + '/' + $routeParams.part2;
+    }
+
     function UI() {
         var self = this;
     }
 
     function ExtendBinarta(binarta, publisherProvider) {
         binarta.addSubSystems({publisher: publisherProvider.publisher});
+    }
+
+    function InstallRoutes($routeProvider) {
+        $routeProvider
+            .when('/blog/post/:part1/:part2', {
+                templateUrl: 'partials/blog/post.html',
+                controller: 'BinDisplayBlogPostRouteController',
+                controllerAs: '$ctrl'
+            })
+            .when('/:locale/blog/post/:part1/:part2', {
+                templateUrl: 'partials/blog/post.html',
+                controller: 'BinDisplayBlogPostRouteController',
+                controllerAs: '$ctrl'
+            });
     }
 
     function WireAngularDependencies() {
