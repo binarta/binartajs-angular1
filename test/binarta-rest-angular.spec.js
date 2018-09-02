@@ -468,6 +468,57 @@
                     expect(response.success).toHaveBeenCalledWith('p');
                 });
             });
+
+            describe('publish', function () {
+                var now;
+
+                beforeEach(function () {
+                    now = moment();
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'publish.blog.post',
+                            namespace: 'n',
+                            locale: 'en'
+                        },
+                        payload: {
+                            id: 'b',
+                            timestamp: moment(now, 'lll').format()
+                        }
+                    });
+                });
+
+                it('completes sucessfully', function () {
+                    expectedHttpRequest.respond(200);
+                    db.publish({locale: 'en', id: 'b', timestamp: now}, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith();
+                });
+            });
+
+            describe('withdraw', function () {
+                var now;
+
+                beforeEach(function () {
+                    now = moment();
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'withdraw.blog.post',
+                            namespace: 'n',
+                            locale: 'en'
+                        },
+                        payload: {
+                            id: 'b'
+                        }
+                    });
+                });
+
+                it('completes sucessfully', function () {
+                    expectedHttpRequest.respond(200);
+                    db.withdraw({locale: 'en', id: 'b'}, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith();
+                });
+            });
         });
 
         describe('shop gateway', function () {

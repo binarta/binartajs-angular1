@@ -129,14 +129,6 @@
                 return post;
             };
 
-            $ctrl.isPublishable = function () {
-                return publishable && $lock == 'editing' && post.status == 'draft';
-            };
-
-            $ctrl.isWithdrawable = function () {
-                return withdrawable && $lock == 'editing' && post.status == 'published';
-            };
-
             $ctrl.publish = function() {
                 binarta.publisher.blog.get($ctrl.id).publish($ctrl.now());
             };
@@ -145,12 +137,15 @@
                 return moment();
             };
 
+            $ctrl.withdraw = function() {
+                binarta.publisher.blog.get($ctrl.id).withdraw();
+            };
+
             binarta.schedule(function () {
                 $ctrl.addInitHandler(function () {
                     binarta.publisher.blog.get($ctrl.id).render({
                         post: function (it) {
                             post = it;
-                            // $ctrl.status = 'idle';
                         },
                         notFound: function () {
                             $location.path('/blog');
@@ -158,6 +153,16 @@
                     });
                 });
             });
+
+            // TODO: the functions below don't need to be implemented here as they make the angular bindings too smart
+            // TODO: implement them on the BLogPostHandle and just reference them from here.
+            $ctrl.isPublishable = function () {
+                return publishable && $lock == 'editing' && post.status == 'draft';
+            };
+
+            $ctrl.isWithdrawable = function () {
+                return withdrawable && $lock == 'editing' && post.status == 'published';
+            };
 
             $ctrl.profile.addWithPermissionHandler('publish.blog.post', {
                 gained: function () {
