@@ -93,6 +93,47 @@
             }).then(function (it) {
                 response.success(it.data)
             }, toErrorResponse(response));
+        };
+
+        self.publish = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/usecase',
+                withCredentials: true,
+                data: {
+                    headers: {
+                        usecase: 'publish.blog.post',
+                        namespace: self.config.namespace,
+                        locale: request.locale
+                    },
+                    payload: {
+                        id: request.id,
+                        timestamp: moment(request.timestamp, 'lll').format()
+                    }
+                }
+            }).then(function (it) {
+                response.success();
+            }, toErrorResponse(response));
+        };
+
+        self.withdraw = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/usecase',
+                withCredentials: true,
+                data: {
+                    headers: {
+                        usecase: 'withdraw.blog.post',
+                        namespace: self.config.namespace,
+                        locale: request.locale
+                    },
+                    payload: {
+                        id: request.id
+                    }
+                }
+            }).then(function (it) {
+                response.success();
+            }, toErrorResponse(response));
         }
     }
 

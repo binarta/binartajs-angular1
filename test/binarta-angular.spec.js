@@ -1652,6 +1652,12 @@
                                     binarta.application.lock.release();
                                     expect($ctrl.isWithdrawable()).toBeFalsy();
                                 });
+
+                                it('withdrawing calls db', function () {
+                                    binarta.publisher.db = jasmine.createSpyObj('db', ['withdraw']);
+                                    $ctrl.withdraw();
+                                    expect(binarta.publisher.db.withdraw).toHaveBeenCalled();
+                                });
                             });
                         });
 
