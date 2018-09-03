@@ -130,7 +130,7 @@
             };
 
             $ctrl.publish = function() {
-                binarta.publisher.blog.get($ctrl.id).publish($ctrl.now());
+                binarta.publisher.blog.get(post.id).publish($ctrl.now());
             };
 
             $ctrl.now = function() {
@@ -138,7 +138,7 @@
             };
 
             $ctrl.withdraw = function() {
-                binarta.publisher.blog.get($ctrl.id).withdraw();
+                binarta.publisher.blog.get(post.id).withdraw();
             };
 
             binarta.schedule(function () {

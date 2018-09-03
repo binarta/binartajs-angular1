@@ -513,6 +513,7 @@
                 });
 
                 it('completes sucessfully', function () {
+                    // TODO - after this completes the database does not appear to be updated... perhaps because of localized id?
                     expectedHttpRequest.respond(200);
                     db.withdraw({locale: 'en', id: 'b'}, response);
                     $http.flush();
