@@ -20,6 +20,7 @@
         .factory('binartaApplicationIsInitialised', ['binartaApplicationIsInitialised.deferred', IsApplicationInitialisedFactory])
         .directive('binHref', ['$location', 'application', BinHrefDirectiveFactory])
         .directive('binDhref', ['$location', 'application', BinDhrefDirectiveFactory])
+        .component('cookiePermissionGranted', new CookiePermissionGrantedComponent())
         .run(['application', WireAngularDependencies])
         .run(['$rootScope', 'application', '$location', InstallRouteChangeListeners])
         .run([
@@ -43,11 +44,13 @@
         this.application.gateway = provider.gateway;
         this.ui = new UI();
         this.$get = ['$window', '$location', 'extendBinartaApplication', 'localStorage', 'sessionStorage', function ($window, $location, extend, localStorage, sessionStorage) {
+            this.application.window = $window;
             this.application.localStorage = localStorage;
             this.application.sessionStorage = sessionStorage;
             this.ui.window = $window;
             this.ui.location = $location;
             extend(this.application);
+            this.application.cookies.permission.evaluate();
             return this.application;
         }]
     }
@@ -166,6 +169,29 @@
             });
         };
         return directive;
+    }
+
+    function CookiePermissionGrantedComponent() {
+        this.templateUrl = 'bin-all-cookie-notice.html';
+        this.controller = ['binarta', binComponentController(function (binarta) {
+            var $ctrl = this;
+
+            function updateStatus() {
+                $ctrl.status = binarta.application.cookies.permission.status;
+            }
+
+            $ctrl.addInitHandler(updateStatus);
+
+            $ctrl.grant = function () {
+                binarta.application.cookies.permission.grant();
+                updateStatus();
+            };
+
+            $ctrl.revoke = function() {
+                binarta.application.cookies.permission.revoke();
+                updateStatus();
+            }
+        })];
     }
 
     function WireAngularDependencies(application) {

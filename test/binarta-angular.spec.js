@@ -26,6 +26,7 @@
             binarta.application.gateway.clear();
             localStorage.removeItem('locale');
             localStorage.removeItem('binartaJSPaymentProvider');
+            localStorage.removeItem('cookiesAccepted');
             sessionStorage.removeItem('locale');
             sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
             sessionStorage.removeItem('binartaJSSetupBillingAgreementReturnUrl');
@@ -33,7 +34,8 @@
         });
 
         describe('binarta is initialised promise', function () {
-            var initialisedBinarta, $rootScope, binartaIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised, binartaCachesAreInitialised;
+            var initialisedBinarta, $rootScope, binartaIsInitialised, binartaGatewaysAreInitialised,
+                binartaConfigIsInitialised, binartaCachesAreInitialised;
 
             beforeEach(inject(function (_$rootScope_, _binartaIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_, _binartaCachesAreInitialised_) {
                 $rootScope = _$rootScope_;
@@ -271,8 +273,12 @@
         });
 
         describe('binarta-applicationjs-angular1', function () {
-            var $rootScope, binartaApplicationRefresh, binartaApplicationAdhesiveReadingInitialised, binartaApplicationConfigIsInitialised, binartaApplicationCachesAreInitialised, binartaApplicationIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
-            var isApplicationRefreshedListener, isAdhesiveReadingInitialisedListener, isApplicationConfigInitialisedListener, areApplicationCachesInitialisedListener, applicationIsInitialisedListener;
+            var $rootScope, binartaApplicationRefresh, binartaApplicationAdhesiveReadingInitialised,
+                binartaApplicationConfigIsInitialised, binartaApplicationCachesAreInitialised,
+                binartaApplicationIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
+            var isApplicationRefreshedListener, isAdhesiveReadingInitialisedListener,
+                isApplicationConfigInitialisedListener, areApplicationCachesInitialisedListener,
+                applicationIsInitialisedListener;
 
             beforeEach(inject(function (_$rootScope_, _binartaApplicationRefresh_, _binartaApplicationAdhesiveReadingInitialised_, _binartaApplicationConfigIsInitialised_, _binartaApplicationCachesAreInitialised_, _binartaApplicationIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_) {
                 $rootScope = _$rootScope_;
@@ -794,6 +800,27 @@
                 });
             });
 
+            describe('<cookie-permission-granted/>', function () {
+                beforeEach(inject(function ($componentController) {
+                    $ctrl = $componentController('cookiePermissionGranted', undefined, {});
+                    $ctrl.$onInit();
+                }));
+
+                it('exposes cookie permission status', function () {
+                    expect($ctrl.status).toEqual('permission-required');
+                });
+
+                it('grant permission', function() {
+                    $ctrl.grant();
+                    expect($ctrl.status).toEqual('permission-granted');
+                });
+
+                it('revoke permission', function() {
+                    $ctrl.revoke();
+                    expect($ctrl.status).toEqual('permission-revoked');
+                });
+            });
+
             describe('component controller decorator', function () {
                 var spy;
 
@@ -939,7 +966,7 @@
         });
 
         describe('binarta-mediajs-angular1', function () {
-            describe('images sub module', function() {
+            describe('images sub module', function () {
                 beforeEach(function () {
                     config.namespace = 'N';
                     $location.path('/en/');
@@ -947,11 +974,17 @@
                 });
 
                 it('toURL is decorated to add the section parameter', function () {
-                    expect(binarta.media.images.toURL({path: 'bg.img', width: 200})).toEqual('bg.img?width=200&section=/');
+                    expect(binarta.media.images.toURL({
+                        path: 'bg.img',
+                        width: 200
+                    })).toEqual('bg.img?width=200&section=/');
                 });
 
                 it('toRelativeURL creates a valid relative image url', function () {
-                    expect(binarta.media.images.toRelativeURL({path: 'bg.img', width: 200})).toEqual('image/N/bg.img?width=200&section=/');
+                    expect(binarta.media.images.toRelativeURL({
+                        path: 'bg.img',
+                        width: 200
+                    })).toEqual('image/N/bg.img?width=200&section=/');
                 });
             });
         });
@@ -1059,7 +1092,7 @@
                         ctrl.$onInit();
                     });
 
-                    it('should expose the public recaptcha key', function() {
+                    it('should expose the public recaptcha key', function () {
                         expect(ctrl.recaptchaPublicKey).toEqual(config.recaptchaPublicKey);
                     });
 
@@ -1115,7 +1148,7 @@
                         expect(ctrl.captcha).toBeUndefined();
                     });
 
-                    it('should remove the recaptcha key when switching to signin mode', function() {
+                    it('should remove the recaptcha key when switching to signin mode', function () {
                         ctrl.switchToSigninMode();
 
                         expect(ctrl.recaptchaPublicKey).toBeUndefined();
@@ -1554,7 +1587,7 @@
                                 expect(ctrl.isDropdownActive).toBeFalsy();
                             });
 
-                            it('should close the dropdown', function() {
+                            it('should close the dropdown', function () {
                                 ctrl.isDropdownActive = true;
                                 ctrl.onCloseDropdownClick();
                                 expect(ctrl.isDropdownActive).toBeFalsy();
@@ -2269,6 +2302,7 @@
         .config(ExtendBinarta);
 
     function MockWindow() {
+        this.navigator = {userAgent: ''};
     }
 
     function DependencyStub() {
