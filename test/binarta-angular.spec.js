@@ -1592,6 +1592,7 @@
                                     };
                                     binarta.publisher.db = {
                                         publish: function (request) {
+                                            expect(request.id).toEqual('p');
                                             expect(request.timestamp).toEqual('t');
                                         }
                                     };
@@ -1654,9 +1655,12 @@
                                 });
 
                                 it('withdrawing calls db', function () {
-                                    binarta.publisher.db = jasmine.createSpyObj('db', ['withdraw']);
+                                    binarta.publisher.db = {
+                                        withdraw: function (request) {
+                                            expect(request.id).toEqual('p');
+                                        }
+                                    };
                                     $ctrl.withdraw();
-                                    expect(binarta.publisher.db.withdraw).toHaveBeenCalled();
                                 });
                             });
                         });
