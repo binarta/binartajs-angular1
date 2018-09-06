@@ -1404,11 +1404,12 @@
                 });
             });
 
-            describe('BasketController', function () {
+            describe('<bin-basket/>', function () {
                 var ctrl;
 
-                beforeEach(inject(function ($controller) {
-                    ctrl = $controller('BinartaBasketController');
+                beforeEach(inject(function ($componentController) {
+                    ctrl = $componentController('binBasket', undefined, {});
+                    ctrl.name = 'ctrl1';
                 }));
 
                 it('exposes the viewport', inject(function (viewport) {
@@ -1609,16 +1610,13 @@
                         ctrl.$onInit();
                     });
 
-                    // it('$onInit does not install a basket event listener', function () {
-                    //     expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
-                    // });
-
                     describe('when adding an item to the basket', function () {
                         var ctrl2;
 
-                        beforeEach(inject(function ($controller) {
-                            ctrl2 = $controller('BinartaBasketController');
-                            ctrl2.mode = 'detailed';
+                        beforeEach(inject(function ($componentController) {
+                            ctrl2 = $componentController('binBasket', undefined, {});
+                            ctrl2.mode = 'add-to-basket-button';
+                            ctrl2.name = 'ctrl2';
                             ctrl2.$onInit();
                         }));
 
@@ -1637,6 +1635,10 @@
 
                         it('then expose item added flag', function () {
                             expect(ctrl.itemAdded).toBeTruthy();
+                        });
+
+                        it('then the item added flag is not exposed on other controllers', function () {
+                            expect(ctrl2.itemAdded).toBeFalsy();
                         });
 
                         it('when flushing timeout then item added flag is reset', inject(function ($timeout) {

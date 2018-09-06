@@ -9,7 +9,6 @@
     ])
         .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', 'applicationProvider', ShopProvider])
         .component('binBasket', new BasketComponent())
-        .controller('BinartaBasketController', ['binarta', 'viewport', 'i18nLocation', '$timeout', '$rootScope', BinartaBasketController])
         .component('binAddress', new AddressComponent())
         .controller('BinartaAddressController', ['binarta', BinartaAddressController])
         .component('binPaymentMethods', new PaymentMethodsComponent())
@@ -58,103 +57,103 @@
             item: '<',
             mode: '@'
         };
-        this.controller = 'BinartaBasketController';
         this.templateUrl = 'bin-shop-basket.html';
-    }
+        this.controller = ['binarta', 'viewport', 'i18nLocation', '$timeout', '$scope', function BinartaBasketController(binarta, viewport, $location, $timeout, $scope) {
+            var profileEventListener = new ProfileEventListener();
+            var basketEventListener = new BasketEventListener();
+            var self = this, status = 'idle';
 
-    function BinartaBasketController(binarta, viewport, $location, $timeout, $rootScope) {
-        var profileEventListener = new ProfileEventListener();
-        var basketEventListener = new BasketEventListener();
-        var self = this;
+            this.viewport = viewport;
+            this.quantity = 1;
 
-        this.viewport = viewport;
-        this.quantity = 1;
-
-        this.$onInit = function () {
-            if (['summary', 'detailed', 'link', 'minimal-link', 'add-to-basket-button', 'dropdown-link'].indexOf(self.mode) > -1) {
-                if (self.mode == 'summary') {
-                    binarta.checkpoint.profile.eventRegistry.add(profileEventListener);
-                    refreshFromPreview();
+            this.$onInit = function () {
+                if (['summary', 'detailed', 'link', 'minimal-link', 'add-to-basket-button', 'dropdown-link'].indexOf(self.mode) > -1) {
+                    if (self.mode == 'summary') {
+                        binarta.checkpoint.profile.eventRegistry.add(profileEventListener);
+                        refreshFromPreview();
+                    }
+                    if (['detailed', 'link', 'minimal-link', 'add-to-basket-button', 'dropdown-link'].indexOf(self.mode) > -1) {
+                        binarta.shop.basket.eventRegistry.add(basketEventListener);
+                        refreshFromBasket();
+                    }
+                    if (this.mode === 'dropdown-link') {
+                        this.onDropdownClick = function () {
+                            this.isDropdownActive = !this.isDropdownActive;
+                        };
+                        this.onCloseDropdownClick = function () {
+                            this.isDropdownActive = false;
+                        };
+                        $scope.$on("$routeChangeStart", function () {
+                            self.isDropdownActive = false;
+                        });
+                    }
                 }
-                if (['detailed', 'link', 'minimal-link', 'add-to-basket-button', 'dropdown-link'].indexOf(self.mode) > -1) {
-                    binarta.shop.basket.eventRegistry.add(basketEventListener);
-                    refreshFromBasket();
-                }
-                if (this.mode === 'dropdown-link') {   
-                    this.onDropdownClick = function () {
-                        this.isDropdownActive = !this.isDropdownActive;
-                    };
-                    this.onCloseDropdownClick = function () {
-                        this.isDropdownActive = false;
-                    };
-                    $rootScope.$on("$routeChangeStart", function(event, next, current) {
-                        self.isDropdownActive = false;
-                    });
-                }
-            }
-        };
-
-        this.$onChanges = function() {
-            if(self.mode == 'summary')
-                refreshFromPreview();
-        };
-
-        this.$onDestroy = function () {
-            binarta.checkpoint.profile.eventRegistry.remove(profileEventListener);
-            binarta.shop.basket.eventRegistry.remove(basketEventListener);
-        };
-
-        this.isDiscounted = function() {
-            return self.preview && self.preview.coupon;
-        };
-
-        this.addToBasket = function () {
-            binarta.shop.basket.add({item: {id: self.item.id, price: self.item.price, quantity: self.quantity}});
-        };
-
-        this.checkout = function () {
-            binarta.shop.checkout.cancel();
-            var order = binarta.shop.basket.toOrder();
-            order.clearBasketOnComplete = true;
-            binarta.shop.checkout.start(order, [
-                'authentication-required',
-                'address-selection',
-                'summary',
-                'setup-payment-provider',
-                'payment',
-                'completed'
-            ]);
-            $location.path('/checkout/start');
-        };
-
-        function BasketEventListener() {
-            this.itemAdded = function () {
-                if (self.mode == 'add-to-basket-button') {
-                    self.itemAdded = true;
-                    $timeout(function () {
-                        self.itemAdded = false
-                    }, 1000);
-                }
-                refreshFromBasket();
             };
-            this.itemUpdated = refreshFromBasket;
-            this.itemRemoved = refreshFromBasket;
-            this.cleared = refreshFromBasket;
-        }
 
-        function ProfileEventListener() {
-            this.updated = refreshFromPreview;
-        }
+            this.$onChanges = function () {
+                if (self.mode == 'summary')
+                    refreshFromPreview();
+            };
 
-        function refreshFromBasket() {
-            self.preview = binarta.shop.basket.toOrder();
-        }
+            this.$onDestroy = function () {
+                binarta.checkpoint.profile.eventRegistry.remove(profileEventListener);
+                binarta.shop.basket.eventRegistry.remove(basketEventListener);
+            };
 
-        function refreshFromPreview() {
-            binarta.shop.previewOrder(self.order, function (order) {
-                self.preview = order;
-            });
-        }
+            this.isDiscounted = function () {
+                return self.preview && self.preview.coupon;
+            };
+
+            this.addToBasket = function () {
+                status = 'adding';
+                binarta.shop.basket.add({item: {id: self.item.id, price: self.item.price, quantity: self.quantity}});
+            };
+
+            this.checkout = function () {
+                binarta.shop.checkout.cancel();
+                var order = binarta.shop.basket.toOrder();
+                order.clearBasketOnComplete = true;
+                binarta.shop.checkout.start(order, [
+                    'authentication-required',
+                    'address-selection',
+                    'summary',
+                    'setup-payment-provider',
+                    'payment',
+                    'completed'
+                ]);
+                $location.path('/checkout/start');
+            };
+
+            function BasketEventListener() {
+                this.itemAdded = function () {
+                    if (self.mode == 'add-to-basket-button' && status == 'adding') {
+                        status = 'idle';
+                        self.itemAdded = true;
+                        $timeout(function () {
+                            self.itemAdded = false
+                        }, 1000);
+                    }
+                    refreshFromBasket();
+                };
+                this.itemUpdated = refreshFromBasket;
+                this.itemRemoved = refreshFromBasket;
+                this.cleared = refreshFromBasket;
+            }
+
+            function ProfileEventListener() {
+                this.updated = refreshFromPreview;
+            }
+
+            function refreshFromBasket() {
+                self.preview = binarta.shop.basket.toOrder();
+            }
+
+            function refreshFromPreview() {
+                binarta.shop.previewOrder(self.order, function (order) {
+                    self.preview = order;
+                });
+            }
+        }];
     }
 
     function AddressComponent() {
