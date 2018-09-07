@@ -11,7 +11,9 @@
         .component('binContactAddress', new BinContactAddressComponent())
         .component('binContactPhone', new BinContactPhoneComponent())
         .component('binContactPhoneInfo', new BinContactPhoneInfoComponent())
-        .component('binContactEmail', new BinContactEmailComponent());
+        .component('binContactEmail', new BinContactEmailComponent())
+        .directive('binAffix', ['binAffix', binAffixDirective])
+        .service('binAffix', ['$window', '$document', BinAffixService]);
 
     function BinartaProvider() {
         this.ui = new UI();
@@ -146,9 +148,55 @@
             '<a ng-href="mailto:{{config.value}}" ng-bind="config.value"></a>' +
             '</span>';
     }
+
+    function binAffixDirective(affix) {
+        return {
+            restrict: 'C',
+            scope: {},
+            link: function ($scope, els) {
+                var handle = affix.new(els[0]);
+                $scope.$on('destroy', handle.disconnect);
+            }
+        }
+    }
+
+    function BinAffixService($window, $document) {
+        var self = this;
+
+        self.new = function (el) {
+            return new Handle(el);
+        };
+
+        function Handle(el) {
+            var handle = this;
+
+            handle.connect = function () {
+                $document.on('scroll', handle.withAnimationFrame);
+            };
+            handle.connect();
+
+            handle.disconnect = function () {
+                $document.off('scroll', handle.withAnimationFrame);
+            };
+
+            handle.withAnimationFrame = function () {
+                if ($window.requestAnimationFrame) $window.requestAnimationFrame(handle.withScrollIndex);
+                else handle.withScrollIndex();
+            };
+
+            handle.withScrollIndex = function () {
+                handle.on(el.parentElement.getBoundingClientRect().top);
+            };
+
+            handle.on = function (idx) {
+                idx < 0 ? el.classList.add('affix') : el.classList.remove('affix');
+            }
+        }
+    }
 })();
 
 var binComponentControllerExtenders = [];
+
 function binComponentController(ConcreteController) {
     function Handlers() {
         var handlers = [];

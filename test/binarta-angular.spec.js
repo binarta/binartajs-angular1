@@ -2,14 +2,17 @@
     var ui;
 
     describe('binartajs-angular', function () {
-        var binarta, $rootScope, $compile, $location, $routeParams, $ctrl, localStorage, sessionStorage, config;
+        var binarta, $window, $document, $rootScope, $compile, $location, $routeParams, $ctrl, localStorage,
+            sessionStorage, config;
 
         beforeEach(function () {
             ui = new UI();
         });
         beforeEach(module('binartajs-angular1-spec'));
-        beforeEach(inject(function (_binarta_, _$rootScope_, _$compile_, _$location_, _$routeParams_, _localStorage_, _sessionStorage_, _config_) {
+        beforeEach(inject(function (_binarta_, _$window_, _$document_, _$rootScope_, _$compile_, _$location_, _$routeParams_, _localStorage_, _sessionStorage_, _config_) {
             binarta = _binarta_;
+            $window = _$window_;
+            $document = _$document_;
             $rootScope = _$rootScope_;
             $compile = _$compile_;
             $location = _$location_;
@@ -219,6 +222,77 @@
                 it('do nothing', function () {
                     expect(headSpy.prepend).not.toHaveBeenCalled();
                 });
+            });
+        });
+
+        describe('bin-affix class', function () {
+            var node, handle, el, classes;
+
+            beforeEach(inject(function (binAffix) {
+                node = $compile('<div class="bin-affix"></div>')($rootScope);
+                classes = [];
+                el = {
+                    parentElement: {
+                        getBoundingClientRect: function () {
+                            return {top: 'p'};
+                        }
+                    },
+                    classList: {
+                        add: function (it) {
+                            classes.push(it);
+                        },
+                        remove: function () {
+                            classes = [];
+                        }
+                    }
+                };
+                handle = binAffix.new(el);
+            }));
+
+            it('add affix class to element when scroll idx moves below 0', function () {
+                handle.on(-1);
+                expect(classes).toEqual(['affix']);
+            });
+
+            it('remove affix class to element when scroll idx moves to 0', function () {
+                classes = ['affix'];
+                handle.on(0);
+                expect(classes).toEqual([]);
+            });
+
+            it('remove affix class to element when scroll idx moves above 0', function () {
+                classes = ['affix'];
+                handle.on(1);
+                expect(classes).toEqual([]);
+            });
+
+            it('given $window does not support animation frames when callback is executed then execute in current thread', function () {
+                handle.withScrollIndex = jasmine.createSpy();
+                handle.withAnimationFrame();
+                expect(handle.withScrollIndex).toHaveBeenCalled();
+            });
+
+            describe('given $window supports request animation frame when callback is executed', function () {
+                beforeEach(function () {
+                    $window.requestAnimationFrame = jasmine.createSpy();
+                    handle.withScrollIndex = jasmine.createSpy();
+                    handle.withAnimationFrame();
+                });
+
+                it('then animation frame is requested', function () {
+                    expect($window.requestAnimationFrame).toHaveBeenCalled();
+                });
+
+                it('then execute in animation frame', function () {
+                    $window.requestAnimationFrame.calls.mostRecent().args[0]();
+                    expect(handle.withScrollIndex).toHaveBeenCalled();
+                });
+            });
+
+            it('with scroll index fetches the scroll index from the element and executes the callback', function () {
+                handle.on = jasmine.createSpy();
+                handle.withScrollIndex();
+                expect(handle.on).toHaveBeenCalledWith('p');
             });
         });
 
@@ -810,12 +884,12 @@
                     expect($ctrl.status).toEqual('permission-required');
                 });
 
-                it('grant permission', function() {
+                it('grant permission', function () {
                     $ctrl.grant();
                     expect($ctrl.status).toEqual('permission-granted');
                 });
 
-                it('revoke permission', function() {
+                it('revoke permission', function () {
                     $ctrl.revoke();
                     expect($ctrl.status).toEqual('permission-revoked');
                 });
