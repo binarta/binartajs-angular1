@@ -226,10 +226,9 @@
         });
 
         describe('bin-affix class', function () {
-            var node, handle, el, classes;
+            var handle, el, classes;
 
             beforeEach(inject(function (binAffix) {
-                node = $compile('<div class="bin-affix"></div>')($rootScope);
                 classes = [];
                 el = {
                     parentElement: {

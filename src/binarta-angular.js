@@ -173,7 +173,6 @@
             handle.connect = function () {
                 $document.on('scroll', handle.withAnimationFrame);
             };
-            handle.connect();
 
             handle.disconnect = function () {
                 $document.off('scroll', handle.withAnimationFrame);
@@ -191,6 +190,8 @@
             handle.on = function (idx) {
                 idx < 0 ? el.classList.add('affix') : el.classList.remove('affix');
             }
+
+            handle.connect();
         }
     }
 })();
