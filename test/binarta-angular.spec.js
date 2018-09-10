@@ -1587,9 +1587,6 @@
                                 });
 
                                 it('publishing passes timestamp to db', function () {
-                                    $ctrl.now = function() {
-                                        return 't';
-                                    };
                                     binarta.publisher.db = {
                                         publish: function (request) {
                                             expect(request.id).toEqual('p');
@@ -2874,6 +2871,7 @@
             ui.confirmedBillingAgreement();
             shopProvider.ui.confirmedBillingAgreement();
         };
+        binartaProvider.ui.promptForPublicationTime = ui.promptForPublicationTime;
     }
 
     function UI() {
@@ -2888,6 +2886,10 @@
 
         this.confirmedBillingAgreement = function () {
             self.confirmedBillingAgreementRequest = true;
+        };
+
+        this.promptForPublicationTime = function (response) {
+            response.success('t');
         }
     }
 
