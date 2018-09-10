@@ -11,6 +11,7 @@
         .component('binAddBlogPost', new AddBlogPostComponent())
         .component('binDisplayBlogPost', new DisplayBlogPostComponent())
         .directive('binDisplayBlogPostResult', displayBlogPostResult)
+        .directive('binDisplayBlogTitle', new DisplayBlogTitleComponent())
         .controller('BinDisplayBlogPostRouteController', ['$routeParams', DisplayBlogPostRouteController])
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
@@ -121,7 +122,7 @@
             var post = {};
             var $lock = 'viewing', publishable, withdrawable;
 
-            $ctrl.status = function() {
+            $ctrl.status = function () {
                 return binarta.publisher.blog.get($ctrl.id).status;
             };
 
@@ -129,11 +130,11 @@
                 return post;
             };
 
-            $ctrl.publish = function() {
+            $ctrl.publish = function () {
                 binarta.publisher.blog.get(post.id).publish();
             };
 
-            $ctrl.withdraw = function() {
+            $ctrl.withdraw = function () {
                 binarta.publisher.blog.get(post.id).withdraw();
             };
 
@@ -186,6 +187,16 @@
                     $lock = 'viewing';
                 }
             });
+        })];
+    }
+
+    function DisplayBlogTitleComponent() {
+        this.require = {
+            parent: '^^binDisplayBlogPost'
+        };
+        this.templateUrl = 'bin-publisher-display-post-title.html';
+        this.controller = [binComponentController(function () {
+            var $ctrl = this;
         })];
     }
 
