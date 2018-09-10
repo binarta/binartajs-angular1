@@ -100,7 +100,7 @@
                     binarta.publisher.blog.add({
                         success: function (id) {
                             $ctrl.status = 'idle';
-                            $location.path('/view' + id)
+                            $location.path('/blog/post' + id)
                         }
                     });
                 }

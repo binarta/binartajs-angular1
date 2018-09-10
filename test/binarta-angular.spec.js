@@ -1467,7 +1467,7 @@
                             });
 
                             it('we redirect to the detail page', function () {
-                                expect($location.path()).toEqual('/view/id');
+                                expect($location.path()).toEqual('/blog/post/id');
                             });
                         });
                     });
