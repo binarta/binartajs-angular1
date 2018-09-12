@@ -1696,21 +1696,25 @@
                 describe('<bin-display-blog-title/>', function () {
                     var template;
 
-                    beforeEach(function () {
+                    beforeEach(inject(function ($templateCache) {
                         binarta.publisher.db = {
                             get: function (request, response) {
                                 response.success({id: 'i', title: 't'});
                             }
                         };
-                        template = '<bin-display-blog-post>' +
-                            '<bin-display-blog-title></bin-display-blog-title>' +
-                            '</bin-display-blog-post>';
-                    });
+                        $templateCache.put('bin-test', '<bin-display-blog-title></bin-display-blog-title>');
+                        template = '<bin-display-blog-post template="bin-test"></bin-display-blog-post>';
+                    }));
 
                     it('when application lock is open render a read only blog title', inject(function () {
                         var document = $compile(template)($rootScope.$new());
                         $rootScope.$digest();
-                        expect(document.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<bin-display-blog-title class="ng-isolate-scope">' +
+                        expect(document.html()
+                            .replace(/<!--[\s\S]*?-->/g, '')
+                            .replace(/<bin-edit>[\s\S]*?<\/bin-edit>/g, '')
+                            .replace(/<ng-include[\s\S]*?>/g, '')
+                            .replace(/<\/ng-include[\s\S]*?>/g, '')
+                        ).toEqual('<bin-display-blog-title class="ng-scope ng-isolate-scope">' +
                             '<bin-application-lock class="ng-scope">' +
                             '<span ng-if="$lock.status == \'open\'" ng-bind="$ctrl.parent.post.title" class="ng-binding ng-scope">t</span>' +
                             '</bin-application-lock>' +
@@ -1721,7 +1725,12 @@
                         binarta.application.lock.reserve();
                         var document = $compile(template)($rootScope.$new());
                         $rootScope.$digest();
-                        expect(document.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<bin-display-blog-title class="ng-isolate-scope">' +
+                        expect(document.html()
+                            .replace(/<!--[\s\S]*?-->/g, '')
+                            .replace(/<bin-edit>[\s\S]*?<\/bin-edit>/g, '')
+                            .replace(/<ng-include[\s\S]*?>/g, '')
+                            .replace(/<\/ng-include[\s\S]*?>/g, '')
+                        ).toEqual('<bin-display-blog-title class="ng-scope ng-isolate-scope">' +
                             '<bin-application-lock class="ng-scope">' +
                             '<i18n ng-if="$lock.status == \'closed\'" code="i" ng-bind="var" class="ng-binding ng-scope"></i18n>' +
                             '</bin-application-lock>' +
@@ -1732,21 +1741,25 @@
                 describe('<bin-display-blog-lead/>', function () {
                     var template;
 
-                    beforeEach(function () {
+                    beforeEach(inject(function ($templateCache) {
                         binarta.publisher.db = {
                             get: function (request, response) {
                                 response.success({id: 'i', lead: 'l'});
                             }
                         };
-                        template = '<bin-display-blog-post>' +
-                            '<bin-display-blog-lead></bin-display-blog-lead>' +
-                            '</bin-display-blog-post>';
-                    });
+                        $templateCache.put('bin-test', '<bin-display-blog-lead></bin-display-blog-lead>');
+                        template = '<bin-display-blog-post template="bin-test"></bin-display-blog-post>';
+                    }));
 
                     it('when application lock is open render a read only blog lead', inject(function () {
                         var document = $compile(template)($rootScope.$new());
                         $rootScope.$digest();
-                        expect(document.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<bin-display-blog-lead class="ng-isolate-scope">' +
+                        expect(document.html()
+                            .replace(/<!--[\s\S]*?-->/g, '')
+                            .replace(/<bin-edit>[\s\S]*?<\/bin-edit>/g, '')
+                            .replace(/<ng-include[\s\S]*?>/g, '')
+                            .replace(/<\/ng-include[\s\S]*?>/g, '')
+                        ).toEqual('<bin-display-blog-lead class="ng-scope ng-isolate-scope">' +
                             '<bin-application-lock class="ng-scope">' +
                             '<span ng-if="$lock.status == \'open\'" ng-bind-html="$ctrl.parent.post.lead|trust" class="ng-binding ng-scope">l</span>' +
                             '</bin-application-lock>' +
@@ -1757,7 +1770,12 @@
                         binarta.application.lock.reserve();
                         var document = $compile(template)($rootScope.$new());
                         $rootScope.$digest();
-                        expect(document.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<bin-display-blog-lead class="ng-isolate-scope">' +
+                        expect(document.html()
+                            .replace(/<!--[\s\S]*?-->/g, '')
+                            .replace(/<bin-edit>[\s\S]*?<\/bin-edit>/g, '')
+                            .replace(/<ng-include[\s\S]*?>/g, '')
+                            .replace(/<\/ng-include[\s\S]*?>/g, '')
+                        ).toEqual('<bin-display-blog-lead class="ng-scope ng-isolate-scope">' +
                             '<bin-application-lock class="ng-scope">' +
                             '<i18n ng-if="$lock.status == \'closed\'" code="i.lead" editor="full" ng-bind-html="var|trust" class="ng-binding ng-scope"></i18n>' +
                             '</bin-application-lock>' +
@@ -1768,21 +1786,25 @@
                 describe('<bin-display-blog-body/>', function () {
                     var template;
 
-                    beforeEach(function () {
+                    beforeEach(inject(function ($templateCache) {
                         binarta.publisher.db = {
                             get: function (request, response) {
                                 response.success({id: 'i', body: 'b'});
                             }
                         };
-                        template = '<bin-display-blog-post>' +
-                            '<bin-display-blog-body></bin-display-blog-body>' +
-                            '</bin-display-blog-post>';
-                    });
+                        $templateCache.put('bin-test', '<bin-display-blog-body></bin-display-blog-body>');
+                        template = '<bin-display-blog-post template="bin-test"></bin-display-blog-post>';
+                    }));
 
                     it('when application lock is open render a read only blog body', inject(function () {
                         var document = $compile(template)($rootScope.$new());
                         $rootScope.$digest();
-                        expect(document.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<bin-display-blog-body class="ng-isolate-scope">' +
+                        expect(document.html()
+                            .replace(/<!--[\s\S]*?-->/g, '')
+                            .replace(/<bin-edit>[\s\S]*?<\/bin-edit>/g, '')
+                            .replace(/<ng-include[\s\S]*?>/g, '')
+                            .replace(/<\/ng-include[\s\S]*?>/g, '')
+                        ).toEqual('<bin-display-blog-body class="ng-scope ng-isolate-scope">' +
                             '<bin-application-lock class="ng-scope">' +
                             '<span ng-if="$lock.status == \'open\'" ng-bind-html="$ctrl.parent.post.body|trust" class="ng-binding ng-scope">b</span>' +
                             '</bin-application-lock>' +
@@ -1793,7 +1815,12 @@
                         binarta.application.lock.reserve();
                         var document = $compile(template)($rootScope.$new());
                         $rootScope.$digest();
-                        expect(document.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<bin-display-blog-body class="ng-isolate-scope">' +
+                        expect(document.html()
+                            .replace(/<!--[\s\S]*?-->/g, '')
+                            .replace(/<bin-edit>[\s\S]*?<\/bin-edit>/g, '')
+                            .replace(/<ng-include[\s\S]*?>/g, '')
+                            .replace(/<\/ng-include[\s\S]*?>/g, '')
+                        ).toEqual('<bin-display-blog-body class="ng-scope ng-isolate-scope">' +
                             '<bin-application-lock class="ng-scope">' +
                             '<i18n ng-if="$lock.status == \'closed\'" code="i.body" editor="full-media" ng-bind-html="var|trust" class="ng-binding ng-scope"></i18n>' +
                             '</bin-application-lock>' +
@@ -1802,12 +1829,36 @@
                 });
             });
 
-            it('BinDisplayBlogPostRouteController', inject(function ($routeParams, $controller) {
-                $routeParams.part1 = 'blog';
-                $routeParams.part2 = 'id';
-                $ctrl = $controller('BinDisplayBlogPostRouteController', {});
-                expect($ctrl.id).toEqual('/blog/id');
-            }));
+            describe('/blog/post/:id', function () {
+                var config;
+
+                beforeEach(inject(['$routeParams', '$controller', 'BinDisplayBlogPostRouteController.config', function ($routeParams, $controller, _config_) {
+                    $routeParams.part1 = 'blog';
+                    $routeParams.part2 = 'id';
+                    $ctrl = $controller('BinDisplayBlogPostRouteController', {});
+                    config = _config_;
+                }]));
+
+                it('exposes id', function () {
+                    expect($ctrl.id).toEqual('/blog/id');
+                });
+
+                it('exposes template names', function () {
+                    expect($ctrl.decoratorTemplate).toEqual('bin-publisher-blog-post-route-decorator.html');
+                    expect($ctrl.pageTemplate).toEqual('bin-publisher-blog-post-route-page.html');
+                    expect($ctrl.template).toEqual('bin-publisher-display-blog-post-details.html');
+                });
+
+                it('the decorator template can be overridden', inject(function ($controller) {
+                    config.decoratorTemplate = 't';
+                    expect($controller('BinDisplayBlogPostRouteController', {}).decoratorTemplate).toEqual('t');
+                }));
+
+                it('the template can be overridden', inject(function ($controller) {
+                    config.template = 't';
+                    expect($controller('BinDisplayBlogPostRouteController', {}).template).toEqual('t');
+                }));
+            });
         });
 
         describe('binarta-shopjs-angular1', function () {
