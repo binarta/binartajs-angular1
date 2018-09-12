@@ -15,7 +15,8 @@
         .component('binDisplayBlogTitle', new DisplayBlogAttributeComponent('title'))
         .component('binDisplayBlogLead', new DisplayBlogAttributeComponent('lead'))
         .component('binDisplayBlogBody', new DisplayBlogAttributeComponent('body'))
-        .controller('BinDisplayBlogPostRouteController', ['$routeParams', DisplayBlogPostRouteController])
+        .controller('BinDisplayBlogPostRouteController', ['$routeParams', 'BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteController])
+        .service('BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteControllerConfig)
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['publisher', WireAngularDependencies]);
@@ -118,11 +119,18 @@
 
     function DisplayBlogPostComponent() {
         this.bindings = {
-            id: '@'
+            id: '@',
+            template: '@'
         };
+        this.templateUrl = 'bin-publisher-display-blog-post.html';
         this.controller = ['binarta', 'i18nLocation', '$q', binComponentController(function (binarta, $location, $q) {
             var $ctrl = this;
             var handle;
+
+            $ctrl.addInitHandler(function () {
+                if (!$ctrl.template)
+                    $ctrl.template = 'bin-publisher-display-blog-post-details.html';
+            });
 
             var display = {
                 status: function (it) {
@@ -193,9 +201,17 @@
         }];
     }
 
-    function DisplayBlogPostRouteController($routeParams) {
+    function DisplayBlogPostRouteController($routeParams, config) {
         var $ctrl = this;
         $ctrl.id = '/' + $routeParams.part1 + '/' + $routeParams.part2;
+        $ctrl.decoratorTemplate = config.decoratorTemplate;
+        $ctrl.pageTemplate = 'bin-publisher-blog-post-route-page.html';
+        $ctrl.template = config.template;
+    }
+
+    function DisplayBlogPostRouteControllerConfig() {
+        this.decoratorTemplate = 'bin-publisher-blog-post-route-decorator.html';
+        this.template = 'bin-publisher-display-blog-post-details.html';
     }
 
     function UI() {
@@ -209,12 +225,12 @@
     function InstallRoutes($routeProvider) {
         $routeProvider
             .when('/blog/post/:part1/:part2', {
-                templateUrl: 'partials/blog/post.html',
+                templateUrl: 'bin-publisher-blog-post-route.html',
                 controller: 'BinDisplayBlogPostRouteController',
                 controllerAs: '$ctrl'
             })
             .when('/:locale/blog/post/:part1/:part2', {
-                templateUrl: 'partials/blog/post.html',
+                templateUrl: 'bin-publisher-blog-post-route.html',
                 controller: 'BinDisplayBlogPostRouteController',
                 controllerAs: '$ctrl'
             });
