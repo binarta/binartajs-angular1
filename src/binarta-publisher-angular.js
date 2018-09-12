@@ -117,75 +117,47 @@
         this.bindings = {
             id: '@'
         };
-        this.controller = ['binarta', 'i18nLocation', binComponentController(function (binarta, $location) {
+        this.controller = ['binarta', 'i18nLocation', '$q', binComponentController(function (binarta, $location, $q) {
             var $ctrl = this;
-            var post = {};
-            var $lock = 'viewing', publishable, withdrawable;
+            var handle;
 
-            $ctrl.status = function () {
-                return binarta.publisher.blog.get($ctrl.id).status;
-            };
-
-            $ctrl.post = function () {
-                return post;
+            var display = {
+                status: function (it) {
+                    $ctrl.status = it;
+                },
+                notFound: function () {
+                    $location.path('/blog');
+                },
+                post: function (it) {
+                    $ctrl.post = it
+                }
             };
 
             $ctrl.publish = function () {
-                binarta.publisher.blog.get(post.id).publish();
+                return $q(function (s, f) {
+                    setTimeout(function () {
+                        display.published = s;
+                        display.canceled = f;
+                        handle.publish();
+                    });
+                });
             };
 
             $ctrl.withdraw = function () {
-                binarta.publisher.blog.get(post.id).withdraw();
+                return $q(function (s) {
+                    setTimeout(function () {
+                        display.published = s;
+                        handle.withdraw();
+                    });
+                });
             };
 
             binarta.schedule(function () {
                 $ctrl.addInitHandler(function () {
-                    binarta.publisher.blog.get($ctrl.id).render({
-                        post: function (it) {
-                            post = it;
-                        },
-                        notFound: function () {
-                            $location.path('/blog');
-                        }
-                    });
+                    handle = binarta.publisher.blog.get($ctrl.id).connect(display);
+                    handle.render();
+                    $ctrl.addDestroyHandler(handle);
                 });
-            });
-
-            // TODO: the functions below don't need to be implemented here as they make the angular bindings too smart
-            // TODO: implement them on the BLogPostHandle and just reference them from here.
-            $ctrl.isPublishable = function () {
-                return publishable && $lock == 'editing' && post.status == 'draft';
-            };
-
-            $ctrl.isWithdrawable = function () {
-                return withdrawable && $lock == 'editing' && post.status == 'published';
-            };
-
-            $ctrl.profile.addWithPermissionHandler('publish.blog.post', {
-                gained: function () {
-                    publishable = true;
-                },
-                lost: function () {
-                    publishable = false;
-                }
-            });
-
-            $ctrl.profile.addWithPermissionHandler('withdraw.blog.post', {
-                gained: function () {
-                    withdrawable = true;
-                },
-                lost: function () {
-                    withdrawable = false;
-                }
-            });
-
-            $ctrl.lock.addHandler({
-                editing: function () {
-                    $lock = 'editing';
-                },
-                viewing: function () {
-                    $lock = 'viewing';
-                }
             });
         })];
     }
@@ -205,17 +177,9 @@
             restrict: 'E',
             scope: true,
             require: '^^binDisplayBlogPost',
-            controller: function () {
-            },
-            controllerAs: '$ctrl',
             bindToController: true,
             link: function (scope, el, attrs, ctrl) {
-                scope.$ctrl.post = ctrl.post;
-                scope.$ctrl.status = ctrl.status;
-                scope.$ctrl.publish = ctrl.publish;
-                scope.$ctrl.withdraw = ctrl.withdraw;
-                scope.$ctrl.isPublishable = ctrl.isPublishable;
-                scope.$ctrl.isWithdrawable = ctrl.isWithdrawable;
+                scope.$ctrl = ctrl;
             }
         }
     }

@@ -1055,6 +1055,15 @@
                         expect(spy.editing).not.toHaveBeenCalled();
                     });
                 });
+
+                // describe('<bin-application-lock/>', function() {
+                //     it('sandbox', inject(function($compile) {
+                //         // var doc = $compile('<bin-application-lock></bin-application-lock>')($rootScope.$new());
+                //         var doc = $compile('<html><div>Hello World!</div></html>')($rootScope);
+                //         $rootScope.$digest();
+                //         expect(doc.html()).toEqual('?');
+                //     }));
+                // });
             });
 
             function expectHref(a) {
@@ -1498,18 +1507,6 @@
                     binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
                 }));
 
-                it('status starts out in idle', function () {
-                    expect($ctrl.status()).toEqual('idle');
-                });
-
-                it('starts out non publishable', function () {
-                    expect($ctrl.isPublishable()).toBeFalsy();
-                });
-
-                it('starts out non withdrawable', function () {
-                    expect($ctrl.isWithdrawable()).toBeFalsy();
-                });
-
                 it('when blog post is unknown redirect to blog overview', function () {
                     binarta.publisher.db = {
                         get: function (request, response) {
@@ -1544,11 +1541,11 @@
                     });
 
                     it('enters idle status', function () {
-                        expect($ctrl.status()).toEqual('idle');
+                        expect($ctrl.status).toEqual('idle');
                     });
 
                     it('expose post on controller', function () {
-                        expect($ctrl.post()).toEqual(post);
+                        expect($ctrl.post).toEqual(post);
                     });
 
                     describe('when post is in draft', function () {
@@ -1564,7 +1561,7 @@
                             });
 
                             it('remain non publishable as the application lock is still open', function () {
-                                expect($ctrl.isPublishable()).toBeFalsy();
+                                expect($ctrl.status).toEqual('idle');
                             });
 
                             describe('and application lock is acquired', function () {
@@ -1573,17 +1570,17 @@
                                 });
 
                                 it('become publishable', function () {
-                                    expect($ctrl.isPublishable()).toBeTruthy();
+                                    expect($ctrl.status).toEqual('publishable');
                                 });
 
                                 it('return to non publishable on signout', function () {
                                     binarta.checkpoint.profile.signout();
-                                    expect($ctrl.isPublishable()).toBeFalsy();
+                                    expect($ctrl.status).toEqual('idle');
                                 });
 
                                 it('return to non publishable when the application lock is released', function () {
                                     binarta.application.lock.release();
-                                    expect($ctrl.isPublishable()).toBeFalsy();
+                                    expect($ctrl.status).toEqual('idle');
                                 });
 
                                 it('publishing passes timestamp to db', function () {
@@ -1606,12 +1603,12 @@
                             });
 
                             it('remain non withdrawable as the application lock is still open', function () {
-                                expect($ctrl.isWithdrawable()).toBeFalsy();
+                                expect($ctrl.status).toEqual('idle');
                             });
 
-                            it('and application lock is acquired then remain non withdrawable as post is still a draft', function () {
+                            it('and application lock is acquired then remain publishable as post is still a draft', function () {
                                 binarta.application.lock.reserve();
-                                expect($ctrl.isWithdrawable()).toBeFalsy();
+                                expect($ctrl.status).toEqual('publishable');
                             });
                         })
                     });
@@ -1629,7 +1626,7 @@
                             });
 
                             it('remain non withdrawable as the application lock is still open', function () {
-                                expect($ctrl.isWithdrawable()).toBeFalsy();
+                                expect($ctrl.status).toEqual('idle');
                             });
 
                             describe('and application lock is acquired', function () {
@@ -1638,17 +1635,17 @@
                                 });
 
                                 it('become withdrawable', function () {
-                                    expect($ctrl.isWithdrawable()).toBeTruthy();
+                                    expect($ctrl.status).toEqual('withdrawable');
                                 });
 
                                 it('return to non withdrawable on signout', function () {
                                     binarta.checkpoint.profile.signout();
-                                    expect($ctrl.isWithdrawable()).toBeFalsy();
+                                    expect($ctrl.status).toEqual('idle');
                                 });
 
                                 it('return to non withdrawable when the application lock is released', function () {
                                     binarta.application.lock.release();
-                                    expect($ctrl.isWithdrawable()).toBeFalsy();
+                                    expect($ctrl.status).toEqual('idle');
                                 });
 
                                 it('withdrawing calls db', function () {
@@ -1670,12 +1667,12 @@
                             });
 
                             it('remain non publishable as the application lock is still open', function () {
-                                expect($ctrl.isPublishable()).toBeFalsy();
+                                expect($ctrl.status).toEqual('idle');
                             });
 
-                            it('and application lock is acquired then remain non publishable as post is already published', function () {
+                            it('and application lock is acquired then remain withdrawable as post is already published', function () {
                                 binarta.application.lock.reserve();
-                                expect($ctrl.isPublishable()).toBeFalsy();
+                                expect($ctrl.status).toEqual('withdrawable');
                             });
                         })
                     })
