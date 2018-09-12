@@ -1056,14 +1056,29 @@
                     });
                 });
 
-                // describe('<bin-application-lock/>', function() {
-                //     it('sandbox', inject(function($compile) {
-                //         // var doc = $compile('<bin-application-lock></bin-application-lock>')($rootScope.$new());
-                //         var doc = $compile('<html><div>Hello World!</div></html>')($rootScope);
-                //         $rootScope.$digest();
-                //         expect(doc.html()).toEqual('?');
-                //     }));
-                // });
+                describe('<bin-application-lock/>', function() {
+                    var template;
+
+                    beforeEach(function() {
+                        template = '<bin-application-lock>' +
+                            '<div ng-if="$lock.status == \'open\'">open</div>' +
+                            '<div ng-if="$lock.status == \'closed\'">closed</div>' +
+                            '</bin-application-lock>';
+                    });
+
+                    it('render based on open lock', function() {
+                        var doc = $compile(template)($rootScope.$new());
+                        $rootScope.$digest();
+                        expect(doc.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<div ng-if="$lock.status == \'open\'" class="ng-scope">open</div>');
+                    });
+
+                    it('render based on closed lock', function() {
+                        binarta.application.lock.reserve();
+                        var doc = $compile(template)($rootScope.$new());
+                        $rootScope.$digest();
+                        expect(doc.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<div ng-if="$lock.status == \'closed\'" class="ng-scope">closed</div>');
+                    });
+                });
             });
 
             function expectHref(a) {
@@ -1676,6 +1691,42 @@
                             });
                         })
                     })
+                });
+
+                describe('<bin-display-blog-title/>', function () {
+                    var template;
+
+                    beforeEach(function() {
+                        binarta.publisher.db = {
+                            get: function (request, response) {
+                                response.success({id:'i', title: 't'});
+                            }
+                        };
+                        template = '<bin-display-blog-post>' +
+                            '<bin-display-blog-title></bin-display-blog-title>' +
+                            '</bin-display-blog-post>';
+                    });
+
+                    it('when application lock is open render a read only blog title', inject(function () {
+                        var document = $compile(template)($rootScope.$new());
+                        $rootScope.$digest();
+                        expect(document.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<bin-display-blog-title class="ng-isolate-scope">' +
+                            '<bin-application-lock class="ng-scope">' +
+                            '<span ng-if="$lock.status == \'open\'" ng-bind="$ctrl.parent.post.title" class="ng-binding ng-scope">t</span>' +
+                            '</bin-application-lock>' +
+                            '</bin-display-blog-title>');
+                    }));
+
+                    it('when application lock is closed render a modifiable blog title', inject(function () {
+                        binarta.application.lock.reserve();
+                        var document = $compile(template)($rootScope.$new());
+                        $rootScope.$digest();
+                        expect(document.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<bin-display-blog-title class="ng-isolate-scope">' +
+                            '<bin-application-lock class="ng-scope">' +
+                            '<i18n ng-if="$lock.status == \'closed\'" code="i" ng-bind="var" class="ng-binding ng-scope"></i18n>' +
+                            '</bin-application-lock>' +
+                            '</bin-display-blog-title>');
+                    }));
                 });
             });
 
