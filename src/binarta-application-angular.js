@@ -20,6 +20,7 @@
         .factory('binartaApplicationIsInitialised', ['binartaApplicationIsInitialised.deferred', IsApplicationInitialisedFactory])
         .directive('binHref', ['$location', 'application', BinHrefDirectiveFactory])
         .directive('binDhref', ['$location', 'application', BinDhrefDirectiveFactory])
+        .directive('binApplicationLock', ['binarta', 'application', ApplicationLockDirective])
         .component('cookiePermissionGranted', new CookiePermissionGrantedComponent())
         .run(['application', WireAngularDependencies])
         .run(['$rootScope', 'application', '$location', InstallRouteChangeListeners])
@@ -40,6 +41,7 @@
         ]);
 
     function ApplicationProvider(provider) {
+        this.speak = 'Moooooo!';
         this.application = new BinartaApplicationjs();
         this.application.gateway = provider.gateway;
         this.ui = new UI();
@@ -171,6 +173,27 @@
         return directive;
     }
 
+    function ApplicationLockDirective(binarta, app) {
+        return {
+            restrict: 'E',
+            scope: true,
+            link: function (scope) {
+                scope.$lock = {status: app.lock.status};
+
+                function applyLockStatus() {
+                    scope.$lock.status = app.lock.status;
+                }
+
+                applyLockStatus();
+
+                scope.$on('$destroy', app.eventRegistry.observe({
+                    viewing: applyLockStatus,
+                    editing: applyLockStatus
+                }).disconnect);
+            }
+        }
+    }
+
     function CookiePermissionGrantedComponent() {
         this.templateUrl = 'bin-all-cookie-notice.html';
         this.controller = ['binarta', binComponentController(function (binarta) {
@@ -187,7 +210,7 @@
                 updateStatus();
             };
 
-            $ctrl.revoke = function() {
+            $ctrl.revoke = function () {
                 binarta.application.cookies.permission.revoke();
                 updateStatus();
             }

@@ -2,7 +2,8 @@
     angular.module('binarta-publisherjs-angular1', [
         'ngRoute',
         'binartajs-angular1',
-        'binarta-publisherjs-gateways-angular1'
+        'binarta-publisherjs-gateways-angular1',
+        'binarta-publisherjs-tpls-angular1'
     ])
         .provider('publisher', ['binartaPublisherGatewayProvider', PublisherProvider])
         .component('binBlogFeed', new BlogFeedComponent())
@@ -11,7 +12,7 @@
         .component('binAddBlogPost', new AddBlogPostComponent())
         .component('binDisplayBlogPost', new DisplayBlogPostComponent())
         .directive('binDisplayBlogPostResult', displayBlogPostResult)
-        .directive('binDisplayBlogTitle', new DisplayBlogTitleComponent())
+        .component('binDisplayBlogTitle', new DisplayBlogTitleComponent())
         .controller('BinDisplayBlogPostRouteController', ['$routeParams', DisplayBlogPostRouteController])
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
@@ -166,7 +167,7 @@
         this.require = {
             parent: '^^binDisplayBlogPost'
         };
-        this.templateUrl = 'bin-publisher-display-post-title.html';
+        this.templateUrl = 'bin-publisher-display-blog-title.html';
         this.controller = [binComponentController(function () {
             var $ctrl = this;
         })];

@@ -1,5 +1,5 @@
 (function () {
-    angular.module('binartajs-angular1', ['web.storage'])
+    angular.module('binartajs-angular1', ['web.storage', 'binarta-alljs-tpls-angular1'])
         .provider('binarta', [BinartaProvider])
         .factory('binartaGatewaysAreInitialised', ['$q', GatewaysAreInitialisedFactory])
         .factory('binartaConfigIsInitialised', ['$q', 'binartaGatewaysAreInitialised', ConfigIsInitialisedFactory])
@@ -210,7 +210,8 @@ function binComponentController(ConcreteController) {
         this.release = function () {
             released = true;
             handlers.forEach(function (h) {
-                h();
+                if(typeof h == 'function')
+                    h();
             });
         }
     }
