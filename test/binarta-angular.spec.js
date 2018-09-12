@@ -1056,23 +1056,23 @@
                     });
                 });
 
-                describe('<bin-application-lock/>', function() {
+                describe('<bin-application-lock/>', function () {
                     var template;
 
-                    beforeEach(function() {
+                    beforeEach(function () {
                         template = '<bin-application-lock>' +
                             '<div ng-if="$lock.status == \'open\'">open</div>' +
                             '<div ng-if="$lock.status == \'closed\'">closed</div>' +
                             '</bin-application-lock>';
                     });
 
-                    it('render based on open lock', function() {
+                    it('render based on open lock', function () {
                         var doc = $compile(template)($rootScope.$new());
                         $rootScope.$digest();
                         expect(doc.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<div ng-if="$lock.status == \'open\'" class="ng-scope">open</div>');
                     });
 
-                    it('render based on closed lock', function() {
+                    it('render based on closed lock', function () {
                         binarta.application.lock.reserve();
                         var doc = $compile(template)($rootScope.$new());
                         $rootScope.$digest();
@@ -1696,10 +1696,10 @@
                 describe('<bin-display-blog-title/>', function () {
                     var template;
 
-                    beforeEach(function() {
+                    beforeEach(function () {
                         binarta.publisher.db = {
                             get: function (request, response) {
-                                response.success({id:'i', title: 't'});
+                                response.success({id: 'i', title: 't'});
                             }
                         };
                         template = '<bin-display-blog-post>' +
@@ -1726,6 +1726,78 @@
                             '<i18n ng-if="$lock.status == \'closed\'" code="i" ng-bind="var" class="ng-binding ng-scope"></i18n>' +
                             '</bin-application-lock>' +
                             '</bin-display-blog-title>');
+                    }));
+                });
+
+                describe('<bin-display-blog-lead/>', function () {
+                    var template;
+
+                    beforeEach(function () {
+                        binarta.publisher.db = {
+                            get: function (request, response) {
+                                response.success({id: 'i', lead: 'l'});
+                            }
+                        };
+                        template = '<bin-display-blog-post>' +
+                            '<bin-display-blog-lead></bin-display-blog-lead>' +
+                            '</bin-display-blog-post>';
+                    });
+
+                    it('when application lock is open render a read only blog lead', inject(function () {
+                        var document = $compile(template)($rootScope.$new());
+                        $rootScope.$digest();
+                        expect(document.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<bin-display-blog-lead class="ng-isolate-scope">' +
+                            '<bin-application-lock class="ng-scope">' +
+                            '<span ng-if="$lock.status == \'open\'" ng-bind-html="$ctrl.parent.post.lead|trust" class="ng-binding ng-scope">l</span>' +
+                            '</bin-application-lock>' +
+                            '</bin-display-blog-lead>');
+                    }));
+
+                    it('when application lock is closed render a modifiable blog lead', inject(function () {
+                        binarta.application.lock.reserve();
+                        var document = $compile(template)($rootScope.$new());
+                        $rootScope.$digest();
+                        expect(document.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<bin-display-blog-lead class="ng-isolate-scope">' +
+                            '<bin-application-lock class="ng-scope">' +
+                            '<i18n ng-if="$lock.status == \'closed\'" code="i.lead" editor="full" ng-bind-html="var|trust" class="ng-binding ng-scope"></i18n>' +
+                            '</bin-application-lock>' +
+                            '</bin-display-blog-lead>');
+                    }));
+                });
+
+                describe('<bin-display-blog-body/>', function () {
+                    var template;
+
+                    beforeEach(function () {
+                        binarta.publisher.db = {
+                            get: function (request, response) {
+                                response.success({id: 'i', body: 'b'});
+                            }
+                        };
+                        template = '<bin-display-blog-post>' +
+                            '<bin-display-blog-body></bin-display-blog-body>' +
+                            '</bin-display-blog-post>';
+                    });
+
+                    it('when application lock is open render a read only blog body', inject(function () {
+                        var document = $compile(template)($rootScope.$new());
+                        $rootScope.$digest();
+                        expect(document.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<bin-display-blog-body class="ng-isolate-scope">' +
+                            '<bin-application-lock class="ng-scope">' +
+                            '<span ng-if="$lock.status == \'open\'" ng-bind-html="$ctrl.parent.post.body|trust" class="ng-binding ng-scope">b</span>' +
+                            '</bin-application-lock>' +
+                            '</bin-display-blog-body>');
+                    }));
+
+                    it('when application lock is closed render a modifiable blog body', inject(function () {
+                        binarta.application.lock.reserve();
+                        var document = $compile(template)($rootScope.$new());
+                        $rootScope.$digest();
+                        expect(document.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<bin-display-blog-body class="ng-isolate-scope">' +
+                            '<bin-application-lock class="ng-scope">' +
+                            '<i18n ng-if="$lock.status == \'closed\'" code="i.body" editor="full-media" ng-bind-html="var|trust" class="ng-binding ng-scope"></i18n>' +
+                            '</bin-application-lock>' +
+                            '</bin-display-blog-body>');
                     }));
                 });
             });
@@ -2896,6 +2968,7 @@
         .service('dependencyA', DependencyStub)
         .service('dependencyB', DependencyStub)
         .controller('TestComponentController', ['dependencyA', 'dependencyB', binComponentController(TestComponentController)])
+        .filter('trust', ['$sce', MockTrustFilter])
         .config(ExtendBinarta);
 
     function MockWindow() {
@@ -2910,6 +2983,12 @@
     }
 
     function MockViewport() {
+    }
+
+    function MockTrustFilter($sce) {
+        return function (val) {
+            return $sce.trustAsHtml(val);
+        };
     }
 
     function ExtendBinarta(binartaProvider, shopProvider) {

@@ -12,7 +12,9 @@
         .component('binAddBlogPost', new AddBlogPostComponent())
         .component('binDisplayBlogPost', new DisplayBlogPostComponent())
         .directive('binDisplayBlogPostResult', displayBlogPostResult)
-        .component('binDisplayBlogTitle', new DisplayBlogTitleComponent())
+        .component('binDisplayBlogTitle', new DisplayBlogAttributeComponent('title'))
+        .component('binDisplayBlogLead', new DisplayBlogAttributeComponent('lead'))
+        .component('binDisplayBlogBody', new DisplayBlogAttributeComponent('body'))
         .controller('BinDisplayBlogPostRouteController', ['$routeParams', DisplayBlogPostRouteController])
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
@@ -163,14 +165,11 @@
         })];
     }
 
-    function DisplayBlogTitleComponent() {
+    function DisplayBlogAttributeComponent(attr) {
         this.require = {
             parent: '^^binDisplayBlogPost'
         };
-        this.templateUrl = 'bin-publisher-display-blog-title.html';
-        this.controller = [binComponentController(function () {
-            var $ctrl = this;
-        })];
+        this.templateUrl = 'bin-publisher-display-blog-' + attr + '.html';
     }
 
     function displayBlogPostResult() {
