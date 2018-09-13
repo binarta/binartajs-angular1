@@ -496,10 +496,7 @@
             });
 
             describe('withdraw', function () {
-                var now;
-
                 beforeEach(function () {
-                    now = moment();
                     expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
                         headers: {
                             usecase: 'withdraw.blog.post',
@@ -513,11 +510,32 @@
                 });
 
                 it('completes sucessfully', function () {
-                    // TODO - after this completes the database does not appear to be updated... perhaps because of localized id?
                     expectedHttpRequest.respond(200);
                     db.withdraw({locale: 'en', id: 'b'}, response);
                     $http.flush();
-                    expect(response.success).toHaveBeenCalledWith();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('draft in another language', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'draft.blog.post.in.another.language',
+                            namespace: 'n'
+                        },
+                        payload: {
+                            id: 'b',
+                            locale: 'en'
+                        }
+                    });
+                });
+
+                it('completes sucessfully', function () {
+                    expectedHttpRequest.respond(200);
+                    db.draftInAnotherLanguage({locale: 'en', id: 'b'}, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
                 });
             });
         });
