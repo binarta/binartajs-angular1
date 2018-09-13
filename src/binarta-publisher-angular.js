@@ -163,6 +163,15 @@
                 });
             };
 
+            $ctrl.draft = function() {
+                return $q(function (s) {
+                    setTimeout(function () {
+                        display.drafted = s;
+                        handle.draft();
+                    });
+                });
+            };
+
             binarta.schedule(function () {
                 $ctrl.addInitHandler(function () {
                     handle = binarta.publisher.blog.get($ctrl.id).connect(display);

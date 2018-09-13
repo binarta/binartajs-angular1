@@ -10,11 +10,20 @@
                          i18n-code="catalog.item.unpublish"
                          ng-if="$ctrl.status == 'withdrawable'">
         </bin-edit-action>
+        <bin-edit-action action="$ctrl.draft()"
+                         icon-class="fa-language"
+                         i18n-code="blog.post.translate"
+                         ng-if="$ctrl.status == 'translatable'">
+        </bin-edit-action>
     </bin-edit-actions>
     <bin-edit-body>
         <div class="alert alert-info" ng-if="$ctrl.status == 'publishable'">
             <i class="fa fa-eye-slash fa-fw"></i>
             <span i18n code="catalog.item.draft" read-only ng-bind="::var"></span>
+        </div>
+        <div class="alert alert-info" ng-if="$ctrl.status == 'translatable'">
+            <i class="fa fa-language fa-fw"></i>
+            <span i18n code="blog.post.translatable" read-only ng-bind="::var"></span>
         </div>
     </bin-edit-body>
 </bin-edit>

@@ -131,7 +131,27 @@
                         id: request.id
                     }
                 }
-            }).then(function (it) {
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
+        };
+
+        self.draftInAnotherLanguage = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/usecase',
+                withCredentials: true,
+                data: {
+                    headers: {
+                        usecase: 'draft.blog.post.in.another.language',
+                        namespace: self.config.namespace
+                    },
+                    payload: {
+                        id: request.id,
+                        locale: request.locale
+                    }
+                }
+            }).then(function () {
                 response.success();
             }, toErrorResponse(response));
         }

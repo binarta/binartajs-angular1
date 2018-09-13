@@ -16,7 +16,7 @@
       "shop.prices.total.label": "Totaal",
       "shop.account.deletion.info": "Het verwijderen van je account verwijderd je login, profiel, adres en eventuele aan ons toegekende mandaten. Behalve voor wettelijk historische opnames zoals gemaakte bestellingen.",
       "shop.account.deletion.button": "Account Verwijderen",
-      "shop.account.deletion.confirmation.label":"Bent u zeker dat je jouw account wil verwijderen? Deze stap kan niet ongedaan gemaakt worden.",
+      "shop.account.deletion.confirmation.label": "Bent u zeker dat je jouw account wil verwijderen? Deze stap kan niet ongedaan gemaakt worden.",
       "platform.signature.websters": "Straf werk van de <strong>Websters</strong>",
       "email.mismatch": "Het opgegeven e-mail adres is niet gekend in ons systeem!",
       "checkout.roadmap.cart": "Winkelwagentje",
@@ -26,7 +26,9 @@
       "configure.cookies.notice.message": "Gelieve je browser te configureren zodat cookies van derden worden geaccepteerd. Je kan meer lezen over ons cookie-beleid in onze voorwaarden.",
       "cookie.notice.message": "Onze partners verzamelen statistische gegevens van het gebruik van de website om jou de meest optimale surfervaring te geven. Wij respecteren jouw privacy.",
       "cookie.notice.accept": "Accepteer Cookies",
-      "cookie.notice.reject": "Ga verder zonder cookies"
+      "cookie.notice.reject": "Ga verder zonder cookies",
+      "blog.post.translate": "Vertalen",
+      "blog.post.translatable": "Vertaalbaar"
     },
     "en": {
       "coupon.code.label": "Coupon Code",
@@ -44,7 +46,7 @@
       "shop.prices.total.label": "Total",
       "shop.account.deletion.info": "Removal of your account removes your login, profile, address and any running mandates with us. Unless for legal historic records like previously placed orders.",
       "shop.account.deletion.button": "Remove Account",
-      "shop.account.deletion.confirmation.label":"Are you sure you wish to remove your account? This step is not reversible.",
+      "shop.account.deletion.confirmation.label": "Are you sure you wish to remove your account? This step is not reversible.",
       "platform.signature.websters": "Crafted by <strong>Websters</strong>",
       "email.mismatch": "The specified e-mail address is not known in our system!",
       "checkout.roadmap.cart": "Cart",
@@ -54,7 +56,9 @@
       "configure.cookies.notice.message": "Please configure your browser to enable third-party cookies, you can read more about our cookie policy in our conditions.",
       "cookie.notice.message": "Our partners gather data about the use of our website to provide the best user experience. We respect your privacy. ",
       "cookie.notice.accept": "Accept Cookies",
-      "cookie.notice.reject": "Use this site without cookies"
+      "cookie.notice.reject": "Use this site without cookies",
+      "blog.post.translate": "Translate",
+      "blog.post.translatable": "Translatable"
     },
     "fr": {
       "coupon.code.label": "Code Promo",
@@ -72,7 +76,7 @@
       "shop.prices.total.label": "Total",
       "shop.account.deletion.info": "Supprimation de votre compte supprime votre mot de passe, profil, addresse et tout service avec nous. Excepté pour raisons legaux comme des commandes placées dans le passé.",
       "shop.account.deletion.button": "Supprime mon Compte",
-      "shop.account.deletion.confirmation.label":"Êtes-vous sûr de vouloir supprimer votre compte? Cette opération n'est pas réversible.",
+      "shop.account.deletion.confirmation.label": "Êtes-vous sûr de vouloir supprimer votre compte? Cette opération n'est pas réversible.",
       "platform.signature.websters": "Crafted by <strong>Websters</strong>",
       "email.mismatch": "L'addresse e-mail spécifiée est inconnue dans notre système!",
       "checkout.roadmap.cart": "Cart",
@@ -82,7 +86,9 @@
       "configure.cookies.notice.message": "Veuillez configurer votre navigateur de telle façon qu'il accepte les cookies provenant de tiers. Voir les conditions pour plus d'informations sur l'utilisation des cookies.",
       "cookie.notice.message": "Our partners gather data about the use of our website to provide the best user experience. We respect your privacy. ",
       "cookie.notice.accept": "Accept Cookies",
-      "cookie.notice.reject": "Use this site without cookies"
+      "cookie.notice.reject": "Use this site without cookies",
+      "blog.post.translate": "Traduire",
+      "blog.post.translatable": "Traduisible"
     },
     "de": {
       "coupon.code.label": "Gutscheincode",
@@ -110,7 +116,9 @@
       "configure.cookies.notice.message": "Konfigurieren Sie Ihren Browser bitte so, dass Cookies von Dritten akzeptiert werden. Nähere Informationen über unseren Umgang mit Cookie finden Sie in unseren Allgemeinen Geschäftsbedingungen.",
       "cookie.notice.message": "Our partners gather data about the use of our website to provide the best user experience. We respect your privacy.",
       "cookie.notice.accept": "Accept Cookies",
-      "cookie.notice.reject": "Use this site without cookies"
+      "cookie.notice.reject": "Use this site without cookies",
+      "blog.post.translate": "Übersetzen",
+      "blog.post.translatable": "Übersetzbar"
     }
   }
 }
