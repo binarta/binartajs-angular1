@@ -12,6 +12,7 @@
         .component('binContactPhone', new BinContactPhoneComponent())
         .component('binContactPhoneInfo', new BinContactPhoneInfoComponent())
         .component('binContactEmail', new BinContactEmailComponent())
+        .component('binSearchMore', new SearchMoreComponent())
         .directive('binAffix', ['binAffix', binAffixDirective])
         .service('binAffix', ['$window', '$document', BinAffixService]);
 
@@ -149,6 +150,27 @@
             '</span>';
     }
 
+    function SearchMoreComponent() {
+        this.bindings = {
+            searchMore: '<',
+            statusUpdater: '<'
+        };
+
+        this.templateUrl = ['$attrs', function ($attrs) {
+            return $attrs.templateUrl || 'bin-all-search-more.html';
+        }];
+        this.controller = function () {
+            var $ctrl = this;
+
+            $ctrl.$onInit = function () {
+                if ($ctrl.statusUpdater)
+                    $ctrl.statusUpdater(function (it) {
+                        $ctrl.status = it;
+                    });
+            }
+        }
+    }
+
     function binAffixDirective(affix) {
         return {
             restrict: 'C',
@@ -210,7 +232,7 @@ function binComponentController(ConcreteController) {
         this.release = function () {
             released = true;
             handlers.forEach(function (h) {
-                if(typeof h == 'function')
+                if (typeof h == 'function')
                     h();
             });
         }

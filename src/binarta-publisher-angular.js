@@ -17,27 +17,44 @@
         .component('binDisplayBlogBody', new DisplayBlogAttributeComponent('body'))
         .controller('BinDisplayBlogPostRouteController', ['$routeParams', 'BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteController])
         .service('BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteControllerConfig)
+        .controller('BinSearchBlogPostsRouteController', ['BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteController])
+        .service('BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteControllerConfig)
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['publisher', WireAngularDependencies]);
 
     function BlogFeedComponent() {
         this.bindings = {
-            count: '@'
+            count: '@',
+            max: '@',
+            postTemplate: '@'
         };
 
+        this.templateUrl = 'bin-publisher-blog-feed.html';
         this.controller = ['binarta', binComponentController(function (binarta) {
-            var $ctrl = this;
-
-            $ctrl.addInitHandler(function () {
-                $ctrl.posts = function () {
-                    return binarta.publisher.blog.published.posts({max: $ctrl.count || 5});
+            var $ctrl = this, statusUpdater;
+            var handle = binarta.publisher.blog.published({
+                status: function (it) {
+                    $ctrl.status = it;
+                    if (statusUpdater)
+                        statusUpdater(it);
+                },
+                more: function (it) {
+                    $ctrl.posts = $ctrl.posts.concat(it);
                 }
             });
 
+            $ctrl.posts = [];
+            $ctrl.more = handle.more;
+            if ($ctrl.count || $ctrl.max)
+                handle.subset.max = 1 * ($ctrl.count || $ctrl.max);
+            $ctrl.installStatusUpdater = function (it) {
+                statusUpdater = it;
+            };
+
             binarta.schedule(function () {
                 $ctrl.addInitHandler(function () {
-                    binarta.publisher.blog.published.init();
+                    handle.more();
                 });
             });
         })]
@@ -61,12 +78,16 @@
     function BlogPostComponent() {
         this.bindings = {
             post: '<',
-            templateUrl: '@'
+            template: '@'
         };
-        this.templateUrl = 'bin-publisher-default-post.html';
-        this.controller = function () {
+        this.templateUrl = 'bin-publisher-blog-post.html';
+        this.controller = binComponentController(function () {
+            $ctrl = this;
 
-        }
+            $ctrl.addInitHandler(function () {
+                $ctrl.postTemplate = $ctrl.template || 'bin-publisher-blog-post-default.html';
+            });
+        })
     }
 
     function AddBlogPostComponent() {
@@ -163,7 +184,7 @@
                 });
             };
 
-            $ctrl.draft = function() {
+            $ctrl.draft = function () {
                 return $q(function (s) {
                     setTimeout(function () {
                         display.drafted = s;
@@ -214,12 +235,24 @@
         var $ctrl = this;
         $ctrl.id = '/' + $routeParams.part1 + '/' + $routeParams.part2;
         $ctrl.decoratorTemplate = config.decoratorTemplate;
-        $ctrl.pageTemplate = 'bin-publisher-blog-post-route-page.html';
+        $ctrl.pageTemplate = 'bin-publisher-blog-post-route.html';
         $ctrl.template = config.template;
     }
 
     function DisplayBlogPostRouteControllerConfig() {
-        this.decoratorTemplate = 'bin-publisher-blog-post-route-decorator.html';
+        this.decoratorTemplate = 'bin-all-route-decorator.html';
+        this.template = 'bin-publisher-display-blog-post-details.html';
+    }
+
+    function SearchBlogPostsRouteController(config) {
+        var $ctrl = this;
+        $ctrl.decoratorTemplate = config.decoratorTemplate;
+        $ctrl.pageTemplate = 'bin-publisher-blog-search-route.html';
+        $ctrl.publicationTemplate = config.publicationTemplate;
+    }
+
+    function SearchBlogPostsRouteControllerConfig() {
+        this.decoratorTemplate = 'bin-all-route-decorator.html';
         this.template = 'bin-publisher-display-blog-post-details.html';
     }
 
@@ -232,17 +265,26 @@
     }
 
     function InstallRoutes($routeProvider) {
-        $routeProvider
-            .when('/blog/post/:part1/:part2', {
-                templateUrl: 'bin-publisher-blog-post-route.html',
+        [
+            {
+                controller: 'BinSearchBlogPostsRouteController',
+                controllerAs: '$ctrl',
+                routes: ['/blog', '/:locale/blog']
+            },
+            {
                 controller: 'BinDisplayBlogPostRouteController',
-                controllerAs: '$ctrl'
+                controllerAs: '$ctrl',
+                routes: ['/blog/post/:part1/:part2', '/:locale/blog/post/:part1/:part2']
+            }
+        ].forEach(function (it) {
+            it.routes.forEach(function (route) {
+                $routeProvider.when(route, {
+                    templateUrl: 'bin-all-route.html',
+                    controller: it.controller,
+                    controllerAs: it.controllerAs
+                })
             })
-            .when('/:locale/blog/post/:part1/:part2', {
-                templateUrl: 'bin-publisher-blog-post-route.html',
-                controller: 'BinDisplayBlogPostRouteController',
-                controllerAs: '$ctrl'
-            });
+        });
     }
 
     function WireAngularDependencies() {
