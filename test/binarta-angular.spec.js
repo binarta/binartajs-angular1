@@ -1364,26 +1364,76 @@
 
                 describe('$onInit', function () {
                     beforeEach(function () {
+                        binarta.publisher.db = {
+                            findAllPublishedBlogsForLocale: function (request, response) {
+                                response.success([{id: 'x'}, {id: 'y'}]);
+                            }
+                        };
                         $ctrl.$onInit();
+                        binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
                     });
 
-                    it('posts are resolved from the underlying binarta cache', function () {
-                        binarta.publisher.blog.published.cache = ['a', 'b', 'c'];
-                        expect($ctrl.posts()).toEqual(['a', 'b', 'c']);
+                    it('initially loaded posts are exposed', function () {
+                        expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}, {id: 'y', uri: '/blog/post/y'}]);
                     });
 
-                    it('posts are limited to the first 5', function () {
-                        binarta.publisher.blog.published.cache = ['a', 'b', 'c', 'd', 'e', 'f'];
-                        expect($ctrl.posts()).toEqual(['a', 'b', 'c', 'd', 'e']);
+                    it('status is exposed', function () {
+                        expect($ctrl.status).toEqual('no-more');
+                    });
+
+                    it('append additional posts', function () {
+                        binarta.publisher.db = {
+                            findAllPublishedBlogsForLocale: function (request, response) {
+                                response.success([{id: 'z'}]);
+                            }
+                        };
+                        $ctrl.more();
+                        expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}, {id: 'y', uri: '/blog/post/y'}, {id: 'z', uri: '/blog/post/z'}]);
                     });
                 });
 
+                it('posts can be limited to a custom max', inject(function ($componentController) {
+                    binarta.publisher.db = {
+                        findAllPublishedBlogsForLocale: function (request) {
+                            expect(request.subset).toEqual({offset: 0, max: 3});
+                        }
+                    };
+                    $ctrl = $componentController('binBlogFeed', null, {max: 3});
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                }));
+
+                it('posts can be limited to a custom max will convert string to number', inject(function ($componentController) {
+                    binarta.publisher.db = {
+                        findAllPublishedBlogsForLocale: function (request) {
+                            expect(request.subset).toEqual({offset: 0, max: 3});
+                        }
+                    };
+                    $ctrl = $componentController('binBlogFeed', null, {max: '3'});
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                }));
+
                 it('posts can be limited to a custom count', inject(function ($componentController) {
+                    binarta.publisher.db = {
+                        findAllPublishedBlogsForLocale: function (request) {
+                            expect(request.subset).toEqual({offset: 0, max: 3});
+                        }
+                    };
                     $ctrl = $componentController('binBlogFeed', null, {count: 3});
                     $ctrl.$onInit();
                     binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
-                    binarta.publisher.blog.published.cache = ['a', 'b', 'c', 'd'];
-                    expect($ctrl.posts()).toEqual(['a', 'b', 'c']);
+                }));
+
+                it('posts can be limited to a custom count will convert string to number', inject(function ($componentController) {
+                    binarta.publisher.db = {
+                        findAllPublishedBlogsForLocale: function (request) {
+                            expect(request.subset).toEqual({offset: 0, max: 3});
+                        }
+                    };
+                    $ctrl = $componentController('binBlogFeed', null, {count: '3'});
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
                 }));
             });
 
@@ -1829,6 +1879,31 @@
                 });
             });
 
+            describe('/blog', function () {
+                var config;
+
+                beforeEach(inject(['$controller', 'BinSearchBlogPostsRouteController.config', function ($controller, _config_) {
+                    $ctrl = $controller('BinSearchBlogPostsRouteController', {});
+                    config = _config_;
+                }]));
+
+                it('exposes template names', function () {
+                    expect($ctrl.decoratorTemplate).toEqual('bin-all-route-decorator.html');
+                    expect($ctrl.pageTemplate).toEqual('bin-publisher-blog-search-route.html');
+                    // expect($ctrl.template).toEqual('bin-publisher-display-search-post-details.html');
+                });
+
+                it('the decorator template can be overridden', inject(function ($controller) {
+                    config.decoratorTemplate = 't';
+                    expect($controller('BinSearchBlogPostsRouteController', {}).decoratorTemplate).toEqual('t');
+                }));
+
+                // it('the template can be overridden', inject(function ($controller) {
+                //     config.template = 't';
+                //     expect($controller('BinSearchBlogPostsRouteController', {}).template).toEqual('t');
+                // }));
+            });
+
             describe('/blog/post/:id', function () {
                 var config;
 
@@ -1844,8 +1919,8 @@
                 });
 
                 it('exposes template names', function () {
-                    expect($ctrl.decoratorTemplate).toEqual('bin-publisher-blog-post-route-decorator.html');
-                    expect($ctrl.pageTemplate).toEqual('bin-publisher-blog-post-route-page.html');
+                    expect($ctrl.decoratorTemplate).toEqual('bin-all-route-decorator.html');
+                    expect($ctrl.pageTemplate).toEqual('bin-publisher-blog-post-route.html');
                     expect($ctrl.template).toEqual('bin-publisher-display-blog-post-details.html');
                 });
 

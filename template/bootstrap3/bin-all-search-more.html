@@ -1,0 +1,13 @@
+<div ng-hide="$ctrl.status == 'no-more'">
+    <div class="row">
+        <div class="col-xs-12">
+            <button type="button" class="btn btn-primary btn-search-more" ng-click="$ctrl.searchMore()"
+                    ng-disabled="$ctrl.status == 'loading'"
+                    i18n code="search.for.more.button" read-only>
+                <span ng-if="$ctrl.status == 'loading'"><i class="fa fa-spinner fa-spin fa-fw"></i></span>
+                <span ng-if="$ctrl.status != 'loading'"><i class="fa fa-angle-down fa-fw"></i></span>
+                <span ng-bind="::var"></span>
+            </button>
+        </div>
+    </div>
+</div>
