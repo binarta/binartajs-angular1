@@ -7,6 +7,7 @@
     ])
         .provider('publisher', ['binartaPublisherGatewayProvider', PublisherProvider])
         .component('binBlogFeed', new BlogFeedComponent())
+        .component('binBlogDraftFeed', new BlogDraftFeedComponent())
         .directive('binBlogFeedResults', blogFeedResults)
         .component('binBlogPost', new BlogPostComponent())
         .component('binAddBlogPost', new AddBlogPostComponent())
@@ -48,6 +49,41 @@
             $ctrl.more = handle.more;
             if ($ctrl.count || $ctrl.max)
                 handle.subset.max = 1 * ($ctrl.count || $ctrl.max);
+            $ctrl.installStatusUpdater = function (it) {
+                statusUpdater = it;
+            };
+
+            binarta.schedule(function () {
+                $ctrl.addInitHandler(function () {
+                    handle.more();
+                });
+            });
+        })]
+    }
+
+    function BlogDraftFeedComponent() {
+        this.bindings = {
+            count: '@'
+        };
+
+        this.templateUrl = 'bin-publisher-blog-draft-feed.html';
+        this.controller = ['binarta', binComponentController(function (binarta) {
+            var $ctrl = this, statusUpdater;
+            var handle = binarta.publisher.blog.drafts({
+                status: function (it) {
+                    $ctrl.status = it;
+                    if (statusUpdater)
+                        statusUpdater(it);
+                },
+                more: function (it) {
+                    $ctrl.posts = $ctrl.posts.concat(it);
+                }
+            });
+
+            $ctrl.posts = [];
+            $ctrl.more = handle.more;
+            if ($ctrl.count)
+                handle.subset.max = 1 * $ctrl.count;
             $ctrl.installStatusUpdater = function (it) {
                 statusUpdater = it;
             };

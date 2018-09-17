@@ -58,6 +58,26 @@
             }, toErrorResponse(response));
         };
 
+        self.findAllBlogsInDraftForLocale = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/usecase',
+                withCredentials: true,
+                data: {
+                    headers: {
+                        usecase: 'find.all.blogs.in.draft.for.locale',
+                        namespace: self.config.namespace,
+                        locale: request.locale
+                    },
+                    payload: {
+                        subset: request.subset
+                    }
+                }
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
         self.add = function (request, response) {
             self.$http({
                 method: 'POST',

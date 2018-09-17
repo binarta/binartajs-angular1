@@ -1348,7 +1348,7 @@
 
         describe('binarta-publisherjs-angular1', function () {
             beforeEach(function () {
-                binarta.publisher.db = jasmine.createSpyObj('db', ['findAllPublishedBlogsForLocale']);
+                binarta.publisher.db = jasmine.createSpyObj('db', ['findAllPublishedBlogsForLocale', 'findAllBlogsInDraftForLocale']);
             });
 
             describe('<bin-blog-feed/>', function () {
@@ -1432,6 +1432,70 @@
                         }
                     };
                     $ctrl = $componentController('binBlogFeed', null, {count: '3'});
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                }));
+            });
+
+            describe('<bin-blog-drafts/>', function () {
+                beforeEach(inject(function ($componentController) {
+                    $ctrl = $componentController('binBlogDraftFeed', null, {});
+                }));
+
+                it('load an initial set of published blog posts when the component initialises and binarta has initialised', function () {
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    expect(binarta.publisher.db.findAllBlogsInDraftForLocale).toHaveBeenCalled();
+                });
+
+                describe('$onInit', function () {
+                    beforeEach(function () {
+                        binarta.publisher.db = {
+                            findAllBlogsInDraftForLocale: function (request, response) {
+                                response.success([{id: 'x'}, {id: 'y'}]);
+                            }
+                        };
+                        $ctrl.$onInit();
+                        binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    });
+
+                    it('initially loaded posts are exposed', function () {
+                        expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}, {id: 'y', uri: '/blog/post/y'}]);
+                    });
+
+                    it('status is exposed', function () {
+                        expect($ctrl.status).toEqual('no-more');
+                    });
+
+                    it('append additional posts', function () {
+                        binarta.publisher.db = {
+                            findAllBlogsInDraftForLocale: function (request, response) {
+                                response.success([{id: 'z'}]);
+                            }
+                        };
+                        $ctrl.more();
+                        expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}, {id: 'y', uri: '/blog/post/y'}, {id: 'z', uri: '/blog/post/z'}]);
+                    });
+                });
+
+                it('posts can be limited to a custom count', inject(function ($componentController) {
+                    binarta.publisher.db = {
+                        findAllBlogsInDraftForLocale: function (request) {
+                            expect(request.subset).toEqual({offset: 0, max: 3});
+                        }
+                    };
+                    $ctrl = $componentController('binBlogDraftFeed', null, {count: 3});
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                }));
+
+                it('posts can be limited to a custom count will convert string to number', inject(function ($componentController) {
+                    binarta.publisher.db = {
+                        findAllBlogsInDraftForLocale: function (request) {
+                            expect(request.subset).toEqual({offset: 0, max: 3});
+                        }
+                    };
+                    $ctrl = $componentController('binBlogDraftFeed', null, {count: '3'});
                     $ctrl.$onInit();
                     binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
                 }));

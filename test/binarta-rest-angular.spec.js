@@ -428,6 +428,29 @@
                 });
             });
 
+            describe('findAllBlogsInDraftForLocale', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'find.all.blogs.in.draft.for.locale',
+                            namespace: 'n',
+                            locale: 'en'
+                        },
+                        payload: {
+                            subset: {offset: 0, max: 5}
+                        }
+                    });
+                    request = {locale: 'en', subset: {offset: 0, max: 5}}
+                });
+
+                it('returns blog posts', function () {
+                    expectedHttpRequest.respond(200, 'posts');
+                    db.findAllBlogsInDraftForLocale(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('posts')
+                });
+            });
+
             describe('add', function () {
                 beforeEach(function () {
                     expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
