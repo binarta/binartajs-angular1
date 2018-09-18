@@ -1721,6 +1721,20 @@
                                     };
                                     $ctrl.publish();
                                 });
+
+                                it('deleting invokes the db', function () {
+                                    binarta.publisher.db = jasmine.createSpyObj('db', ['delete']);
+                                    $ctrl.delete();
+                                    expect(binarta.publisher.db.delete).toHaveBeenCalled();
+                                });
+
+                                it('when delete succeeds redirect to blog feed', function() {
+                                    binarta.publisher.db = {delete:function(request, response) {
+                                        response.success();
+                                    }};
+                                    $ctrl.delete();
+                                    expect($location.path()).toEqual('/blog');
+                                });
                             });
                         });
 

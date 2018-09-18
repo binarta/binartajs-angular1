@@ -198,6 +198,9 @@
                 },
                 post: function (it) {
                     $ctrl.post = it
+                },
+                deleted: function () {
+                    $location.path('/blog');
                 }
             };
 
@@ -227,6 +230,10 @@
                         handle.draft();
                     });
                 });
+            };
+
+            $ctrl.delete = function () {
+                handle.delete();
             };
 
             binarta.schedule(function () {

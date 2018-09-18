@@ -15,6 +15,16 @@
                          i18n-code="blog.post.translate"
                          ng-if="$ctrl.status == 'translatable'">
         </bin-edit-action>
+        <li checkpoint-permission-for="delete.blog.post" ng-show="permitted"
+            i18n code="blog.article.remove.confirm" default="Are you sure?" read-only>
+            <button type="button" class="bin-link bin-link-danger"
+                    ng-click-confirm="$ctrl.delete()"
+                    confirm-message="{{::var}}"
+                    ng-if="::var"
+                    ng-disabled="$ctrl.status == 'deleting'">
+                <span i18n code="blog.article.remove.button" read-only ng-bind="::var"></span>
+            </button>
+        </li>
     </bin-edit-actions>
     <bin-edit-body>
         <div class="alert alert-info" ng-if="$ctrl.status == 'publishable'">

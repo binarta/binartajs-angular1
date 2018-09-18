@@ -175,6 +175,25 @@
                 response.success();
             }, toErrorResponse(response));
         }
+
+        self.delete = function(request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/usecase',
+                withCredentials: true,
+                data: {
+                    headers: {
+                        usecase: 'delete.blog.post',
+                        namespace: self.config.namespace
+                    },
+                    payload: {
+                        id: request.id
+                    }
+                }
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
+        }
     }
 
     function GatewayIsInitialisedFactory($q) {

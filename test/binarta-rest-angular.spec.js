@@ -470,6 +470,27 @@
                 });
             });
 
+            describe('delete', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'delete.blog.post',
+                            namespace: 'n'
+                        },
+                        payload: {
+                            id: 'b'
+                        }
+                    });
+                });
+
+                it('executes', function () {
+                    expectedHttpRequest.respond(200);
+                    db.delete({id: 'b'}, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled()
+                });
+            });
+
             describe('get', function () {
                 beforeEach(function () {
                     expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
