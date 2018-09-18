@@ -1,4 +1,4 @@
 <bin-application-lock>
     <span ng-if="$lock.status == 'open'" ng-bind-html="$ctrl.parent.post.lead|trust"></span>
-    <i18n ng-if="$lock.status == 'closed'" code="{{::$ctrl.parent.post.id}}.lead" editor="full" ng-bind-html="var|trust"></i18n>
+    <i18n ng-if="$lock.status == 'closed' && $ctrl.parent.post.id" code="{{::$ctrl.parent.post.id}}.lead" editor="full" ng-bind-html="var|trust"></i18n>
 </bin-application-lock>
