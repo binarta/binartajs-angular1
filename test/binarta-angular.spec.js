@@ -1860,7 +1860,7 @@
                             .replace(/<\/ng-include[\s\S]*?>/g, '')
                         ).toEqual('<bin-display-blog-title class="ng-scope ng-isolate-scope">' +
                             '<bin-application-lock class="ng-scope">' +
-                            '<i18n ng-if="$lock.status == \'closed\'" code="i" ng-bind="var" class="ng-binding ng-scope"></i18n>' +
+                            '<i18n ng-if="$lock.status == \'closed\' &amp;&amp; $ctrl.parent.post.id" code="i" ng-bind="var" class="ng-binding ng-scope"></i18n>' +
                             '</bin-application-lock>' +
                             '</bin-display-blog-title>');
                     }));
@@ -1905,7 +1905,7 @@
                             .replace(/<\/ng-include[\s\S]*?>/g, '')
                         ).toEqual('<bin-display-blog-lead class="ng-scope ng-isolate-scope">' +
                             '<bin-application-lock class="ng-scope">' +
-                            '<i18n ng-if="$lock.status == \'closed\'" code="i.lead" editor="full" ng-bind-html="var|trust" class="ng-binding ng-scope"></i18n>' +
+                            '<i18n ng-if="$lock.status == \'closed\' &amp;&amp; $ctrl.parent.post.id" code="i.lead" editor="full" ng-bind-html="var|trust" class="ng-binding ng-scope"></i18n>' +
                             '</bin-application-lock>' +
                             '</bin-display-blog-lead>');
                     }));
@@ -1950,7 +1950,7 @@
                             .replace(/<\/ng-include[\s\S]*?>/g, '')
                         ).toEqual('<bin-display-blog-body class="ng-scope ng-isolate-scope">' +
                             '<bin-application-lock class="ng-scope">' +
-                            '<i18n ng-if="$lock.status == \'closed\'" code="i.body" editor="full-media" ng-bind-html="var|trust" class="ng-binding ng-scope"></i18n>' +
+                            '<i18n ng-if="$lock.status == \'closed\' &amp;&amp; $ctrl.parent.post.id" code="i.body" editor="full-media" ng-bind-html="var|trust" class="ng-binding ng-scope"></i18n>' +
                             '</bin-application-lock>' +
                             '</bin-display-blog-body>');
                     }));
