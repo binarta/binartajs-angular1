@@ -5,7 +5,7 @@
         'binarta-publisherjs-gateways-angular1',
         'binarta-publisherjs-tpls-angular1'
     ])
-        .provider('publisher', ['binartaPublisherGatewayProvider', PublisherProvider])
+        .provider('publisher', ['binartaPublisherGatewayProvider', 'applicationProvider', PublisherProvider])
         .component('binBlogFeed', new BlogFeedComponent())
         .component('binBlogDraftFeed', new BlogDraftFeedComponent())
         .directive('binBlogFeedResults', blogFeedResults)
@@ -265,9 +265,9 @@
         }
     }
 
-    function PublisherProvider(db) {
-        this.publisher = new BinartaPublisherjs();
-        this.publisher.db = db.gateway;
+    function PublisherProvider(db, provider) {
+        this.publisher = new BinartaPublisherjs({application: provider.application});
+        this.publisher.db = this.publisher.newRoutingByApplicationLockDB(this.publisher.newCachingDB(db.gateway), db.gateway);
         this.ui = new UI();
         this.$get = [function () {
             return this.publisher;

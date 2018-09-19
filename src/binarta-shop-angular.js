@@ -5,7 +5,7 @@
         'binarta-shopjs-gateways-angular1',
         'binarta-checkpointjs-angular1',
         'binarta-applicationjs-angular1',
-        'binarta-checkpointjs-recaptcha-angular1',
+        'binarta-checkpointjs-recaptcha-angular1'
     ])
         .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', 'applicationProvider', ShopProvider])
         .component('binBasket', new BasketComponent())
