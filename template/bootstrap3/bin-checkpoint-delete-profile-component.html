@@ -1,12 +1,13 @@
 <form ng-submit="$ctrl.submit();">
     <div class="alert alert-warning" role="alert">
-        <button type="button" class="btn btn-danger pull-right" ng-disabled="$ctrl.working"
-                i18n code="shop.account.deletion.confirmation.label" read-only
-                ng-click-confirm="$ctrl.submit();" confirm-message="{{::var}}" ng-if="::var">
-            <span ng-show="$ctrl.working"><i class="fa fa-spinner fa-spin fa-fw"></i></span>
-            <span ng-hide="$ctrl.working"><i class="fa fa-check fa-fw"></i></span>
-            <span class="inline" i18n code="shop.account.deletion.button" read-only>{{::var}}</span>
-        </button>
+        <span i18n code="shop.account.deletion.confirmation.label" read-only>
+            <button type="button" class="btn btn-danger pull-right" ng-disabled="$ctrl.working"
+                    ng-click-confirm="$ctrl.submit();" confirm-message="{{::var}}" ng-if="::var">
+                <span ng-show="$ctrl.working"><i class="fa fa-spinner fa-spin fa-fw"></i></span>
+                <span ng-hide="$ctrl.working"><i class="fa fa-check fa-fw"></i></span>
+                <span class="inline" i18n code="shop.account.deletion.button" read-only>{{::var}}</span>
+            </button>
+        </span>
         <span i18n code="shop.account.deletion.info" read-only>
             <i class="fa fa-exclamation-triangle"></i> {{::var}}
         </span>
