@@ -5,7 +5,7 @@
             <bin-blog-post ng-repeat="post in $ctrl.posts track by post.id" post="post"
                            template="bin-publisher-blog-post-draft-list.html"></bin-blog-post>
             <div class="text-center" ng-if="$ctrl.posts.length >= $ctrl.count">
-                <bin-search-more status-updater="$ctrl.installStatusUpdater" search-more="$ctrl.more"></bin-search-more>
+                <bin-search-more mode="link" status-updater="$ctrl.installStatusUpdater" search-more="$ctrl.more"></bin-search-more>
             </div>
         </div>
     </div>

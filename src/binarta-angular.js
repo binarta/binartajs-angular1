@@ -152,6 +152,7 @@
 
     function SearchMoreComponent() {
         this.bindings = {
+            mode: '@',
             searchMore: '<',
             statusUpdater: '<'
         };
