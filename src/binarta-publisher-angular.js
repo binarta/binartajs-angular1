@@ -21,7 +21,7 @@
         .controller('BinSearchBlogPostsRouteController', ['BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteController])
         .service('BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteControllerConfig)
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
-        .config(['$routeProvider', InstallRoutes])
+        .config(['$routeProvider', InstallBinartaPublisherRoutes]) // TODO - we can't install this before all templates have switched over
         .run(['publisher', WireAngularDependencies]);
 
     function BlogFeedComponent() {
@@ -307,29 +307,29 @@
         binarta.addSubSystems({publisher: publisherProvider.publisher});
     }
 
-    function InstallRoutes($routeProvider) {
-        [
-            {
-                controller: 'BinSearchBlogPostsRouteController',
-                controllerAs: '$ctrl',
-                routes: ['/blog', '/:locale/blog']
-            },
-            {
-                controller: 'BinDisplayBlogPostRouteController',
-                controllerAs: '$ctrl',
-                routes: ['/blog/post/:part1/:part2', '/:locale/blog/post/:part1/:part2']
-            }
-        ].forEach(function (it) {
-            it.routes.forEach(function (route) {
-                $routeProvider.when(route, {
-                    templateUrl: 'bin-all-route.html',
-                    controller: it.controller,
-                    controllerAs: it.controllerAs
-                })
-            })
-        });
-    }
-
     function WireAngularDependencies() {
     }
 })();
+
+function InstallBinartaPublisherRoutes($routeProvider) {
+    [
+        {
+            controller: 'BinSearchBlogPostsRouteController',
+            controllerAs: '$ctrl',
+            routes: ['/blog', '/:locale/blog']
+        },
+        {
+            controller: 'BinDisplayBlogPostRouteController',
+            controllerAs: '$ctrl',
+            routes: ['/blog/post/:part1/:part2', '/:locale/blog/post/:part1/:part2']
+        }
+    ].forEach(function (it) {
+        it.routes.forEach(function (route) {
+            $routeProvider.when(route, {
+                templateUrl: 'bin-all-route.html',
+                controller: it.controller,
+                controllerAs: it.controllerAs
+            })
+        })
+    });
+}
