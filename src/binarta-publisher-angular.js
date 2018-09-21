@@ -21,7 +21,7 @@
         .controller('BinSearchBlogPostsRouteController', ['BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteController])
         .service('BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteControllerConfig)
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
-        .config(['$routeProvider', InstallBinartaPublisherRoutes]) // TODO - we can't install this before all templates have switched over
+        // .config(['$routeProvider', InstallBinartaPublisherRoutes]) // TODO - we can't install this before all templates have switched over
         .run(['publisher', WireAngularDependencies]);
 
     function BlogFeedComponent() {
