@@ -26,6 +26,7 @@
   "e2e": {
     "binarta-applicationjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-application-inmem-angular.js",
     "binarta-checkpointjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-inmem-angular.js",
+    "binarta-publisherjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-publisher-inmem-angular.js",
     "binarta-shopjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-shop-inmem-angular.js"
   }
 }
