@@ -6,6 +6,7 @@
   ],
   "dependencies": {
     "binartajs": "1.*.*",
+    "binarta.edit.angular": "^1.0.0",
     "binarta.web.storage.angular": "0.*.*",
     "binarta.config.angular": "0.*.*",
     "binarta.rest.client.angular": "0.*.*",
