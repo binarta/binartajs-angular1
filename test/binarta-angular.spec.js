@@ -1388,7 +1388,10 @@
                             }
                         };
                         $ctrl.more();
-                        expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}, {id: 'y', uri: '/blog/post/y'}, {id: 'z', uri: '/blog/post/z'}]);
+                        expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}, {
+                            id: 'y',
+                            uri: '/blog/post/y'
+                        }, {id: 'z', uri: '/blog/post/z'}]);
                     });
                 });
 
@@ -1474,7 +1477,10 @@
                             }
                         };
                         $ctrl.more();
-                        expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}, {id: 'y', uri: '/blog/post/y'}, {id: 'z', uri: '/blog/post/z'}]);
+                        expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}, {
+                            id: 'y',
+                            uri: '/blog/post/y'
+                        }, {id: 'z', uri: '/blog/post/z'}]);
                     });
                 });
 
@@ -1728,10 +1734,12 @@
                                     expect(binarta.publisher.db.delete).toHaveBeenCalled();
                                 });
 
-                                it('when delete succeeds redirect to blog feed', function() {
-                                    binarta.publisher.db = {delete:function(request, response) {
-                                        response.success();
-                                    }};
+                                it('when delete succeeds redirect to blog feed', function () {
+                                    binarta.publisher.db = {
+                                        delete: function (request, response) {
+                                            response.success();
+                                        }
+                                    };
                                     $ctrl.delete();
                                     expect($location.path()).toEqual('/blog');
                                 });
@@ -2945,6 +2953,69 @@
                     $ctrl.onConfirmed = jasmine.createSpy('on-confirmed');
                     $ctrl.onCanceled = jasmine.createSpy('on-canceled');
                 }));
+
+                it('generates a provider template based on the provider parameter', function () {
+                    $ctrl.provider = 'test-bank';
+                    $ctrl.$onInit();
+                    expect($ctrl.providerTemplate).toEqual('bin-shop-payment-test-bank.html');
+                });
+
+                describe('given a signing context without approval url', function () {
+                    beforeEach(inject(function ($timeout) {
+                        $ctrl.order = {
+                            signingContext: {
+                                amount: 100,
+                                currency: 'EUR',
+                                locale: 'en'
+                            }
+                        };
+                        $ctrl.$onInit();
+                        $timeout.flush();
+                    }));
+
+                    it('then the user is not redirected', function() {
+                        expect($window.location).toBeUndefined();
+                    });
+
+                    it('');
+                });
+
+                describe('given a signing context with approval url when controller is initialised', function () {
+                    beforeEach(inject(function ($timeout) {
+                        $ctrl.order = {signingContext: {approvalUrl: 'approval-url'}};
+                        $ctrl.$onInit();
+                        $timeout.flush();
+                    }));
+
+                    it('then visit approval url', inject(function ($window) {
+                        expect($window.location).toEqual('approval-url');
+                    }));
+
+                    it('then on confirmed listener is not yet invoked', function () {
+                        expect($ctrl.onConfirmed).not.toHaveBeenCalled();
+                    });
+
+                    describe('and reinitialised', function () {
+                        beforeEach(inject(function ($window) {
+                            $window.location = undefined;
+                            $ctrl.$onInit();
+                        }));
+
+                        it('then the payment is canceled', function () {
+                            expect($ctrl.onCanceled).toHaveBeenCalled();
+                        });
+
+                        it('then the user is not redirected to the approval url', inject(function ($timeout) {
+                            $timeout.verifyNoPendingTasks();
+                        }));
+
+                        it('and reinitialised again then visit the approval url', inject(function ($timeout, $window) {
+                            $ctrl.$onInit();
+                            $timeout.flush();
+                            expect($window.location).toEqual('approval-url');
+                        }));
+                    });
+                });
 
                 describe('given an order with approval url when controller is initialised', function () {
                     beforeEach(inject(function ($timeout) {
