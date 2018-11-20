@@ -2976,8 +2976,6 @@
                     it('then the user is not redirected', function() {
                         expect($window.location).toBeUndefined();
                     });
-
-                    it('');
                 });
 
                 describe('given a signing context with approval url when controller is initialised', function () {
@@ -3054,7 +3052,13 @@
                     });
                 });
 
-                it('given a token as route parameter when controller is initialised then confirm payment', inject(function ($routeParams) {
+                it('given a payment id as route parameter when controller is initialised then confirm payment', inject(function ($routeParams) {
+                    $routeParams.id = 'i';
+                    $ctrl.$onInit();
+                    expect($ctrl.onConfirmed).toHaveBeenCalledWith({id: 'i'});
+                }));
+
+                it('given a paypal token as route parameter when controller is initialised then confirm payment', inject(function ($routeParams) {
                     $routeParams.token = 't';
                     $ctrl.$onInit();
                     expect($ctrl.onConfirmed).toHaveBeenCalledWith({token: 't'});

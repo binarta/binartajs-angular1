@@ -447,7 +447,7 @@
 
         $ctrl.$onInit = function () {
             $ctrl.providerTemplate = 'bin-shop-payment-' + $ctrl.provider + '.html';
-            if ($routeParams.token)
+            if ($routeParams.token || $routeParams.id)
                 $ctrl.onConfirmed($routeParams);
             else if ($ctrl.order) {
                 var approvalUrl = $ctrl.order.approvalUrl || ($ctrl.order.signingContext ? $ctrl.order.signingContext.approvalUrl : undefined);
@@ -463,28 +463,6 @@
                 }
             }
         };
-
-        $ctrl.payWithStripe = function () {
-            var handler = StripeCheckout.configure({
-                key: 'sk_test_Phod0ME2jFfNtUIK6Uy7N7OF',
-                image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
-                locale: $ctrl.order.signingContext.locale,
-                token: function (token) {
-                    console.log('stripe.token(' + token + ')');
-                    handler.close(); // TODO - probably better to add it to route change started
-                }
-            });
-            handler.open({
-                name: 'Stripe.com',
-                description: '2 widgets',
-                zipCode: true,
-                amount: $ctrl.order.signingContext.amount
-            });
-
-            $window.addEventListener('popstate', function () {
-                handler.close();
-            });
-        }
     }
 
     function SetupPaymentProviderComponent() {
