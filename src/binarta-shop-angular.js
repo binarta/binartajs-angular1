@@ -447,8 +447,10 @@
 
         $ctrl.$onInit = function () {
             $ctrl.providerTemplate = 'bin-shop-payment-' + $ctrl.provider + '.html';
-            if ($routeParams.token || $routeParams.id)
+            if ($routeParams.token || $routeParams.id) {
+                sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
                 $ctrl.onConfirmed($routeParams);
+            }
             else if ($ctrl.order) {
                 var approvalUrl = $ctrl.order.approvalUrl || ($ctrl.order.signingContext ? $ctrl.order.signingContext.approvalUrl : undefined);
                 if (approvalUrl) {

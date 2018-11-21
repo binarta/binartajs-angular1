@@ -33,7 +33,6 @@
             sessionStorage.removeItem('locale');
             sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
             sessionStorage.removeItem('binartaJSSetupBillingAgreementReturnUrl');
-            sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
         });
 
         describe('binarta is initialised promise', function () {
@@ -2993,7 +2992,7 @@
                         expect($ctrl.onConfirmed).not.toHaveBeenCalled();
                     });
 
-                    describe('and reinitialised', function () {
+                    describe('and reinitialised without tokens', function () {
                         beforeEach(inject(function ($window) {
                             $window.location = undefined;
                             $ctrl.$onInit();
@@ -3008,6 +3007,29 @@
                         }));
 
                         it('and reinitialised again then visit the approval url', inject(function ($timeout, $window) {
+                            $ctrl.$onInit();
+                            $timeout.flush();
+                            expect($window.location).toEqual('approval-url');
+                        }));
+                    });
+
+                    describe('and reinitialised with tokens', function() {
+                        beforeEach(inject(function ($window) {
+                            $window.location = undefined;
+                            $routeParams.id = 'i';
+                            $ctrl.$onInit();
+                        }));
+
+                        it('then the payment is confirmed', function () {
+                            expect($ctrl.onConfirmed).toHaveBeenCalledWith({id: 'i'});
+                        });
+
+                        it('then the user is not redirected to the approval url', inject(function ($timeout) {
+                            $timeout.verifyNoPendingTasks();
+                        }));
+
+                        it('and reinitialised again then visit the approval url', inject(function ($timeout, $window) {
+                            $routeParams.id = undefined;
                             $ctrl.$onInit();
                             $timeout.flush();
                             expect($window.location).toEqual('approval-url');
