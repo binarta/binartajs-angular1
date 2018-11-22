@@ -2215,7 +2215,7 @@
                     $location.search({token: 'invalid'});
                     ctrl.confirmPayment();
 
-                    expect(ctrl.status()).toEqual('payment');
+                    expect(ctrl.status()).toEqual('summary');
                     expect(ctrl.violationReport()).toEqual({token: ['invalid']});
                 });
 
