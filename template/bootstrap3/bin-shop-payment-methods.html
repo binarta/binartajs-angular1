@@ -18,7 +18,7 @@
         </div>
 
         <p class="help-block" ng-repeat="v in $ctrl.violations"
-           i18n code="shop.order.provider.{{::v}}" default="{{::v}}" read-only>
+           i18n code="shop.order.provider.{{::(v.code || v)}}" default="{{::(v.description || v)}}" read-only>
             {{::var}}
         </p>
     </div>
