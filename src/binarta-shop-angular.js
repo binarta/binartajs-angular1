@@ -626,6 +626,7 @@
         decorator.add(function (ctrl) {
             ctrl.confirm = function () {
                 binarta.shop.checkout.confirm(function () {
+                    sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
                     ctrl.start();
                 });
             };
