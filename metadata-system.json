@@ -29,7 +29,9 @@
       "cookie.notice.accept": "Accepteer Cookies",
       "cookie.notice.reject": "Ga verder zonder cookies",
       "blog.post.translate": "Vertalen",
-      "blog.post.translatable": "Vertaalbaar"
+      "blog.post.translatable": "Vertaalbaar",
+      "shop.stripe.connect.button":"Connect with Stripe",
+      "shop.stripe.connect.info":"Activeer hier de Stripe betaalmethode. <br><small>Hiervoor heb je een <a href=\"https://stripe.com\" target=\"_blank\">Stripe rekening</a> nodig.</small>"
     },
     "en": {
       "coupon.code.label": "Coupon Code",
@@ -60,7 +62,9 @@
       "cookie.notice.accept": "Accept Cookies",
       "cookie.notice.reject": "Use this site without cookies",
       "blog.post.translate": "Translate",
-      "blog.post.translatable": "Translatable"
+      "blog.post.translatable": "Translatable",
+      "shop.stripe.connect.button":"Connect with Stripe",
+      "shop.stripe.connect.info":"Activate the Stripe payment option for your customers. <br><small>For this, you need a <a href=\"https://stripe.com\" target=\"_blank\">Stripe account</a>.</small>"
     },
     "fr": {
       "coupon.code.label": "Code Promo",
@@ -91,7 +95,9 @@
       "cookie.notice.accept": "Accept Cookies",
       "cookie.notice.reject": "Use this site without cookies",
       "blog.post.translate": "Traduire",
-      "blog.post.translatable": "Traduisible"
+      "blog.post.translatable": "Traduisible",
+      "shop.stripe.connect.button":"Connect with Stripe",
+      "shop.stripe.connect.info":"Activez l'option de paiement Stripe pour vos clients. <br><small>Pour cela, vous avez besoin d'un <a href=\"https://stripe.com\" target=\"_blank\">compte Stripe</a>.</small>"
     },
     "de": {
       "coupon.code.label": "Gutscheincode",
@@ -122,7 +128,9 @@
       "cookie.notice.accept": "Accept Cookies",
       "cookie.notice.reject": "Use this site without cookies",
       "blog.post.translate": "Übersetzen",
-      "blog.post.translatable": "Übersetzbar"
+      "blog.post.translatable": "Übersetzbar",
+      "shop.stripe.connect.button":"Connect with Stripe",
+      "shop.stripe.connect.info":"Activate the Stripe payment option for your customers. <br><small>For this, you need a <a href=\"https://stripe.com\" target=\"_blank\">Stripe account</a>.</small>"
     }
   }
 }

@@ -3087,6 +3087,16 @@
                 }));
             });
 
+            describe('bin-stripe-connect component', function() {
+                beforeEach(inject(function($componentController) {
+                    $ctrl = $componentController('binStripeConnect', null, {});
+                }));
+
+                it('sandbox', function() {
+
+                });
+            });
+
             describe('bin-coupon component', function () {
                 var $ctrl, order;
 

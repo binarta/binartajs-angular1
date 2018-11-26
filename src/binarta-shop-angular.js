@@ -26,6 +26,7 @@
         .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
         .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
         .component('binCoupon', new CouponComponent())
+        .component('binStripeConnect', new StripeConnectComponent())
         .config(['binartaProvider', 'shopProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['shop', WireAngularDependencies])
@@ -512,6 +513,13 @@
                 confirmationToken: $location.search().token
             });
         }
+    }
+
+    function StripeConnectComponent() {
+        this.templateUrl = 'bin-shop-stripe-connect-component.html';
+        // this.controller = [function() {
+        //
+        // }];
     }
 
     function CouponComponent() {
