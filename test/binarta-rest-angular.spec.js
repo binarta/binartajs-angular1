@@ -953,7 +953,7 @@
                     request = {
                         locale: 'en'
                     };
-                    expectedHttpRequest = $http.expectPOST('http://host/api/stripe/connect', {
+                    expectedHttpRequest = $http.expectPOST('http://host/api/stripe/initiate', {
                         headers: {
                             locale: 'en'
                         }

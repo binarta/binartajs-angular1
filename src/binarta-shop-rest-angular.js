@@ -208,7 +208,7 @@
         this.stripeConnect = function (request, response) {
             self.$http({
                 method: 'POST',
-                url: self.config.baseUri + 'api/stripe/connect',
+                url: self.config.baseUri + 'api/stripe/initiate',
                 withCredentials: true,
                 data: {
                     headers: {locale: request.locale}
