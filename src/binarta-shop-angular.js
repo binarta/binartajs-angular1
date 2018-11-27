@@ -517,9 +517,27 @@
 
     function StripeConnectComponent() {
         this.templateUrl = 'bin-shop-stripe-connect-component.html';
-        // this.controller = [function() {
-        //
-        // }];
+        this.controller = ['binarta', '$window', function (binarta, $window) {
+            var $ctrl = this;
+            var observer;
+
+            $ctrl.$onInit = function () {
+                observer = binarta.shop.stripe.observe({
+                    status: function (it) {
+                        $ctrl.status = it;
+                    },
+                    goto: function (it) {
+                        $window.location = it;
+                    }
+                });
+            };
+
+            $ctrl.$onDestroy = function () {
+                observer.disconnect();
+            };
+
+            $ctrl.connect = binarta.shop.stripe.connect;
+        }];
     }
 
     function CouponComponent() {

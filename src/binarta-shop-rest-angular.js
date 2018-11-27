@@ -203,6 +203,19 @@
             }).then(function (it) {
                 it.data.contains ? response.success() : response.notFound()
             }, toErrorResponse(response));
+        };
+
+        this.stripeConnect = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/stripe/connect',
+                withCredentials: true,
+                data: {
+                    headers: {locale: request.locale}
+                }
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
         }
     }
 

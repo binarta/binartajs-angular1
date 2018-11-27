@@ -2972,7 +2972,7 @@
                         $timeout.flush();
                     }));
 
-                    it('then the user is not redirected', function() {
+                    it('then the user is not redirected', function () {
                         expect($window.location).toBeUndefined();
                     });
                 });
@@ -3013,7 +3013,7 @@
                         }));
                     });
 
-                    describe('and reinitialised with tokens', function() {
+                    describe('and reinitialised with tokens', function () {
                         beforeEach(inject(function ($window) {
                             $window.location = undefined;
                             $routeParams.id = 'i';
@@ -3087,13 +3087,25 @@
                 }));
             });
 
-            describe('bin-stripe-connect component', function() {
-                beforeEach(inject(function($componentController) {
+            describe('bin-stripe-connect component', function () {
+                beforeEach(inject(function ($componentController) {
                     $ctrl = $componentController('binStripeConnect', null, {});
+                    $ctrl.$onInit();
                 }));
 
-                it('sandbox', function() {
+                it('exposes status', function () {
+                    expect($ctrl.status).toEqual('idle');
+                });
 
+                it('connect', inject(function ($window) {
+                    $ctrl.connect();
+                    expect($window.location).toEqual('http://example.org/stripe');
+                }));
+
+                it('connecting while controller destroy hook has been called will not redirect', function () {
+                    $ctrl.$onDestroy();
+                    $ctrl.connect();
+                    expect($window.location).toBeUndefined();
                 });
             });
 
