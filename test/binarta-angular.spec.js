@@ -3137,6 +3137,11 @@
                     it('expose account id', function () {
                         expect($ctrl.id).toEqual('stripe-account-id');
                     });
+
+                    it('disconnect', function () {
+                        $ctrl.disconnect();
+                        expect($ctrl.status).toEqual('disconnected');
+                    });
                 });
             });
 

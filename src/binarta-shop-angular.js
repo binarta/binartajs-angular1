@@ -540,6 +540,7 @@
             };
 
             $ctrl.connect = binarta.shop.stripe.connect;
+            $ctrl.disconnect = binarta.shop.stripe.disconnect;
         }];
     }
 

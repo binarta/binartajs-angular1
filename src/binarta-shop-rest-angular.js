@@ -218,7 +218,7 @@
             }, toErrorResponse(response));
         };
 
-        this.stripeConnected = function(request, response) {
+        this.stripeConnected = function (request, response) {
             self.$http({
                 method: 'POST',
                 url: self.config.baseUri + 'api/stripe/account',
@@ -226,6 +226,17 @@
                 data: {}
             }).then(function (it) {
                 response.success(it.data.id);
+            }, toErrorResponse(response));
+        };
+
+        this.stripeDisconnect = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/stripe/disconnect',
+                withCredentials: true,
+                data: {}
+            }).then(function () {
+                response.success();
             }, toErrorResponse(response));
         }
     }

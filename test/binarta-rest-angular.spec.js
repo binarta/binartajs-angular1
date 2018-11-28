@@ -988,6 +988,20 @@
                     expect(response.notFound).toHaveBeenCalled();
                 });
             });
+
+            describe('stripe disconnect', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/stripe/disconnect', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.stripeDisconnect(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
         });
 
         describe('human resources db', function () {
