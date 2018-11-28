@@ -27,6 +27,8 @@
 
         afterEach(function () {
             binarta.application.gateway.clear();
+            if (binarta.shop.gateway.clear)
+                binarta.shop.gateway.clear();
             localStorage.removeItem('locale');
             localStorage.removeItem('binartaJSPaymentProvider');
             localStorage.removeItem('cookiesAccepted');
@@ -3088,24 +3090,53 @@
             });
 
             describe('bin-stripe-connect component', function () {
-                beforeEach(inject(function ($componentController) {
-                    $ctrl = $componentController('binStripeConnect', null, {});
-                    $ctrl.$onInit();
-                }));
+                describe('when disconnected', function() {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binStripeConnect', null, {});
+                        $ctrl.$onInit();
+                    }));
 
-                it('exposes status', function () {
-                    expect($ctrl.status).toEqual('idle');
+                    afterEach(function() {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('exposes status', function () {
+                        expect($ctrl.status).toEqual('disconnected');
+                    });
+
+                    it('connect', inject(function ($window) {
+                        $ctrl.connect();
+                        expect($window.location).toEqual('http://example.org/stripe');
+                    }));
+
+                    it('connecting while controller destroy hook has been called will not redirect', function () {
+                        $ctrl.$onDestroy();
+                        $ctrl.connect();
+                        expect($window.location).toBeUndefined();
+                    });
                 });
 
-                it('connect', inject(function ($window) {
-                    $ctrl.connect();
-                    expect($window.location).toEqual('http://example.org/stripe');
-                }));
+                describe('when connected', function() {
+                    beforeEach(inject(function($componentController) {
+                        binarta.shop.gateway.stripeConnect(undefined, {
+                            success: function () {
+                            }
+                        });
+                        $ctrl = $componentController('binStripeConnect', null, {});
+                        $ctrl.$onInit();
+                    }));
 
-                it('connecting while controller destroy hook has been called will not redirect', function () {
-                    $ctrl.$onDestroy();
-                    $ctrl.connect();
-                    expect($window.location).toBeUndefined();
+                    afterEach(function() {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('expose connected status', function () {
+                        expect($ctrl.status).toEqual('connected');
+                    });
+
+                    it('expose account id', function () {
+                        expect($ctrl.id).toEqual('stripe-account-id');
+                    });
                 });
             });
 

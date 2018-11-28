@@ -528,6 +528,9 @@
                     },
                     goto: function (it) {
                         $window.location = it;
+                    },
+                    connected: function (it) {
+                        $ctrl.id = it;
                     }
                 });
             };
