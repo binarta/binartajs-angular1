@@ -7,7 +7,7 @@
     </p>
 </form>
 <div ng-if="$ctrl.status == 'connected'" class="form-group">
-    <label i18n code="shop.stripe.account.id.label" read-only ng-bind="::var"></label>
+    <label i18n code="shop.stripe.account.id.label" read-only ng-bind="::var"></label>:
     {{$ctrl.id}}
 </div>
 <div ng-if="$ctrl.status == 'working'" class="form-group">
