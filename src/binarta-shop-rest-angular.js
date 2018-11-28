@@ -221,7 +221,7 @@
         this.stripeConnected = function(request, response) {
             self.$http({
                 method: 'POST',
-                url: self.config.baseUri + 'api/stripe/connected',
+                url: self.config.baseUri + 'api/stripe/account',
                 withCredentials: true,
                 data: {}
             }).then(function (it) {

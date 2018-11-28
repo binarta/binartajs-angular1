@@ -971,7 +971,7 @@
             describe('stripe connected', function () {
                 beforeEach(function () {
                     request = {};
-                    expectedHttpRequest = $http.expectPOST('http://host/api/stripe/connected', {});
+                    expectedHttpRequest = $http.expectPOST('http://host/api/stripe/account', {});
                 });
 
                 it('success', function () {
