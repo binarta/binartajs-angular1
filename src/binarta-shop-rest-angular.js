@@ -216,6 +216,17 @@
             }).then(function (it) {
                 response.success(it.data);
             }, toErrorResponse(response));
+        };
+
+        this.stripeConnected = function(request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/stripe/connected',
+                withCredentials: true,
+                data: {}
+            }).then(function (it) {
+                response.success(it.data.id);
+            }, toErrorResponse(response));
         }
     }
 

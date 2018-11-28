@@ -967,6 +967,27 @@
                     expect(response.success).toHaveBeenCalledWith({uri: 'stripe-connect-uri'});
                 });
             });
+
+            describe('stripe connected', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/stripe/connected', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, {id: 'stripe-account-id'});
+                    gateway.stripeConnected(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('stripe-account-id');
+                });
+
+                it('not found', function () {
+                    expectedHttpRequest.respond(404);
+                    gateway.stripeConnected(request, response);
+                    $http.flush();
+                    expect(response.notFound).toHaveBeenCalled();
+                });
+            });
         });
 
         describe('human resources db', function () {
