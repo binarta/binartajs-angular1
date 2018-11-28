@@ -32,6 +32,8 @@
       "blog.post.translatable": "Vertaalbaar",
       "shop.stripe.connect.button":"Connect with Stripe",
       "shop.stripe.connect.info":"Activeer hier de Stripe betaalmethode. <br><small>Hiervoor heb je een <a href=\"https://stripe.com\" target=\"_blank\">Stripe rekening</a> nodig.</small>",
+      "shop.stripe.disconnect.button":"Disconnect from Stripe",
+      "shop.stripe.disconnect.info":"Als je meerdere applicaties verbonden hebt met Stripe dan zullen deze ook losgekoppeld worden!",
       "shop.stripe.account.id.label":"Account"
     },
     "en": {
@@ -66,6 +68,8 @@
       "blog.post.translatable": "Translatable",
       "shop.stripe.connect.button":"Connect with Stripe",
       "shop.stripe.connect.info":"Activate the Stripe payment option for your customers. <br><small>For this, you need a <a href=\"https://stripe.com\" target=\"_blank\">Stripe account</a>.</small>",
+      "shop.stripe.disconnect.button":"Disconnect from Stripe",
+      "shop.stripe.disconnect.info":"If you have multiple applications connected to Stripe then the others will be disconnected as well!",
       "shop.stripe.account.id.label":"Account"
     },
     "fr": {
@@ -100,6 +104,8 @@
       "blog.post.translatable": "Traduisible",
       "shop.stripe.connect.button":"Connect with Stripe",
       "shop.stripe.connect.info":"Activez l'option de paiement Stripe pour vos clients. <br><small>Pour cela, vous avez besoin d'un <a href=\"https://stripe.com\" target=\"_blank\">compte Stripe</a>.</small>",
+      "shop.stripe.disconnect.button":"Disconnect from Stripe",
+      "shop.stripe.disconnect.info":"Si vous avez de multiples apps associée avec Stripe les autres seront aussi désassociées!",
       "shop.stripe.account.id.label":"Compte"
     },
     "de": {
@@ -134,6 +140,8 @@
       "blog.post.translatable": "Übersetzbar",
       "shop.stripe.connect.button":"Connect with Stripe",
       "shop.stripe.connect.info":"Activate the Stripe payment option for your customers. <br><small>For this, you need a <a href=\"https://stripe.com\" target=\"_blank\">Stripe account</a>.</small>",
+      "shop.stripe.disconnect.button":"Disconnect from Stripe",
+      "shop.stripe.disconnect.info":"If you have multiple applications connected to Stripe then the others will be disconnected as well!",
       "shop.stripe.account.id.label":"Account"
     }
   }

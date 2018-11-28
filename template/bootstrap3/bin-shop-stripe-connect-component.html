@@ -6,10 +6,20 @@
         <i class="fa fa-info-circle"></i> <span ng-bind-html="::var"></span>
     </p>
 </form>
-<div ng-if="$ctrl.status == 'connected'" class="form-group">
-    <label i18n code="shop.stripe.account.id.label" read-only ng-bind="::var"></label>:
-    {{$ctrl.id}}
-</div>
+<form ng-if="$ctrl.status == 'connected'" ng-submit="$ctrl.disconnect()">
+    <div class="form-group">
+        <div>
+            <label i18n code="shop.stripe.account.id.label" read-only ng-bind="::var"></label>:
+            {{$ctrl.id}}
+        </div>
+        <div>
+            <button type="submit" i18n code="shop.stripe.disconnect.button" read-only ng-bind="::var"></button>
+        </div>
+    </div>
+    <p class="help-block" i18n code="shop.stripe.disconnect.info" read-only>
+        <i class="fa fa-info-circle"></i> <span ng-bind-html="::var"></span>
+    </p>
+</form>
 <div ng-if="$ctrl.status == 'working'" class="form-group">
     <i class="fa fa-spinner fa-spin fa-fw"></i>
 </div>
