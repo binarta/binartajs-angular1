@@ -238,6 +238,44 @@
             }).then(function () {
                 response.success();
             }, toErrorResponse(response));
+        };
+
+        this.configureBancontact = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/bancontact/configure',
+                withCredentials: true,
+                data: {
+                    payload: {
+                        ownerName: request.owner,
+                        bankId: request.bankId
+                    }
+                }
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
+        };
+
+        this.getBancontactParams = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/bancontact/params',
+                withCredentials: true,
+                data: {}
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.disableBancontact = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/bancontact/disable',
+                withCredentials: true,
+                data: {}
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
         }
     }
 

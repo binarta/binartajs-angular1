@@ -1002,6 +1002,56 @@
                     expect(response.success).toHaveBeenCalled();
                 });
             });
+
+            describe('configure bancontact', function () {
+                beforeEach(function () {
+                    request = {
+                        owner: 'John Doe',
+                        bankId: 'piggybank'
+                    };
+                    expectedHttpRequest = $http.expectPOST('http://host/api/bancontact/configure', {
+                        payload: {
+                            ownerName: 'John Doe',
+                            bankId: 'piggybank'
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.configureBancontact(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('get bancontact params', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/bancontact/params', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'params');
+                    gateway.getBancontactParams(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('params');
+                });
+            });
+
+            describe('disable bancontact', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/bancontact/disable', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.disableBancontact(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            })
         });
 
         describe('human resources db', function () {
