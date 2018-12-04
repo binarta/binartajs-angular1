@@ -3169,6 +3169,26 @@
                         expect($ctrl.status).toEqual('configured');
                     });
 
+                    describe('when configuration is rejected', function () {
+                        beforeEach(function () {
+                            $ctrl.configure();
+                        });
+
+                        it('expose the violation report', function () {
+                            expect($ctrl.violationReport).toEqual({
+                                bankId: ['required'],
+                                owner: ['required']
+                            });
+                        });
+
+                        it('on re-configuration clear the violation report', function () {
+                            $ctrl.params.owner = 'John Doe';
+                            $ctrl.params.bankId = 'piggybank';
+                            $ctrl.configure();
+                            expect($ctrl.violationReport).toBeUndefined();
+                        });
+                    });
+
                     it('configuring while controller destroy hook has been called will not receive updates', function () {
                         $ctrl.$onDestroy();
                         $ctrl.params.owner = 'John Doe';
@@ -3218,6 +3238,12 @@
                                 supportedBy: ['piggybank', 'megabank']
                             });
                         });
+                    });
+
+                    it('disable clears the violation report', function () {
+                        $ctrl.violationReport = 'violation-report';
+                        $ctrl.disable();
+                        expect($ctrl.violationReport).toBeUndefined();
                     });
                 });
             });

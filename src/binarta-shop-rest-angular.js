@@ -267,7 +267,7 @@
             }, toErrorResponse(response));
         };
 
-        this.disableBancontact = function (request, response) {
+        this.disablePaymentMethod = function (request, response) {
             self.$http({
                 method: 'POST',
                 url: self.config.baseUri + 'api/payment/method/disable',

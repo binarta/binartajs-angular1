@@ -1051,7 +1051,7 @@
 
                 it('success', function () {
                     expectedHttpRequest.respond(200);
-                    gateway.disableBancontact(request, response);
+                    gateway.disablePaymentMethod(request, response);
                     $http.flush();
                     expect(response.success).toHaveBeenCalled();
                 });

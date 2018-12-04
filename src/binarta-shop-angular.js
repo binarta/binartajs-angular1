@@ -557,6 +557,9 @@
                     },
                     params: function (it) {
                         $ctrl.params = it;
+                    },
+                    rejected: function (it) {
+                        $ctrl.violationReport = it;
                     }
                 });
             };
@@ -566,10 +569,14 @@
             };
 
             $ctrl.configure = function () {
+                $ctrl.violationReport = undefined;
                 binarta.shop.bancontact.configure($ctrl.params);
             };
 
-            $ctrl.disable = binarta.shop.bancontact.disable;
+            $ctrl.disable = function () {
+                $ctrl.violationReport = undefined;
+                binarta.shop.bancontact.disable();
+            }
         }];
     }
 
