@@ -1,0 +1,25 @@
+<form ng-if="$ctrl.status != 'working'" ng-submit="$ctrl.configure()">
+    <div class="form-group">
+        <div>
+            <label i18n code="shop.financial.institution.id.label" read-only ng-bind="::var"></label>:
+            <select class="form-control" ng-model="$ctrl.params.bankId"
+                    ng-options="id for id in $ctrl.params.supportedBy track by id"></select>
+        </div>
+        <div>
+            <label i18n code="shop.bancontact.owner.label" read-only ng-bind="::var"></label>:
+            <input type="text" class="form-control"
+                   i18n code="shop.bancontact.owner.placeholder" read-only
+                   placeholder="{{::var}}"
+                   name="bancontact-owner"
+                   ng-model="$ctrl.params.owner">
+        </div>
+        <div>
+            <button type="submit" i18n code="shop.bancontact.configure.button" read-only ng-bind="::var"></button>
+            <button type="button" ng-if="$ctrl.status == 'enabled'" ng-click="$ctrl.disable()" i18n
+                    code="shop.bancontact.disable.button" read-only ng-bind="::var"></button>
+        </div>
+    </div>
+</form>
+<div ng-if="$ctrl.status == 'working'" class="form-group">
+    <i class="fa fa-spinner fa-spin fa-fw"></i>
+</div>

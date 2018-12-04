@@ -3090,13 +3090,13 @@
             });
 
             describe('bin-stripe-connect component', function () {
-                describe('when disconnected', function() {
+                describe('when disconnected', function () {
                     beforeEach(inject(function ($componentController) {
                         $ctrl = $componentController('binStripeConnect', null, {});
                         $ctrl.$onInit();
                     }));
 
-                    afterEach(function() {
+                    afterEach(function () {
                         $ctrl.$onDestroy();
                     });
 
@@ -3116,8 +3116,8 @@
                     });
                 });
 
-                describe('when connected', function() {
-                    beforeEach(inject(function($componentController) {
+                describe('when connected', function () {
+                    beforeEach(inject(function ($componentController) {
                         binarta.shop.gateway.stripeConnect(undefined, {
                             success: function () {
                             }
@@ -3126,7 +3126,7 @@
                         $ctrl.$onInit();
                     }));
 
-                    afterEach(function() {
+                    afterEach(function () {
                         $ctrl.$onDestroy();
                     });
 
@@ -3141,6 +3141,83 @@
                     it('disconnect', function () {
                         $ctrl.disconnect();
                         expect($ctrl.status).toEqual('disconnected');
+                    });
+                });
+            });
+
+            describe('bin-bancontact-config component', function () {
+                describe('when disabled', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBancontactConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    it('exposes status', function () {
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+
+                    it('exposes params', function () {
+                        expect($ctrl.params).toEqual({
+                            supportedBy: ['piggybank', 'megabank']
+                        });
+                    });
+
+                    it('configure', function () {
+                        $ctrl.params.owner = 'John Doe';
+                        $ctrl.params.bankId = 'piggybank';
+                        $ctrl.configure();
+                        expect($ctrl.status).toEqual('configured');
+                    });
+
+                    it('configuring while controller destroy hook has been called will not receive updates', function () {
+                        $ctrl.$onDestroy();
+                        $ctrl.params.owner = 'John Doe';
+                        $ctrl.params.bankId = 'piggybank';
+                        $ctrl.configure();
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+                });
+
+                describe('when configured', function () {
+                    beforeEach(inject(function ($componentController) {
+                        binarta.shop.gateway.configureBancontact({owner: 'John Doe', bankId: 'piggybank'}, {
+                            success: function () {
+                            }
+                        });
+                        $ctrl = $componentController('binBancontactConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('expose configured status', function () {
+                        expect($ctrl.status).toEqual('configured');
+                    });
+
+                    it('expose params', function () {
+                        expect($ctrl.params).toEqual({
+                            owner: 'John Doe',
+                            bankId: 'piggybank',
+                            supportedBy: ['piggybank', 'megabank']
+                        });
+                    });
+
+                    describe('disable', function () {
+                        beforeEach(function () {
+                            $ctrl.disable();
+                        });
+
+                        it('expose diabled status', function () {
+                            expect($ctrl.status).toEqual('disabled');
+                        });
+
+                        it('expose updated params', function () {
+                            expect($ctrl.params).toEqual({
+                                supportedBy: ['piggybank', 'megabank']
+                            });
+                        });
                     });
                 });
             });
