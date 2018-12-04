@@ -270,9 +270,13 @@
         this.disableBancontact = function (request, response) {
             self.$http({
                 method: 'POST',
-                url: self.config.baseUri + 'api/bancontact/disable',
+                url: self.config.baseUri + 'api/payment/method/disable',
                 withCredentials: true,
-                data: {}
+                data: {
+                    payload: {
+                        id: request.id
+                    }
+                }
             }).then(function () {
                 response.success();
             }, toErrorResponse(response));

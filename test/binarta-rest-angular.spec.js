@@ -1039,10 +1039,14 @@
                 });
             });
 
-            describe('disable bancontact', function () {
+            describe('disable payment method', function () {
                 beforeEach(function () {
-                    request = {};
-                    expectedHttpRequest = $http.expectPOST('http://host/api/bancontact/disable', {});
+                    request = {id: 'piggybank'};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/payment/method/disable', {
+                        payload: {
+                            id: 'piggybank'
+                        }
+                    });
                 });
 
                 it('success', function () {
