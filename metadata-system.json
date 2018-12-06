@@ -40,6 +40,8 @@
       "shop.bancontact.owner.placeholder": "John Doe",
       "shop.bancontact.configure.button": "Configureren",
       "shop.bancontact.disable.button": "Uitschakelen",
+      "shop.cc.configure.button": "Configureren",
+      "shop.cc.disable.button": "Uitschakelen",
       "shop.bancontact.owner.required": "Verplicht",
       "shop.financial.institution.id.required": "Verplicht",
       "shop.financial.institution.id.exists": "Onbekend"
@@ -84,6 +86,8 @@
       "shop.bancontact.owner.placeholder": "John Doe",
       "shop.bancontact.configure.button": "Configure",
       "shop.bancontact.disable.button": "Disable",
+      "shop.cc.configure.button": "Configure",
+      "shop.cc.disable.button": "Disable",
       "shop.bancontact.owner.required": "Required",
       "shop.financial.institution.id.required": "Required",
       "shop.financial.institution.id.exists": "Unknown"
@@ -128,6 +132,8 @@
       "shop.bancontact.owner.placeholder": "John Doe",
       "shop.bancontact.configure.button": "Configurer",
       "shop.bancontact.disable.button": "Désactiver",
+      "shop.cc.configure.button": "Configurer",
+      "shop.cc.disable.button": "Désactiver",
       "shop.bancontact.owner.required": "Requise",
       "shop.financial.institution.id.required": "Requise",
       "shop.financial.institution.id.exists": "Inconnu"
@@ -172,6 +178,8 @@
       "shop.bancontact.owner.placeholder": "John Doe",
       "shop.bancontact.configure.button": "Configure",
       "shop.bancontact.disable.button": "Disable",
+      "shop.cc.configure.button": "Configure",
+      "shop.cc.disable.button": "Disable",
       "shop.bancontact.owner.required": "Required",
       "shop.financial.institution.id.required": "Required",
       "shop.financial.institution.id.exists": "Unknown"
