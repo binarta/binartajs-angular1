@@ -3145,6 +3145,104 @@
                 });
             });
 
+            describe('bin-cc-config component', function () {
+                describe('when disabled', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binCcConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    it('exposes status', function () {
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+
+                    it('exposes params', function () {
+                        expect($ctrl.params).toEqual({
+                            supportedBy: ['piggybank', 'megabank']
+                        });
+                    });
+
+                    it('configure', function () {
+                        $ctrl.params.bankId = 'piggybank';
+                        $ctrl.configure();
+                        expect($ctrl.status).toEqual('configured');
+                    });
+
+                    describe('when configuration is rejected', function () {
+                        beforeEach(function () {
+                            $ctrl.configure();
+                        });
+
+                        it('expose the violation report', function () {
+                            expect($ctrl.violationReport).toEqual({
+                                bankId: ['required']
+                            });
+                        });
+
+                        it('on re-configuration clear the violation report', function () {
+                            $ctrl.params.bankId = 'piggybank';
+                            $ctrl.configure();
+                            expect($ctrl.violationReport).toBeUndefined();
+                        });
+                    });
+
+                    it('configuring while controller destroy hook has been called will not receive updates', function () {
+                        $ctrl.$onDestroy();
+                        $ctrl.params.bankId = 'piggybank';
+                        $ctrl.configure();
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+                });
+
+                describe('when configured', function () {
+                    beforeEach(inject(function ($componentController) {
+                        binarta.shop.gateway.configureCC({bankId: 'piggybank'}, {
+                            success: function () {
+                            }
+                        });
+                        $ctrl = $componentController('binCcConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('expose configured status', function () {
+                        expect($ctrl.status).toEqual('configured');
+                    });
+
+                    it('expose params', function () {
+                        expect($ctrl.params).toEqual({
+                            bankId: 'piggybank',
+                            supportedBy: ['piggybank', 'megabank']
+                        });
+                    });
+
+                    describe('disable', function () {
+                        beforeEach(function () {
+                            $ctrl.disable();
+                        });
+
+                        it('expose diabled status', function () {
+                            expect($ctrl.status).toEqual('disabled');
+                        });
+
+                        it('expose updated params', function () {
+                            expect($ctrl.params).toEqual({
+                                supportedBy: ['piggybank', 'megabank']
+                            });
+                        });
+                    });
+
+                    it('disable clears the violation report', function () {
+                        $ctrl.violationReport = 'violation-report';
+                        $ctrl.disable();
+                        expect($ctrl.violationReport).toBeUndefined();
+                    });
+                });
+            });
+
             describe('bin-bancontact-config component', function () {
                 describe('when disabled', function () {
                     beforeEach(inject(function ($componentController) {

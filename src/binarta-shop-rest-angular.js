@@ -240,6 +240,21 @@
             }, toErrorResponse(response));
         };
 
+        this.configureCC = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/cc/configure',
+                withCredentials: true,
+                data: {
+                    payload: {
+                        bankId: request.bankId
+                    }
+                }
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
+        };
+
         this.configureBancontact = function (request, response) {
             self.$http({
                 method: 'POST',
@@ -253,6 +268,17 @@
                 }
             }).then(function () {
                 response.success();
+            }, toErrorResponse(response));
+        };
+
+        this.getCCParams = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/cc/params',
+                withCredentials: true,
+                data: {}
+            }).then(function (it) {
+                response.success(it.data);
             }, toErrorResponse(response));
         };
 

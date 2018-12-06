@@ -1003,6 +1003,26 @@
                 });
             });
 
+            describe('configure cc', function () {
+                beforeEach(function () {
+                    request = {
+                        bankId: 'piggybank'
+                    };
+                    expectedHttpRequest = $http.expectPOST('http://host/api/cc/configure', {
+                        payload: {
+                            bankId: 'piggybank'
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.configureCC(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
             describe('configure bancontact', function () {
                 beforeEach(function () {
                     request = {
@@ -1022,6 +1042,20 @@
                     gateway.configureBancontact(request, response);
                     $http.flush();
                     expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('get cc params', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/cc/params', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'params');
+                    gateway.getCCParams(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('params');
                 });
             });
 

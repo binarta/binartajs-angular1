@@ -27,6 +27,7 @@
         .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
         .component('binCoupon', new CouponComponent())
         .component('binStripeConnect', new StripeConnectComponent())
+        .component('binCcConfig', new CreditCardConfigComponent())
         .component('binBancontactConfig', new BancontactConfigComponent())
         .config(['binartaProvider', 'shopProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
@@ -542,6 +543,41 @@
 
             $ctrl.connect = binarta.shop.stripe.connect;
             $ctrl.disconnect = binarta.shop.stripe.disconnect;
+        }];
+    }
+
+    function CreditCardConfigComponent() {
+        this.templateUrl = 'bin-shop-cc-config-component.html';
+        this.controller = ['binarta', function (binarta) {
+            var $ctrl = this;
+
+            $ctrl.$onInit = function () {
+                observer = binarta.shop.cc.observe({
+                    status: function (it) {
+                        $ctrl.status = it;
+                    },
+                    params: function (it) {
+                        $ctrl.params = it;
+                    },
+                    rejected: function (it) {
+                        $ctrl.violationReport = it;
+                    }
+                });
+            };
+
+            $ctrl.$onDestroy = function () {
+                observer.disconnect();
+            };
+
+            $ctrl.configure = function () {
+                $ctrl.violationReport = undefined;
+                binarta.shop.cc.configure($ctrl.params);
+            };
+
+            $ctrl.disable = function () {
+                $ctrl.violationReport = undefined;
+                binarta.shop.cc.disable();
+            }
         }];
     }
 
