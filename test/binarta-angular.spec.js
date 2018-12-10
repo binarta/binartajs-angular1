@@ -3528,6 +3528,7 @@
         .service('dependencyA', DependencyStub)
         .service('dependencyB', DependencyStub)
         .service('resourceLoader', MockResourceLoader)
+        .service('applicationBrand', MockApplicationBrand)
         .controller('TestComponentController', ['dependencyA', 'dependencyB', binComponentController(TestComponentController)])
         .filter('trust', ['$sce', MockTrustFilter])
         .config(ExtendBinarta);
@@ -3553,6 +3554,9 @@
     }
 
     function MockResourceLoader() {
+    }
+
+    function MockApplicationBrand() {
     }
 
     function ExtendBinarta(binartaProvider, shopProvider) {
