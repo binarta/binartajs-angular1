@@ -480,19 +480,22 @@
         $ctrl.open = function () {
             function doOpen() {
                 resourceLoader.getScript('https://checkout.stripe.com/checkout.js').then(function () {
+                    var canceled = true;
                     dialog = StripeCheckout.configure({
                         key: 'pk_test_dJdZ1mYxVVdloOZWrK5f6zZ5',
                         image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
                         locale: $ctrl.order.signingContext.locale,
                         token: function (it) {
-                            sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
+                            canceled = false;
                             it.token = it.id;
                             it.id = $ctrl.order.signingContext.payment;
                             $ctrl.onConfirmed(it);
                         },
                         closed: function () {
                             sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
-                            $ctrl.onCanceled();
+                            if (canceled) {
+                                $ctrl.onCanceled();
+                            }
                         }
                     });
                     dialog.open({
