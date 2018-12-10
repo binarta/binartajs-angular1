@@ -19,7 +19,7 @@
         .component('binCheckoutRoadmap', new CheckoutRoadmapComponent())
         .controller('CheckoutRoadmapController', ['binarta', CheckoutRoadmapController])
         .component('binPay', new PaymentComponent())
-        .controller('BinartaPaymentController', ['$window', '$routeParams', '$timeout', 'sessionStorage', PaymentController])
+        .controller('BinartaPaymentController', ['binarta', '$window', '$routeParams', '$timeout', 'sessionStorage', 'resourceLoader', PaymentController])
         .component('binSetupPaymentProvider', new SetupPaymentProviderComponent())
         .controller('SetupPaymentProviderController', ['binarta', '$location', 'sessionStorage', SetupPaymentProviderController])
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
@@ -445,8 +445,9 @@
         this.templateUrl = 'bin-shop-payment.html';
     }
 
-    function PaymentController($window, $routeParams, $timeout, sessionStorage) {
+    function PaymentController(binarta, $window, $routeParams, $timeout, sessionStorage, resourceLoader) {
         var $ctrl = this;
+        var dialog, observer;
 
         $ctrl.$onInit = function () {
             $ctrl.providerTemplate = 'bin-shop-payment-' + $ctrl.provider + '.html';
@@ -468,6 +469,49 @@
                 }
             }
         };
+
+        $ctrl.$onDestroy = function () {
+            if (dialog)
+                dialog.close();
+            if (observer)
+                observer.disconnect()
+        };
+
+        $ctrl.open = function () {
+            function doOpen() {
+                resourceLoader.getScript('https://checkout.stripe.com/checkout.js').then(function () {
+                    dialog = StripeCheckout.configure({
+                        key: 'pk_test_dJdZ1mYxVVdloOZWrK5f6zZ5',
+                        image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+                        locale: $ctrl.order.signingContext.locale,
+                        token: function (it) {
+                            sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
+                            it.token = it.id;
+                            it.id = $ctrl.order.signingContext.payment;
+                            $ctrl.onConfirmed(it);
+                        },
+                        closed: function () {
+                            sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
+                            $ctrl.onCanceled();
+                        }
+                    });
+                    dialog.open({
+                        name: 'webshop',
+                        email: binarta.checkpoint.profile.email(),
+                        amount: $ctrl.order.signingContext.amount,
+                        locale: $ctrl.order.signingContext.locale,
+                        currency: $ctrl.order.signingContext.currency,
+                        allowRememberMe: true,
+                        zipCode: true
+                    });
+                });
+            }
+
+            if (binarta.checkpoint.profile.isAuthenticated())
+                doOpen();
+            else
+                observer = binarta.checkpoint.profile.eventRegistry.observe({signedin: doOpen});
+        }
     }
 
     function SetupPaymentProviderComponent() {
@@ -763,8 +807,9 @@
 
     function InstallPaymentSupport(binarta, decorator, $location) {
         decorator.add(function ($ctrl) {
-            $ctrl.confirmPayment = function () {
-                binarta.shop.checkout.confirm($location.search(), function () {
+            $ctrl.confirmPayment = function (it) {
+                var request = it && it.id ? it : $location.search();
+                binarta.shop.checkout.confirm(request, function () {
                     $ctrl.start();
                     $location.search({});
                     $location.replace();

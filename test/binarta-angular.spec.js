@@ -3527,6 +3527,7 @@
         .service('viewport', MockViewport)
         .service('dependencyA', DependencyStub)
         .service('dependencyB', DependencyStub)
+        .service('resourceLoader', MockResourceLoader)
         .controller('TestComponentController', ['dependencyA', 'dependencyB', binComponentController(TestComponentController)])
         .filter('trust', ['$sce', MockTrustFilter])
         .config(ExtendBinarta);
@@ -3549,6 +3550,9 @@
         return function (val) {
             return $sce.trustAsHtml(val);
         };
+    }
+
+    function MockResourceLoader() {
     }
 
     function ExtendBinarta(binartaProvider, shopProvider) {
