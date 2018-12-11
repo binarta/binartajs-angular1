@@ -485,7 +485,7 @@
                     brandName = brand.observeBrandName(function (brandName) {
                         var canceled = true;
                         dialog = StripeCheckout.configure({
-                            key: 'pk_test_dJdZ1mYxVVdloOZWrK5f6zZ5',
+                            key: $ctrl.order.signingContext.apiKey,
                             image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
                             locale: $ctrl.order.signingContext.locale,
                             token: function (it) {
