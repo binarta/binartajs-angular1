@@ -12,7 +12,7 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-        stage {
+        stage 'echo git user', {
             echo '$GITUSER'
         }
         stage 'update npm', {
