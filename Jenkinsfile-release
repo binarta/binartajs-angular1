@@ -46,9 +46,7 @@ pipeline {
 
                 }
                 stage 'publish to git', {
-                    steps {
-                        sh 'git push --tags'
-                    }
+                    sh('git push https://${GITUSER_USR}:${GITUSER_PSW}@${GIT_URL} --tags')
                 }
             }
         }
