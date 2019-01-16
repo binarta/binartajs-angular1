@@ -13,7 +13,9 @@ pipeline {
     }
     stages {
         stage 'echo git user', {
-            echo '$GITUSER'
+            steps {
+                echo '$GITUSER'
+            }
         }
         stage 'update npm', {
             steps {
