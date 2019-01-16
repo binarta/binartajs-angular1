@@ -47,7 +47,7 @@ pipeline {
                 }
                 stage 'publish to git', {
                     steps {
-                        sh('git push https://${GITUSER_USR}:${GITUSER_PSW}@${GIT_URL} --tags')
+                        sh('git push https://${GITUSER_USR}:${GITUSER_PSW}@github.com/binarta/binartajs-angular1 --tags')
                     }
                 }
             }
