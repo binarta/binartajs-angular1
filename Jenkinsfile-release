@@ -36,7 +36,7 @@ pipeline {
             stages {
                 stage 'update version', {
                     steps {
-                        sh 'bower version ${params.TYPE}'
+                        sh "bower version ${params.TYPE}"
                     }
 
                 }
