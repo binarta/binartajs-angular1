@@ -12,9 +12,9 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-        stage 'echo git user', {
+        stage 'show env', {
             steps {
-                echo '$GITUSER'
+                sh 'printenv'
             }
         }
         stage 'update npm', {
