@@ -3495,9 +3495,39 @@
             });
         });
 
-        function expectApplicationListenerUninstalled(listenerName) {
-            expectEventListenerUninstalled(binarta.application.eventRegistry, listenerName);
-        }
+        describe('binarta-edit-modejs-angular1', function() {
+            describe('component controller decorator', function() {
+                beforeEach(inject(function($controller, topicRegistry) {
+                    this.topicRegistry = topicRegistry;
+                    this.controller = $controller('TestComponentController');
+                }));
+
+                it('exposes an indicator for edit mode status which is disabled by default', function() {
+                    expect(this.controller.editMode.enabled).toBe(false);
+                });
+
+                it('enables the indicator when an edit mode event with positive payload is received', function() {
+                    this.topicRegistry.fire('edit.mode', true);
+
+                    expect(this.controller.editMode.enabled).toBe(true);
+                });
+
+                it('disables the indicator again when an edit mode event with negative payload is received', function() {
+                    this.topicRegistry.fire('edit.mode', true);
+                    this.topicRegistry.fire('edit.mode', false);
+
+                    expect(this.controller.editMode.enabled).toBe(false);
+                });
+
+                it('unregisters the event when the controller is destroyed', function() {
+                    this.controller.$onDestroy();
+
+                    this.topicRegistry.fire('edit.mode', true);
+
+                    expect(this.controller.editMode.enabled).toBe(false);
+                });
+            });
+        });
 
         function expectAdhesiveReadingListenerUninstalled(listenerName) {
             expectEventListenerUninstalled(binarta.application.adhesiveReading.eventRegistry, listenerName);
@@ -3518,6 +3548,7 @@
         'binarta-applicationjs-angular1',
         'binarta-mediajs-angular1',
         'binarta-checkpointjs-angular1',
+        'binarta-edit-modejs-angular1',
         'binarta-publisherjs-angular1',
         'binarta-shopjs-angular1',
         'binarta-humanresourcesjs-angular1'
@@ -3532,6 +3563,31 @@
         .controller('TestComponentController', ['dependencyA', 'dependencyB', binComponentController(TestComponentController)])
         .filter('trust', ['$sce', MockTrustFilter])
         .config(ExtendBinarta);
+
+    angular.module('notifications', [])
+        .service('topicRegistry', [MockTopicRegistry]);
+
+    function MockTopicRegistry() {
+        var topics = {};
+
+        this.fire = function(topic, payload) {
+            var handlers = topics[topic] || [];
+            handlers.forEach(function(handler) {
+                handler(payload);
+            });
+        };
+
+        this.subscribe = function(topic, handler) {
+            if (topics[topic] === undefined)
+                topics[topic] = [];
+            topics[topic].push(handler);
+            return function() {
+                var handlers = topics[topic];
+                var index = handlers.indexOf(handler);
+                if (index != -1) handlers.splice(index, 1);
+            }
+        };
+    }
 
     function MockWindow() {
         this.navigator = {userAgent: ''};
