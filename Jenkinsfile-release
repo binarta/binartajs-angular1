@@ -6,7 +6,7 @@ pipeline {
       GITUSER = credentials('2f0ed470-9d45-4f70-8fdc-d3baac3ec050')
     }
     parameters {
-        choice(choices: ['patch', 'minor', 'major'], description: 'What type of release?', name: 'TYPE', )
+        choice(choices: ['patch', 'minor', 'major'], description: 'What type of release?', name: 'TYPE')
     }
     options {
         disableConcurrentBuilds()
