@@ -12,6 +12,9 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
+        stage {
+            echo '$GITUSER'
+        }
         stage 'update npm', {
             steps {
                 sh 'npm update'
