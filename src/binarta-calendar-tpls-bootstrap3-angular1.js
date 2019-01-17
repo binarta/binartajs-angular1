@@ -1,0 +1,2 @@
+angular.module("binarta-calendarjs-tpls-angular1", []).run(["$templateCache", function($templateCache) {$templateCache.put("bin-calendar-upcoming-events-component-record.html","{{it}}");
+$templateCache.put("bin-calendar-upcoming-events-component.html","<h1 i18n=\"\" code=\"component.upcoming.events.title\" ng-bind=\"var\"></h1><table class=\"table table-striped\"><tbody><tr ng-repeat=\"it in $ctrl.events track by it.id\"><td><ng-include src=\"$ctrl.eventTemplate\"></ng-include></td></tr></tbody></table>");}]);

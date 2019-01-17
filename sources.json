@@ -15,6 +15,11 @@
   },
   "blog": {
   },
+  "calendar": {
+    "binarta-calendarjs-angular1":"bower_components/binartajs-angular1/src/binarta-calendar-angular.js",
+    "binarta-calendarjs-gateway-angular1":"bower_components/binartajs-angular1/src/binarta-calendar-rest-angular.js",
+    "binarta-calendarjs-tpls-angular1":"bower_components/binartajs-angular1/src/binarta-calendar-tpls-bootstrap3-angular1.js"
+  },
   "shop": {
     "binarta-checkpointjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-shop-tpls-bootstrap3-angular1.js",
     "binarta-checkpointjs-recaptcha-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-recaptcha-angular.js",

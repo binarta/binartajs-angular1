@@ -3495,37 +3495,55 @@
             });
         });
 
-        describe('binarta-edit-modejs-angular1', function() {
-            describe('component controller decorator', function() {
-                beforeEach(inject(function($controller, topicRegistry) {
+        describe('binarta-edit-modejs-angular1', function () {
+            describe('component controller decorator', function () {
+                beforeEach(inject(function ($controller, topicRegistry) {
                     this.topicRegistry = topicRegistry;
                     this.controller = $controller('TestComponentController');
                 }));
 
-                it('exposes an indicator for edit mode status which is disabled by default', function() {
+                it('exposes an indicator for edit mode status which is disabled by default', function () {
                     expect(this.controller.editMode.enabled).toBe(false);
                 });
 
-                it('enables the indicator when an edit mode event with positive payload is received', function() {
+                it('enables the indicator when an edit mode event with positive payload is received', function () {
                     this.topicRegistry.fire('edit.mode', true);
 
                     expect(this.controller.editMode.enabled).toBe(true);
                 });
 
-                it('disables the indicator again when an edit mode event with negative payload is received', function() {
+                it('disables the indicator again when an edit mode event with negative payload is received', function () {
                     this.topicRegistry.fire('edit.mode', true);
                     this.topicRegistry.fire('edit.mode', false);
 
                     expect(this.controller.editMode.enabled).toBe(false);
                 });
 
-                it('unregisters the event when the controller is destroyed', function() {
+                it('unregisters the event when the controller is destroyed', function () {
                     this.controller.$onDestroy();
 
                     this.topicRegistry.fire('edit.mode', true);
 
                     expect(this.controller.editMode.enabled).toBe(false);
                 });
+            });
+        });
+
+        describe('binarta-calendarjs-angular1', function () {
+            describe('<bin-calendar-upcoming-events/>', function () {
+                beforeEach(inject(function ($componentController) {
+                    $ctrl = $componentController('binCalendarUpcomingEvents');
+                }));
+
+                it('events are empty without initialization', function () {
+                    expect($ctrl.events).toEqual([]);
+                });
+
+                it('events are loaded from server on init', inject(function (binartaCalendarGateway) {
+                    binartaCalendarGateway.upcomingEvents = ['a', 'b', 'c'];
+                    $ctrl.$onInit();
+                    expect($ctrl.events).toEqual(['a', 'b', 'c']);
+                }));
             });
         });
 
@@ -3551,7 +3569,8 @@
         'binarta-edit-modejs-angular1',
         'binarta-publisherjs-angular1',
         'binarta-shopjs-angular1',
-        'binarta-humanresourcesjs-angular1'
+        'binarta-humanresourcesjs-angular1',
+        'binarta-calendarjs-angular1'
     ])
         .service('$window', MockWindow)
         .factory('i18nLocation', MockI18nLocationFactory)
@@ -3570,18 +3589,18 @@
     function MockTopicRegistry() {
         var topics = {};
 
-        this.fire = function(topic, payload) {
+        this.fire = function (topic, payload) {
             var handlers = topics[topic] || [];
-            handlers.forEach(function(handler) {
+            handlers.forEach(function (handler) {
                 handler(payload);
             });
         };
 
-        this.subscribe = function(topic, handler) {
+        this.subscribe = function (topic, handler) {
             if (topics[topic] === undefined)
                 topics[topic] = [];
             topics[topic].push(handler);
-            return function() {
+            return function () {
                 var handlers = topics[topic];
                 var index = handlers.indexOf(handler);
                 if (index != -1) handlers.splice(index, 1);
@@ -3655,6 +3674,8 @@
             .provider('binartaShopGateway', [strategy + 'BinartaShopGatewayProvider', proxy]);
         angular.module('binarta-humanresourcesjs-gateways-angular1', ['binarta-humanresourcesjs-' + strategy + '-angular1'])
             .provider('binartaHumanResourcesGateway', [strategy + 'BinartaHumanResourcesGatewayProvider', proxy]);
+        angular.module('binarta-calendarjs-gateways-angular1', ['binarta-calendarjs-' + strategy + '-angular1'])
+            .provider('binartaCalendarGateway', [strategy + 'BinartaCalendarGatewayProvider', proxy]);
 
         function proxy(gateway) {
             return gateway;

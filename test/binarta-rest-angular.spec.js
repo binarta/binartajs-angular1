@@ -1129,6 +1129,41 @@
             });
         });
 
+        describe('calendar db', function () {
+            var db;
+
+            beforeEach(inject(function (restBinartaCalendarGateway) {
+                db = restBinartaCalendarGateway;
+            }));
+
+            describe('find upcoming events', function () {
+                var now;
+
+                beforeEach(function () {
+                    now = moment();
+                    request.startDate = now;
+                    expectedHttpRequest = $http.expectPOST('http://host/api/usecase', {
+                        "headers": {
+                            "namespace": "n",
+                            "usecase": "find.upcoming.events"
+                        },
+                        "payload": {
+                            "type": "shows",
+                            "startDate": now.format('YYYY-MM-DD'),
+                            "max": 5
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'results');
+                    db.findUpcomingEvents(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('results');
+                });
+            });
+        });
+
         function capturedRequest(idx) {
             return rest.calls.argsFor(idx)[0];
         }
@@ -1144,6 +1179,7 @@
         'binarta-applicationjs-rest-angular1',
         'binarta-checkpointjs-rest-angular1',
         'binarta-publisherjs-rest-angular1',
+        'binarta-calendarjs-rest-angular1',
         'binarta-shopjs-rest-angular1',
         'binarta-humanresourcesjs-rest-angular1'
     ]).factory('binartaReadRouteOnLocaleChange', function () {

@@ -48,6 +48,13 @@ gulp.task('publisher-bootstrap3', function () {
         .pipe(gulp.dest('src'));
 });
 
+gulp.task('calendar-bootstrap3', function () {
+    gulp.src('template/bootstrap3/bin-calendar-*.html')
+        .pipe(minifyHtml(minifyHtmlOpts))
+        .pipe(templateCache('binarta-calendar-tpls-bootstrap3-angular1.js', {standalone: true, module: 'binarta-calendarjs-tpls-angular1'}))
+        .pipe(gulp.dest('src'));
+});
+
 gulp.task('shop-bootstrap3', function () {
     gulp.src('template/bootstrap3/bin-shop-*.html')
         .pipe(minifyHtml(minifyHtmlOpts))
@@ -65,5 +72,6 @@ gulp.task('default', [
     'checkpoint-bootstrap3',
     'checkpoint-shop-bootstrap3',
     'publisher-bootstrap3',
+    'calendar-bootstrap3',
     'shop-bootstrap3'
 ]);
