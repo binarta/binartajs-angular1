@@ -50,6 +50,7 @@
                         locale: request.locale
                     },
                     payload: {
+                        type: request.type,
                         subset: request.subset
                     }
                 }
@@ -70,6 +71,7 @@
                         locale: request.locale
                     },
                     payload: {
+                        type: request.type,
                         subset: request.subset
                     }
                 }
@@ -88,6 +90,9 @@
                         usecase: 'new.blog.post',
                         namespace: self.config.namespace,
                         locale: request.locale
+                    },
+                    payload: {
+                        type: request.type
                     }
                 }
             }).then(function (it) {
@@ -174,7 +179,7 @@
             }).then(function () {
                 response.success();
             }, toErrorResponse(response));
-        }
+        };
 
         self.delete = function(request, response) {
             self.$http({
@@ -193,6 +198,24 @@
             }).then(function () {
                 response.success();
             }, toErrorResponse(response));
+        };
+
+        self.setType = function(request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/usecase',
+                withCredentials: true,
+                data: {
+                    headers: {
+                        usecase: 'update.type.for.blog',
+                        namespace: self.config.namespace
+                    },
+                    payload: {
+                        id: request.id,
+                        type: request.type
+                    }
+                }
+            }).then(response.success).catch(toErrorResponse(response));
         }
     }
 

@@ -18,7 +18,7 @@
         .component('binDisplayBlogBody', new DisplayBlogAttributeComponent('body'))
         .controller('BinDisplayBlogPostRouteController', ['$routeParams', 'BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteController])
         .service('BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteControllerConfig)
-        .controller('BinSearchBlogPostsRouteController', ['BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteController])
+        .controller('BinSearchBlogPostsRouteController', ['$routeParams', 'BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteController])
         .service('BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteControllerConfig)
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
         // .config(['$routeProvider', InstallBinartaPublisherRoutes]) // TODO - we can't install this before all templates have switched over
@@ -28,71 +28,79 @@
         this.bindings = {
             count: '@',
             max: '@',
-            postTemplate: '@'
+            postTemplate: '@',
+            type: '<?type'
         };
 
         this.templateUrl = 'bin-publisher-blog-feed.html';
         this.controller = ['binarta', binComponentController(function (binarta) {
             var $ctrl = this, statusUpdater;
-            var handle = binarta.publisher.blog.published({
-                status: function (it) {
-                    $ctrl.status = it;
-                    if (statusUpdater)
-                        statusUpdater(it);
-                },
-                more: function (it) {
-                    $ctrl.posts = $ctrl.posts.concat(it);
-                }
-            });
 
             $ctrl.posts = [];
-            $ctrl.more = handle.more;
-            if ($ctrl.count || $ctrl.max)
-                handle.subset.max = 1 * ($ctrl.count || $ctrl.max);
-            $ctrl.installStatusUpdater = function (it) {
-                statusUpdater = it;
-            };
 
             binarta.schedule(function () {
                 $ctrl.addInitHandler(function () {
+                    var handle = binarta.publisher.blog.published({type: $ctrl.type}, {
+                        status: function (it) {
+                            $ctrl.status = it;
+                            if (statusUpdater)
+                                statusUpdater(it);
+                        },
+                        more: function (it) {
+                            $ctrl.posts = $ctrl.posts.concat(it);
+                        }
+                    });
+
+                    $ctrl.more = handle.more;
+                    if ($ctrl.count || $ctrl.max)
+                        handle.subset.max = 1 * ($ctrl.count || $ctrl.max);
+
                     handle.more();
                 });
             });
+
+            $ctrl.installStatusUpdater = function (it) {
+                statusUpdater = it;
+            };
         })]
     }
 
     function BlogDraftFeedComponent() {
         this.bindings = {
-            count: '@'
+            count: '@',
+            type: '<?binBlogDraftFeedType'
         };
 
         this.templateUrl = 'bin-publisher-blog-draft-feed.html';
         this.controller = ['binarta', binComponentController(function (binarta) {
             var $ctrl = this, statusUpdater;
-            var handle = binarta.publisher.blog.drafts({
-                status: function (it) {
-                    $ctrl.status = it;
-                    if (statusUpdater)
-                        statusUpdater(it);
-                },
-                more: function (it) {
-                    $ctrl.posts = $ctrl.posts.concat(it);
-                }
-            });
 
             $ctrl.posts = [];
-            $ctrl.more = handle.more;
-            if ($ctrl.count)
-                handle.subset.max = 1 * $ctrl.count;
-            $ctrl.installStatusUpdater = function (it) {
-                statusUpdater = it;
-            };
 
             binarta.schedule(function () {
                 $ctrl.addInitHandler(function () {
+                    var handle = binarta.publisher.blog.drafts({type: $ctrl.type}, {
+                        status: function (it) {
+                            $ctrl.status = it;
+                            if (statusUpdater)
+                                statusUpdater(it);
+                        },
+                        more: function (it) {
+                            $ctrl.posts = $ctrl.posts.concat(it);
+                        }
+                    });
+
+                    $ctrl.more = handle.more;
+                    if ($ctrl.count)
+                        handle.subset.max = 1 * $ctrl.count;
+
                     handle.more();
                 });
             });
+
+            $ctrl.installStatusUpdater = function (it) {
+                statusUpdater = it;
+            };
         })]
     }
 
@@ -128,6 +136,9 @@
 
     function AddBlogPostComponent() {
         this.templateUrl = 'bin-publisher-add-post.html';
+        this.bindings = {
+            type: '<?type'
+        };
         this.controller = ['binarta', 'i18nLocation', binComponentController(function (binarta, $location) {
             var $ctrl = this;
             var $lock, $status = 'disabled';
@@ -160,6 +171,8 @@
                 if ($ctrl.status == 'idle') {
                     $ctrl.status = 'drafting';
                     binarta.publisher.blog.add({
+                        type: $ctrl.type
+                    }, {
                         success: function (id) {
                             $ctrl.status = 'idle';
                             $location.path('/blog/post' + id)
@@ -177,7 +190,9 @@
     function DisplayBlogPostComponent() {
         this.bindings = {
             id: '@',
-            template: '@'
+            template: '@',
+            headerTemplate: '@',
+            sidebarTemplate: '@'
         };
         this.templateUrl = 'bin-publisher-display-blog-post.html';
         this.controller = ['binarta', 'i18nLocation', '$q', binComponentController(function (binarta, $location, $q) {
@@ -197,11 +212,12 @@
                     $location.path('/blog');
                 },
                 post: function (it) {
-                    $ctrl.post = it
+                    $ctrl.post = it;
                 },
                 deleted: function () {
                     $location.path('/blog');
-                }
+                },
+                withdrawn: angular.noop
             };
 
             $ctrl.publish = function () {
@@ -234,6 +250,10 @@
 
             $ctrl.delete = function () {
                 handle.delete();
+            };
+
+            $ctrl.setType = function() {
+                handle.setType($ctrl.post.type);
             };
 
             binarta.schedule(function () {
@@ -280,6 +300,8 @@
         $ctrl.decoratorTemplate = config.decoratorTemplate;
         $ctrl.pageTemplate = 'bin-publisher-blog-post-route.html';
         $ctrl.template = config.template;
+        $ctrl.headerTemplate = config.headerTemplate;
+        $ctrl.sidebarTemplate = config.sidebarTemplate;
     }
 
     function DisplayBlogPostRouteControllerConfig() {
@@ -287,8 +309,9 @@
         this.template = 'bin-publisher-display-blog-post-details.html';
     }
 
-    function SearchBlogPostsRouteController(config) {
+    function SearchBlogPostsRouteController($routeParams, config) {
         var $ctrl = this;
+        $ctrl.type = $routeParams.blogType;
         $ctrl.decoratorTemplate = config.decoratorTemplate;
         $ctrl.pageTemplate = 'bin-publisher-blog-search-route.html';
         $ctrl.publicationTemplate = config.publicationTemplate;
@@ -316,7 +339,12 @@ function InstallBinartaPublisherRoutes($routeProvider) {
         {
             controller: 'BinSearchBlogPostsRouteController',
             controllerAs: '$ctrl',
-            routes: ['/blog', '/:locale/blog']
+            routes: [
+                '/blog',
+                '/:locale/blog',
+                '/blog/:blogType',
+                '/:locale/blog/:blogType'
+            ]
         },
         {
             controller: 'BinDisplayBlogPostRouteController',

@@ -414,10 +414,11 @@
                             locale: 'en'
                         },
                         payload: {
+                            type: 'type',
                             subset: {offset: 0, max: 5}
                         }
                     });
-                    request = {locale: 'en', subset: {offset: 0, max: 5}}
+                    request = {locale: 'en', type: 'type', subset: {offset: 0, max: 5}}
                 });
 
                 it('returns blog posts', function () {
@@ -437,10 +438,11 @@
                             locale: 'en'
                         },
                         payload: {
+                            type: 'type',
                             subset: {offset: 0, max: 5}
                         }
                     });
-                    request = {locale: 'en', subset: {offset: 0, max: 5}}
+                    request = {locale: 'en', type: 'type', subset: {offset: 0, max: 5}}
                 });
 
                 it('returns blog posts', function () {
@@ -458,13 +460,17 @@
                             usecase: 'new.blog.post',
                             namespace: 'n',
                             locale: 'en'
+                        },
+                        payload: {
+                            type: 'type'
                         }
                     });
+                    this.request = {locale: 'en', type: 'type'};
                 });
 
                 it('returns newly created id', function () {
                     expectedHttpRequest.respond(200, 'id');
-                    db.add({locale: 'en'}, response);
+                    db.add(this.request, response);
                     $http.flush();
                     expect(response.success).toHaveBeenCalledWith('id')
                 });
@@ -579,6 +585,26 @@
                     expectedHttpRequest.respond(200);
                     db.draftInAnotherLanguage({locale: 'en', id: 'b'}, response);
                     $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('setType', function() {
+                it('completes successfullyl', function() {
+                    $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'update.type.for.blog',
+                            namespace: 'n'
+                        },
+                        payload: {
+                            id: 'b',
+                            type: 'type'
+                        }
+                    }).respond(200);
+
+                    db.setType({id: 'b', type: 'type'}, response);
+                    $http.flush();
+
                     expect(response.success).toHaveBeenCalled();
                 });
             });

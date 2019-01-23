@@ -65,6 +65,14 @@ gulp.task('shop-bootstrap3', function () {
 gulp.task('test-ui-widgets', test('karma.conf.js'));
 gulp.task('test-rest-plugin', test('karma-rest.conf.js'));
 
+gulp.task('templates:all', ['all-bootstrap3', 'checkpoint-bootstrap3', 'checkpoint-shop-bootstrap3', 'publisher-bootstrap3', 'shop-bootstrap3']);
+
+gulp.task('templates:watch', ['templates:all'], function() {
+    gulp.watch('template/**/*.html', function (event) {
+        gulp.start('templates:all');
+    });
+});
+
 gulp.task('default', [
     'test-ui-widgets',
     'test-rest-plugin',
