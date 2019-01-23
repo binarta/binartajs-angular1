@@ -68,7 +68,7 @@
     function BlogDraftFeedComponent() {
         this.bindings = {
             count: '@',
-            type: '<?binBlogDraftFeedType'
+            type: '<?type'
         };
 
         this.templateUrl = 'bin-publisher-blog-draft-feed.html';
