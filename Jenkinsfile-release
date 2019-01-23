@@ -1,5 +1,9 @@
 #!/usr/bin/env groovy
 
+def urlEncode(String text) {
+    URLEncoder.encode(text, "UTF-8")
+}
+
 pipeline {
     agent { label 'ubuntu-1604' }
     environment {
@@ -47,9 +51,7 @@ pipeline {
                 }
                 stage 'publish to git', {
                     steps {
-                        def encodedUser = java.net.URLEncoder.encode(GITUSER_USR, "UTF-8")
-                        def encodedPassword = java.net.URLEncoder.encode(GITUSER_PSW, "UTF-8")
-                        sh('git push https://${encodedUser}:${encodedPassword}@github.com/binarta/binartajs-angular1 --tags')
+                        sh('git push https://${urlEncode(GITUSER_USR)}:${urlEncode(GITUSER_PSW)}@github.com/binarta/binartajs-angular1 --tags')
                     }
                 }
             }
