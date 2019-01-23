@@ -47,7 +47,9 @@ pipeline {
                 }
                 stage 'publish to git', {
                     steps {
-                        sh('git push https://${GITUSER_USR}:${GITUSER_PSW}@github.com/binarta/binartajs-angular1 --tags')
+                        def encodedUser = java.net.URLEncoder.encode(GITUSER_USR, "UTF-8")
+                        def encodedPassword = java.net.URLEncoder.encode(GITUSER_PSW, "UTF-8")
+                        sh('git push https://${encodedUser}:${encodedPassword}@github.com/binarta/binartajs-angular1 --tags')
                     }
                 }
             }
