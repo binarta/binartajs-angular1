@@ -20,6 +20,7 @@
 
     function UpcomingEventsComponent() {
         this.bindings = {
+            titleTemplate: '@',
             eventTemplate: '@'
         };
         this.templateUrl = 'bin-calendar-upcoming-events-component.html';
@@ -29,6 +30,8 @@
             $ctrl.events = [];
 
             $ctrl.addInitHandler(function () {
+                if (!$ctrl.titleTemplate)
+                    $ctrl.titleTemplate = 'bin-calendar-upcoming-events-component-title.html';
                 if (!$ctrl.eventTemplate)
                     $ctrl.eventTemplate = 'bin-calendar-upcoming-events-component-record.html';
                 $ctrl.addDestroyHandler(binarta.calendar.upcoming.observe({

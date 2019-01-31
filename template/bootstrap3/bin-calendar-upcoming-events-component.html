@@ -1,4 +1,4 @@
-<h1 i18n code="component.upcoming.events.title" ng-bind="var"></h1>
+<h1 i18n code="component.upcoming.events.title" var="title"><ng-include src="$ctrl.titleTemplate"></ng-include></h1>
 <table class="table table-striped">
     <tbody>
     <tr ng-repeat="it in $ctrl.events track by it.id">
