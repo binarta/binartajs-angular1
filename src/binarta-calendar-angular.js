@@ -21,7 +21,8 @@
     function UpcomingEventsComponent() {
         this.bindings = {
             titleTemplate: '@',
-            eventTemplate: '@'
+            eventTemplate: '@',
+            discriminator: '<'
         };
         this.templateUrl = 'bin-calendar-upcoming-events-component.html';
         this.controller = ['binarta', binComponentController(function (binarta) {
@@ -38,7 +39,7 @@
                     events: function (it) {
                         $ctrl.events = it;
                     }
-                }));
+                }, $ctrl.discriminator));
             });
         })];
     }

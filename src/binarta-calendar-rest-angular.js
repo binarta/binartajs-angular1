@@ -39,6 +39,13 @@
         var self = this;
 
         self.findUpcomingEvents = function (request, response) {
+            var payload = {
+                type: "shows",
+                startDate: request.startDate.format('YYYY-MM-DD'),
+                max: 5
+            };
+            if (request.metadata)
+                payload.metadata = request.metadata;
             self.$http({
                 method: 'POST',
                 url: self.config.baseUri + 'api/usecase',
@@ -48,11 +55,7 @@
                         namespace: self.config.namespace,
                         usecase: "find.upcoming.events"
                     },
-                    payload: {
-                        type: "shows",
-                        startDate: request.startDate.format('YYYY-MM-DD'),
-                        max: 5
-                    }
+                    payload: payload
                 }
             }).then(function (it) {
                 response.success(it.data);

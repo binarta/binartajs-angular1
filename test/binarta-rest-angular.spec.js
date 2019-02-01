@@ -589,8 +589,8 @@
                 });
             });
 
-            describe('setType', function() {
-                it('completes successfullyl', function() {
+            describe('setType', function () {
+                it('completes successfullyl', function () {
                     $http.expect('POST', 'http://host/api/usecase', {
                         headers: {
                             usecase: 'update.type.for.blog',
@@ -1176,6 +1176,35 @@
                         "payload": {
                             "type": "shows",
                             "startDate": now.format('YYYY-MM-DD'),
+                            "max": 5
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'results');
+                    db.findUpcomingEvents(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('results');
+                });
+            });
+
+            describe('find upcoming events with metadata', function () {
+                var now;
+
+                beforeEach(function () {
+                    now = moment();
+                    request.startDate = now;
+                    request.metadata = 'd';
+                    expectedHttpRequest = $http.expectPOST('http://host/api/usecase', {
+                        "headers": {
+                            "namespace": "n",
+                            "usecase": "find.upcoming.events"
+                        },
+                        "payload": {
+                            "type": "shows",
+                            "startDate": now.format('YYYY-MM-DD'),
+                            "metadata": 'd',
                             "max": 5
                         }
                     });

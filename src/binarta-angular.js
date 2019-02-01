@@ -131,44 +131,44 @@
     }
 
     function BinContactAddressComponent() {
-        this.template = 
-        '<span class="bin-contact" i18n code="contact.address" editor="input" ng-show="var">' +
+        this.template =
+            '<span class="bin-contact" i18n code="contact.address" editor="input" ng-show="var">' +
             '<span ng-if="::$ctrl.icon"><i class="bin-contact-icon fa fa-fw" ng-class="::$ctrl.icon"></i></span>' +
             '<a class="bin-contact-value" ng-href="//maps.google.com/maps?q={{var|binEncodeUriComponent}}" target="_blank" ng-bind="var"></a>' +
-        '</span>';
+            '</span>';
         this.bindings = {
             icon: '@'
         };
     }
 
     function BinContactPhoneComponent() {
-        this.template = 
-        '<span class="bin-contact" i18n code="contact.phone" editor="input" ng-show="var">' +   
+        this.template =
+            '<span class="bin-contact" i18n code="contact.phone" editor="input" ng-show="var">' +
             '<span ng-if="::$ctrl.icon"><i class="bin-contact-icon fa fa-fw" ng-class="::$ctrl.icon"></i></span>' +
-            '<a class="bin-contact-value" ng-href="tel:{{var}}" ng-bind="var"></a>' + 
-        '</span>';
+            '<a class="bin-contact-value" ng-href="tel:{{var}}" ng-bind="var"></a>' +
+            '</span>';
         this.bindings = {
             icon: '@'
         };
     }
 
     function BinContactPhoneInfoComponent() {
-        this.template = 
-        '<span class="bin-contact" i18n code="contact.phone.info" editor="input" ng-show="var">' + 
+        this.template =
+            '<span class="bin-contact" i18n code="contact.phone.info" editor="input" ng-show="var">' +
             '<span ng-if="::$ctrl.icon"><i class="bin-contact-icon fa fa-fw" ng-class="::$ctrl.icon"></i></span>' +
             '<span class="bin-contact-value" ng-bind="var"></span>' +
-        '</span>';
+            '</span>';
         this.bindings = {
             icon: '@'
         };
     }
 
     function BinContactEmailComponent() {
-        this.template = 
-        '<span class="bin-contact" bin-config key="application.email" scope="public" input-type="email" ng-show="config.value">' + 
+        this.template =
+            '<span class="bin-contact" bin-config key="application.email" scope="public" input-type="email" ng-show="config.value">' +
             '<span ng-if="::$ctrl.icon"><i class="bin-contact-icon fa fa-fw" ng-class="::$ctrl.icon"></i></span>' +
             '<a class="bin-contact-value" ng-href="mailto:{{config.value}}" ng-bind="config.value"></a>' +
-        '</span>';
+            '</span>';
         this.bindings = {
             icon: '@'
         };
