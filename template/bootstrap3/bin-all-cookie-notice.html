@@ -1,11 +1,15 @@
 <div id="binarta-cookie-notice-wrapper" ng-if="$ctrl.status != 'permission-granted' && $ctrl.status != 'permission-revoked'">
     <div id="binarta-cookie-notice">
         <div class="binarta-cookie-notice-message" ng-if="$ctrl.status == 'permission.storage.disabled'">
-            <p i18n code="configure.cookies.notice.message" read-only ng-bind-html="::var">
+            <p>
+                <span i18n code="configure.cookies.notice.message" read-only ng-bind-html="::var"></span>
+                <span><a i18n code="cookie.notice.conditions.link" read-only ng-bind-html="::var" bin-href="/conditions"></a></span>
             </p>
         </div>
         <div class="binarta-cookie-notice-message" ng-if="$ctrl.status == 'permission-required'">
-            <p i18n code="cookie.notice.message" read-only ng-bind-html="::var">
+            <p>
+                <span i18n code="cookie.notice.message" read-only ng-bind-html="::var"></span>
+                <span><a i18n code="cookie.notice.conditions.link" read-only ng-bind-html="::var" bin-href="/conditions"></a></span>
             </p>
             <button ng-click="$ctrl.grant()" class="btn btn-primary btn-lg" i18n code="cookie.notice.accept" read-only ng-bind="::var"></button>
             <a ng-click="$ctrl.revoke()" href="" class="cookies-reject-link" i18n code="cookie.notice.reject" read-only ng-bind="::var"></a>

@@ -29,13 +29,16 @@ cookie-permission-granted {
       margin: 20px auto;
       background-color: darken(@brand-primary, 12%);
     }
-    a.cookies-reject-link {
+    a {
       color: white;
-      display: block;
-      margin: auto;
-      text-align: center;
       text-decoration: underline;
-      width: 80%;
+
+      &.cookies-reject-link {
+        display: block;
+        margin: auto;
+        text-align: center;
+        width: 80%;
+      }
     }
   }
   @keyframes cookieNoticeAppear {
