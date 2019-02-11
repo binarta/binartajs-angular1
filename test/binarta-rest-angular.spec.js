@@ -54,7 +54,7 @@
             }
         }
 
-        describe('application gateway', function () {
+        describe('application db', function () {
             var gateway;
 
             beforeEach(inject(function (restBinartaApplicationGateway) {
@@ -252,6 +252,98 @@
                         gateway.findConfig(request, {});
                         $http.flush();
                     });
+                });
+            });
+
+            describe('get widget attributes', function () {
+                beforeEach(function () {
+                    request = {component: 'c', widget: 'w'};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/get.widget.attributes', {
+                        headers: {
+                            namespace: 'n'
+                        },
+                        payload: {
+                            platform: 'web',
+                            component: 'c',
+                            widget: 'w'
+                        }
+                    });
+                });
+
+                it('unauthorized', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.getWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('forbidden', function () {
+                    expectedHttpRequest.respond(403);
+                    gateway.getWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.forbidden).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violations');
+                    gateway.getWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violations', 412);
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, {aspectRatio: {width: 3, height: 2}, fittingRule: 'contain'});
+                    gateway.getWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith({
+                        aspectRatio: {width: 3, height: 2},
+                        fittingRule: 'contain'
+                    });
+                });
+            });
+
+            describe('save widget attributes', function () {
+                beforeEach(function () {
+                    request = {component: 'c', widget: 'w', attributes: 'a'};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/save.widget.attributes', {
+                        headers: {
+                            namespace: 'n'
+                        },
+                        payload: {
+                            platform: 'web',
+                            component: 'c',
+                            widget: 'w',
+                            attributes: 'a'
+                        }
+                    });
+                });
+
+                it('unauthorized', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.saveWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('forbidden', function () {
+                    expectedHttpRequest.respond(403);
+                    gateway.saveWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.forbidden).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violations');
+                    gateway.saveWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violations', 412);
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.saveWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
                 });
             });
         });

@@ -113,6 +113,45 @@
                 url: gateway.config.baseUri + 'api/contact/us',
                 data: request
             }).then(response.success, toErrorResponse(response));
+        };
+
+        this.getWidgetAttributes = function (request, response) {
+            gateway.$http({
+                method: 'POST',
+                url: gateway.config.baseUri + 'api/get.widget.attributes',
+                data: {
+                    headers: {
+                        namespace: gateway.config.namespace
+                    },
+                    payload: {
+                        platform: 'web',
+                        component: request.component,
+                        widget: request.widget
+                    }
+                }
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.saveWidgetAttributes = function (request, response) {
+            gateway.$http({
+                method: 'POST',
+                url: gateway.config.baseUri + 'api/save.widget.attributes',
+                data: {
+                    headers: {
+                        namespace: gateway.config.namespace
+                    },
+                    payload: {
+                        platform: 'web',
+                        component: request.component,
+                        widget: request.widget,
+                        attributes: request.attributes
+                    }
+                }
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
         }
     }
 
