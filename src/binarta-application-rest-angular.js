@@ -118,7 +118,7 @@
         this.getWidgetAttributes = function (request, response) {
             gateway.$http({
                 method: 'POST',
-                url: gateway.config.baseUri + 'api/get.widget.attributes',
+                url: gateway.config.baseUri + 'api/get-widget-attributes',
                 data: {
                     headers: {
                         namespace: gateway.config.namespace
@@ -137,7 +137,7 @@
         this.saveWidgetAttributes = function (request, response) {
             gateway.$http({
                 method: 'POST',
-                url: gateway.config.baseUri + 'api/save.widget.attributes',
+                url: gateway.config.baseUri + 'api/save-widget-attributes',
                 data: {
                     headers: {
                         namespace: gateway.config.namespace

@@ -258,7 +258,7 @@
             describe('get widget attributes', function () {
                 beforeEach(function () {
                     request = {component: 'c', widget: 'w'};
-                    expectedHttpRequest = $http.expectPOST('http://host/api/get.widget.attributes', {
+                    expectedHttpRequest = $http.expectPOST('http://host/api/get-widget-attributes', {
                         headers: {
                             namespace: 'n'
                         },
@@ -305,7 +305,7 @@
             describe('save widget attributes', function () {
                 beforeEach(function () {
                     request = {component: 'c', widget: 'w', attributes: 'a'};
-                    expectedHttpRequest = $http.expectPOST('http://host/api/save.widget.attributes', {
+                    expectedHttpRequest = $http.expectPOST('http://host/api/save-widget-attributes', {
                         headers: {
                             namespace: 'n'
                         },
