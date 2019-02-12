@@ -128,7 +128,8 @@
                         component: request.component,
                         widget: request.widget
                     }
-                }
+                },
+                withCredentials: true
             }).then(function (it) {
                 response.success(it.data);
             }, toErrorResponse(response));
@@ -148,7 +149,8 @@
                         widget: request.widget,
                         attributes: request.attributes
                     }
-                }
+                },
+                withCredentials: true
             }).then(function (it) {
                 response.success(it.data);
             }, toErrorResponse(response));
