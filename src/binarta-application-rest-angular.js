@@ -131,7 +131,7 @@
                 },
                 withCredentials: true
             }).then(function (it) {
-                response.success(it.data);
+                response.success(it.data || {aspectRatio: {}});
             }, toErrorResponse(response));
         };
 

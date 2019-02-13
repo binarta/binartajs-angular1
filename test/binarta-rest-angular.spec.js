@@ -300,6 +300,15 @@
                         fittingRule: 'contain'
                     });
                 });
+
+                it('success handles null responses from server', function () {
+                    expectedHttpRequest.respond(200, null);
+                    gateway.getWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith({
+                        aspectRatio: {}
+                    });
+                });
             });
 
             describe('save widget attributes', function () {
