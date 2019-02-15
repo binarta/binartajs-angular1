@@ -22,6 +22,7 @@
         .directive('binDhref', ['$location', 'application', BinDhrefDirectiveFactory])
         .directive('binApplicationLock', ['binarta', 'application', ApplicationLockDirective])
         .component('cookiePermissionGranted', new CookiePermissionGrantedComponent())
+        .component('binDns', new DNSComponent())
         .run(['application', WireAngularDependencies])
         .run(['$rootScope', 'application', '$location', InstallRouteChangeListeners])
         .run([
@@ -214,6 +215,111 @@
                 binarta.application.cookies.permission.revoke();
                 updateStatus();
             }
+        })];
+    }
+
+    function DNSComponent() {
+        this.templateUrl = 'bin-all-dns-component.html';
+        this.bindings = {
+            containerTemplate: '@'
+        };
+        this.controller = ['binarta', binComponentController(function () {
+            var $ctrl = this;
+
+            $ctrl.templateUrl = 'bin-all-dns-component-widget.html';
+            $ctrl.i18n = {
+                title: 'bin.dns.component.title'
+            };
+
+            $ctrl.observables = [{
+                toObserver: function () {
+                    return binarta.application.dns.observe({
+                        status: function (it) {
+                            $ctrl.working = it == 'working';
+                            $ctrl.violationReport = undefined;
+                        },
+                        disabled: function () {
+                            $ctrl.disabled = true;
+                        },
+                        records: function (it) {
+                            $ctrl.records = it;
+                        },
+                        rejected: function (it) {
+                            $ctrl.violationReport = it;
+                        }
+                    });
+                }
+            }];
+            $ctrl.addInitHandler(function () {
+                $ctrl.containerTemplate = $ctrl.containerTemplate || 'bin-all-dns-component-container-default.html';
+                reset();
+            });
+
+            $ctrl.submit = function () {
+                $ctrl[$ctrl.status]();
+            };
+
+            $ctrl.add = function () {
+                $ctrl.records.push({
+                    id: toNextIdx(),
+                    type: $ctrl.draft.type,
+                    name: $ctrl.draft.name,
+                    values: toArray($ctrl.draft.values)
+                });
+                reset();
+            };
+
+            function toNextIdx() {
+                return $ctrl.records.reduce(function(p, c) {
+                    return c.id > p ? c.id : p;
+                }, -1) + 1;
+            }
+
+            function reset() {
+                $ctrl.draft = {};
+                $ctrl.status = 'add';
+            }
+
+            function toArray(it) {
+                return it.split(/[\r\n]+/);
+            }
+
+            $ctrl.remove = function (record) {
+                $ctrl.records = $ctrl.records.filter(not(byTypeAndName(record)));
+            };
+
+            function byTypeAndName(x) {
+                return function (y) {
+                    return x.type == y.type && x.name == y.name
+                }
+            }
+
+            function not(predicate) {
+                return function (it) {
+                    return !predicate(it);
+                }
+            }
+
+            $ctrl.modify = function (record) {
+                $ctrl.status = 'update';
+                $ctrl.draft = {
+                    type: record.type,
+                    name: record.name,
+                    values: record.values.join('\n')
+                };
+            };
+
+            $ctrl.update = function () {
+                var it = $ctrl.records.filter(byTypeAndName($ctrl.draft))[0];
+                it.values = toArray($ctrl.draft.values);
+                reset();
+            };
+
+            $ctrl.save = function () {
+                binarta.application.dns.save($ctrl.records);
+            };
+
+            $ctrl.clear = reset;
         })];
     }
 

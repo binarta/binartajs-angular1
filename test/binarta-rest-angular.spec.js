@@ -355,6 +355,84 @@
                     expect(response.success).toHaveBeenCalled();
                 });
             });
+
+            describe('save custom domain records', function () {
+                beforeEach(function () {
+                    request = 'records';
+                    expectedHttpRequest = $http.expectPOST('http://host/api/save-custom-domain-records', {
+                        headers: {
+                            namespace: 'n'
+                        },
+                        payload: {
+                            records: 'records'
+                        }
+                    });
+                });
+
+                it('unauthorized', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.saveCustomDomainRecords(request, response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('forbidden', function () {
+                    expectedHttpRequest.respond(403);
+                    gateway.saveCustomDomainRecords(request, response);
+                    $http.flush();
+                    expect(response.forbidden).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violations');
+                    gateway.saveCustomDomainRecords(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violations', 412);
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.saveCustomDomainRecords(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('get custom domain records', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectPOST('http://host/api/get-custom-domain-records', {
+                        headers: {namespace: 'n'}
+                    });
+                });
+
+                it('unauthorized', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.getCustomDomainRecords(response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('forbidden', function () {
+                    expectedHttpRequest.respond(403);
+                    gateway.getCustomDomainRecords(response);
+                    $http.flush();
+                    expect(response.forbidden).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violations');
+                    gateway.getCustomDomainRecords(response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violations', 412);
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.getCustomDomainRecords(response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
         });
 
         describe('checkpoint gateway', function () {

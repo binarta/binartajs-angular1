@@ -957,6 +957,223 @@
                 });
             });
 
+            describe('<bin-dns/>', function () {
+                describe('without optional bindings', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binDns', undefined, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                        binarta.application.dns.save([]);
+                    });
+
+                    it('exposes default container template', function () {
+                        expect($ctrl.containerTemplate).toEqual('bin-all-dns-component-container-default.html');
+                    });
+
+                    it('exposes template url', function () {
+                        expect($ctrl.templateUrl).toEqual('bin-all-dns-component-widget.html');
+                    });
+
+                    it('exposes i18n codes', function () {
+                        expect($ctrl.i18n).toEqual({
+                            title: 'bin.dns.component.title'
+                        });
+                    });
+
+                    it('exposes records', function () {
+                        expect($ctrl.records).toEqual([]);
+                    });
+
+                    it('exposes draft', function () {
+                        expect($ctrl.draft).toEqual({});
+                    });
+
+                    describe('add record to widget', function () {
+                        beforeEach(function () {
+                            $ctrl.draft.type = 'T';
+                            $ctrl.draft.name = 'N';
+                            $ctrl.draft.values = 'V';
+
+                            $ctrl.submit();
+                        });
+
+                        it('appends the records to the exposed records', function () {
+                            expect($ctrl.records).toEqual([{id: 0, type: 'T', name: 'N', values: ['V']}]);
+                        });
+
+                        it('clears the draft', function () {
+                            expect($ctrl.draft).toEqual({});
+                        });
+                    });
+
+                    it('add record with multiple newline separated values to widget', function () {
+                        $ctrl.draft.type = 'T';
+                        $ctrl.draft.name = 'N';
+                        $ctrl.draft.values = 'x\ny\nz';
+
+                        $ctrl.submit();
+
+                        expect($ctrl.records).toEqual([{id: 0, type: 'T', name: 'N', values: ['x', 'y', 'z']}]);
+                    });
+
+                    it('add record with multiple carriage return separated values to widget', function () {
+                        $ctrl.draft.type = 'T';
+                        $ctrl.draft.name = 'N';
+                        $ctrl.draft.values = 'x\ry\rz';
+
+                        $ctrl.submit();
+
+                        expect($ctrl.records).toEqual([{id: 0, type: 'T', name: 'N', values: ['x', 'y', 'z']}]);
+                    });
+
+                    describe('adding multiple records', function () {
+                        beforeEach(function () {
+                            $ctrl.draft.type = 'A';
+                            $ctrl.draft.name = '';
+                            $ctrl.draft.values = '1.1.1.1\n2.2.2.2';
+                            $ctrl.submit();
+
+                            $ctrl.draft.type = 'TXT';
+                            $ctrl.draft.name = '';
+                            $ctrl.draft.values = 'config';
+                            $ctrl.submit();
+
+                            $ctrl.draft.type = 'CNAME';
+                            $ctrl.draft.name = 'www';
+                            $ctrl.draft.values = 'proxy.example.org.';
+                            $ctrl.submit();
+                        });
+
+                        it('exposes status', function () {
+                            expect($ctrl.status).toEqual('add');
+                        });
+
+                        it('is reflected in the exposed records', function () {
+                            expect($ctrl.records).toEqual([
+                                {id: 0, type: 'A', name: '', values: ['1.1.1.1', '2.2.2.2']},
+                                {id: 1, type: 'TXT', name: '', values: ['config']},
+                                {id: 2, type: 'CNAME', name: 'www', values: ['proxy.example.org.']}
+                            ]);
+                        });
+
+                        it('remove first record', function () {
+                            $ctrl.remove({type: 'A', name: ''});
+                            expect($ctrl.records).toEqual([
+                                {id: 1, type: 'TXT', name: '', values: ['config']},
+                                {id: 2, type: 'CNAME', name: 'www', values: ['proxy.example.org.']}
+                            ]);
+                        });
+
+                        it('remove second record', function () {
+                            $ctrl.remove({type: 'TXT', name: ''});
+                            expect($ctrl.records).toEqual([
+                                {id: 0, type: 'A', name: '', values: ['1.1.1.1', '2.2.2.2']},
+                                {id: 2, type: 'CNAME', name: 'www', values: ['proxy.example.org.']}
+                            ]);
+                        });
+
+                        it('remove third record', function () {
+                            $ctrl.remove({type: 'CNAME', name: 'www'});
+                            expect($ctrl.records).toEqual([
+                                {id: 0, type: 'A', name: '', values: ['1.1.1.1', '2.2.2.2']},
+                                {id: 1, type: 'TXT', name: '', values: ['config']}
+                            ]);
+                        });
+
+                        it('save updates results in database', function () {
+                            $ctrl.save();
+                            binarta.application.dns.refresh();
+                            binarta.application.dns.observe({
+                                records: function (it) {
+                                    expect(it).toEqual([
+                                        {id: 0, type: 'A', name: '', values: ['1.1.1.1', '2.2.2.2']},
+                                        {id: 1, type: 'TXT', name: '', values: ['config']},
+                                        {id: 2, type: 'CNAME', name: 'www', values: ['proxy.example.org.']}
+                                    ]);
+                                }
+                            }).disconnect();
+                        });
+
+                        describe('when modifying a record', function () {
+                            beforeEach(function () {
+                                $ctrl.modify($ctrl.records[0]);
+                            });
+
+                            it('exposes status', function () {
+                                expect($ctrl.status).toEqual('update');
+                            });
+
+                            it('exposes details on draft', function () {
+                                expect($ctrl.draft).toEqual({
+                                    type: 'A',
+                                    name: '',
+                                    values: '1.1.1.1\n2.2.2.2'
+                                });
+                            });
+
+                            describe('on submit', function () {
+                                beforeEach(function () {
+                                    $ctrl.draft.values = '1.1.1.1';
+                                    $ctrl.submit();
+                                });
+
+                                it('exposes status', function () {
+                                    expect($ctrl.status).toEqual('add');
+                                });
+
+                                it('the modified record is updated in the exposed records', function () {
+                                    expect($ctrl.records).toEqual([
+                                        {id: 0, type: 'A', name: '', values: ['1.1.1.1']},
+                                        {id: 1, type: 'TXT', name: '', values: ['config']},
+                                        {id: 2, type: 'CNAME', name: 'www', values: ['proxy.example.org.']}
+                                    ]);
+                                });
+
+                                it('system reverts to add record on submit', function () {
+                                    $ctrl.draft.type = 'T';
+                                    $ctrl.draft.name = 'N';
+                                    $ctrl.draft.values = 'V';
+
+                                    $ctrl.submit();
+
+                                    expect($ctrl.records.length).toEqual(4);
+                                });
+                            });
+
+                            describe('on clear', function () {
+                                beforeEach(function () {
+                                    $ctrl.clear();
+                                });
+
+                                it('exposes status', function () {
+                                    expect($ctrl.status).toEqual('add');
+                                });
+
+                                it('clears draft', function () {
+                                    expect($ctrl.draft).toEqual({});
+                                });
+                            });
+                        });
+                    });
+                });
+
+                describe('with optional bindings', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binDns', undefined, {
+                            containerTemplate: 'test-border-template.html'
+                        });
+                        $ctrl.$onInit();
+                    }));
+
+                    it('exposes default container template', function () {
+                        expect($ctrl.containerTemplate).toEqual('test-border-template.html');
+                    });
+                });
+            });
+
             describe('component controller decorator', function () {
                 var spy;
 
@@ -3779,8 +3996,8 @@
                 expect($ctrl.mode).toEqual('personal');
             });
 
-            describe('on reseller', function() {
-                beforeEach(function() {
+            describe('on reseller', function () {
+                beforeEach(function () {
                     $ctrl.hooks.reseller();
                 });
 

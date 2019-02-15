@@ -56,7 +56,13 @@
       "shop.delivery.method.collect.label": "Bestellingen moeten worden afgehaald op uw adres. Klanten zullen niet worden gevraagd om een verzendadres op te geven.",
       "shop.delivery.method.activate.button": "Activeren",
       "shop.delivery.method.id.required": "Verplicht",
-      "shop.comment.panel.title":"Opmerkingen"
+      "shop.comment.panel.title": "Opmerkingen",
+      "bin.dns.component.title": "DNS",
+      "bin.dns.record.A.format": "Verwacht formaat: 'd.d.d.d' (waarbij d een waarde tussen 0 en 255 is)",
+      "bin.dns.record.MX.format": "Verwacht formaat: 'prio domeinnaam'. (waarbij prio een waarde tussen 0 en 65536 is, heeft de domeinnaam geen spaties en eindigt optioneel in een punt)",
+      "bin.dns.record.TXT.format": "Verwacht formaat: '\"vrij formaat\"'",
+      "bin.dns.record.CNAME.format": "Verwachte fomat: 'domeinnaam'. (waarbij de domeinnaam geen spaties heeft en optioneel eindigt in een punt)",
+      "bin.dns.record.SRV.format": "Verwacht formaat: 'prioriteit gewicht poort doeldomein.'"
     },
     "en": {
       "coupon.code.label": "Coupon Code",
@@ -114,7 +120,13 @@
       "shop.delivery.method.collect.label": "Orders must be collected at your address. Customers will not be asked to specify a shipping address.",
       "shop.delivery.method.activate.button": "Activate",
       "shop.delivery.method.id.required": "Required",
-      "shop.comment.panel.title":"Comments"
+      "shop.comment.panel.title": "Comments",
+      "bin.dns.component.title": "DNS",
+      "bin.dns.record.A.format": "Expected format: 'd.d.d.d' (where d is a value between 0 and 255)",
+      "bin.dns.record.MX.format": "Expected format: 'prio domainname.' (where prio is a value between 0 and 65536, the domain name has no spaces and optionally ends in a dot)",
+      "bin.dns.record.TXT.format": "Expected format: '\"free format\"'",
+      "bin.dns.record.CNAME.format": "Expected fomat: 'domainname.' (where the domainname has no spaces and optionally ends in a dot)",
+      "bin.dns.record.SRV.format": "Expected format: 'priority weight port targetdomain.'"
     },
     "fr": {
       "coupon.code.label": "Code Promo",
@@ -172,7 +184,13 @@
       "shop.delivery.method.collect.label": "Les commandes doivent être collectées à votre adresse. Les clients ne seront pas invités à spécifier une adresse de livraison.",
       "shop.delivery.method.activate.button": "Activer",
       "shop.delivery.method.id.required": "Requise",
-      "shop.comment.panel.title":"Commentaires"
+      "shop.comment.panel.title": "Commentaires",
+      "bin.dns.component.title": "DNS",
+      "bin.dns.record.A.format": "Format attendu: 'd.d.d.d' (où d est une valeur comprise entre 0 et 255)",
+      "bin.dns.record.MX.format": "Format attendu: 'prio domainname.' (où prio est une valeur comprise entre 0 et 65536, le nom de domaine n'a pas d'espaces et se termine éventuellement par un point)",
+      "bin.dns.record.TXT.format": "Format attendu: '\"format libre\"'",
+      "bin.dns.record.CNAME.format": "Fomat attendu: 'nom de domaine.' (où le nom de domaine n'a pas d'espaces et se termine éventuellement par un point)",
+      "bin.dns.record.SRV.format": "Format attendu: 'priorité poids port domain.'"
     },
     "de": {
       "coupon.code.label": "Gutscheincode",
@@ -230,7 +248,13 @@
       "shop.delivery.method.collect.label": "Bestellungen müssen an Ihrer Adresse abgeholt werden. Kunden werden nicht aufgefordert, eine Lieferadresse anzugeben.",
       "shop.delivery.method.activate.button": "Activate",
       "shop.delivery.method.id.required": "Required",
-      "shop.comment.panel.title":"Kommentare"
+      "shop.comment.panel.title": "Kommentare",
+      "bin.dns.component.title": "DNS",
+      "bin.dns.record.A.format": "Erwartetes Format: 'd.d.d.d' (wobei d ein Wert zwischen 0 und 255 ist)",
+      "bin.dns.record.MX.format": "Erwartetes Format: 'prio Domainname'. (wobei prio einen Wert zwischen 0 und 65536 hat, enthält der Domänenname keine Leerzeichen und endet optional mit einem Punkt)",
+      "bin.dns.record.TXT.format": "Erwartetes Format: '\"freies Format\"'",
+      "bin.dns.record.CNAME.format": "Erwarteter fomat: 'Domänenname' (wobei der Domainname keine Leerzeichen hat und optional mit einem Punkt endet)",
+      "bin.dns.record.SRV.format": "Erwartetes Format: 'Priorität gewichtung port Zieldomäne.'"
     }
   }
 }

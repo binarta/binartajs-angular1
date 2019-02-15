@@ -154,6 +154,31 @@
             }).then(function (it) {
                 response.success(it.data);
             }, toErrorResponse(response));
+        };
+
+        this.getCustomDomainRecords = function (response) {
+            gateway.$http({
+                method: 'POST',
+                url: gateway.config.baseUri + 'api/get-custom-domain-records',
+                data: {
+                    headers: {namespace: gateway.config.namespace}
+                },
+                withCredentials: true
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.saveCustomDomainRecords = function (request, response) {
+            gateway.$http({
+                method: 'POST',
+                url: gateway.config.baseUri + 'api/save-custom-domain-records',
+                data: {
+                    headers: {namespace: gateway.config.namespace},
+                    payload: {records: request}
+                },
+                withCredentials: true
+            }).then(response.success, toErrorResponse(response));
         }
     }
 
