@@ -240,6 +240,17 @@
             }, toErrorResponse(response));
         };
 
+        this.configurePaymentOnReceipt = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/payment-on-receipt/configure',
+                withCredentials: true,
+                data: {}
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
+        };
+
         this.configureCC = function (request, response) {
             self.$http({
                 method: 'POST',
@@ -268,6 +279,17 @@
                 }
             }).then(function () {
                 response.success();
+            }, toErrorResponse(response));
+        };
+
+        this.getPaymentOnReceiptParams = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/payment-on-receipt/params',
+                withCredentials: true,
+                data: {}
+            }).then(function (it) {
+                response.success(it.data);
             }, toErrorResponse(response));
         };
 

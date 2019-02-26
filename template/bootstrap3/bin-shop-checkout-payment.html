@@ -3,10 +3,11 @@
     <!-- <bin-checkout-roadmap></bin-checkout-roadmap> -->
     <div class="container bin-checkout-body">
         <div class="row">
-            <bin-pay ng-if="$ctrl.order().provider != 'wire-transfer'" provider="{{$ctrl.order().provider}}"
+            <bin-pay ng-if="$ctrl.order().provider != 'wire-transfer' && $ctrl.order().provider != 'payment-on-receipt'"
+                     provider="{{$ctrl.order().provider}}"
                      order="$ctrl.order()" on-confirmed="$ctrl.confirmPayment"
                      on-canceled="$ctrl.cancelPayment"></bin-pay>
-            <div ng-if="$ctrl.order().provider == 'wire-transfer'">
+            <div ng-if="$ctrl.order().provider == 'wire-transfer' || $ctrl.order().provider == 'payment-on-receipt'">
                 <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
                     <div class="bin-status-visual">
                         <i class="fa fa-check"></i>

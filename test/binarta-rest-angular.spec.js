@@ -1130,6 +1130,20 @@
                 });
             });
 
+            describe('configure payment on receipt', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/payment-on-receipt/configure', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.configurePaymentOnReceipt(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
             describe('configure cc', function () {
                 beforeEach(function () {
                     request = {
@@ -1169,6 +1183,20 @@
                     gateway.configureBancontact(request, response);
                     $http.flush();
                     expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('get payment on receipt params', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/payment-on-receipt/params', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'params');
+                    gateway.getPaymentOnReceiptParams(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('params');
                 });
             });
 

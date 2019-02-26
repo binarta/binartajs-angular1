@@ -3082,6 +3082,72 @@
                 });
             });
 
+            describe('bin-payment-on-receipt-config component', function () {
+                describe('when disabled', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binPaymentOnReceiptConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    it('exposes status', function () {
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+
+                    it('exposes params', function () {
+                        expect($ctrl.params).toBeUndefined();
+                    });
+
+                    it('configure', function () {
+                        $ctrl.configure();
+                        expect($ctrl.status).toEqual('configured');
+                        $ctrl.disable();
+                    });
+
+                    it('configuring while controller destroy hook has been called will not receive updates', function () {
+                        $ctrl.$onDestroy();
+                        $ctrl.configure();
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+                });
+
+                describe('when configured', function () {
+                    beforeEach(inject(function ($componentController) {
+                        binarta.shop.gateway.configurePaymentOnReceipt({}, {
+                            success: function () {
+                            }
+                        });
+                        $ctrl = $componentController('binPaymentOnReceiptConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('expose configured status', function () {
+                        expect($ctrl.status).toEqual('configured');
+                    });
+
+                    it('expose params', function () {
+                        expect($ctrl.params).toEqual({});
+                    });
+
+                    describe('disable', function () {
+                        beforeEach(function () {
+                            $ctrl.disable();
+                        });
+
+                        it('expose diabled status', function () {
+                            expect($ctrl.status).toEqual('disabled');
+                        });
+
+                        it('expose updated params', function () {
+                            expect($ctrl.params).toBeUndefined();
+                        });
+                    });
+                });
+            });
+
             describe('bin-cc-config component', function () {
                 describe('when disabled', function () {
                     beforeEach(inject(function ($componentController) {
