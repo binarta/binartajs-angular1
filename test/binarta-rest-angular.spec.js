@@ -1244,7 +1244,39 @@
                     $http.flush();
                     expect(response.success).toHaveBeenCalled();
                 });
-            })
+            });
+
+            describe('get delivery method params', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/get-delivery-method-params', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'params');
+                    gateway.getDeliveryMethodParams(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('params');
+                });
+            });
+
+            describe('activate delivery method', function () {
+                beforeEach(function () {
+                    request = {id: 'method'};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/activate-delivery-method', {
+                        payload: {
+                            id: 'method'
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.activateDeliveryMethod(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
         });
 
         describe('human resources db', function () {

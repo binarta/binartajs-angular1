@@ -17,6 +17,7 @@
       "shop.account.deletion.info": "Het verwijderen van je account verwijderd je login, profiel, adres en eventuele aan ons toegekende mandaten. Behalve voor wettelijk historische opnames zoals gemaakte bestellingen.",
       "shop.account.deletion.button": "Account Verwijderen",
       "shop.account.deletion.confirmation.label": "Bent u zeker dat je jouw account wil verwijderen? Deze stap kan niet ongedaan gemaakt worden.",
+      "purchase.orders.payment.method.wire-transfer": "Overschrijving",
       "purchase.orders.payment.method.payment-on-receipt": "Bij ontvangst",
       "purchase.orders.payment.method.cc": "Kredietkaart",
       "purchase.orders.payment.method.bancontact": "Bancontact",
@@ -49,7 +50,10 @@
       "shop.payment-on-receipt.disable.button": "Uitschakelen",
       "shop.bancontact.owner.required": "Verplicht",
       "shop.financial.institution.id.required": "Verplicht",
-      "shop.financial.institution.id.exists": "Onbekend"
+      "shop.financial.institution.id.exists": "Onbekend",
+      "shop.delivery.method.id.label": "Leveringsmethode",
+      "shop.delivery.method.activate.button": "Activeren",
+      "shop.delivery.method.id.required": "Verplicht"
     },
     "en": {
       "coupon.code.label": "Coupon Code",
@@ -68,6 +72,7 @@
       "shop.account.deletion.info": "Removal of your account removes your login, profile, address and any running mandates with us. Unless for legal historic records like previously placed orders.",
       "shop.account.deletion.button": "Remove Account",
       "shop.account.deletion.confirmation.label": "Are you sure you wish to remove your account? This step is not reversible.",
+      "purchase.orders.payment.method.wire-transfer": "Wire transfer",
       "purchase.orders.payment.method.payment-on-receipt": "On collection",
       "purchase.orders.payment.method.cc": "Credit Card",
       "purchase.orders.payment.method.bancontact": "Bancontact",
@@ -100,7 +105,10 @@
       "shop.payment-on-receipt.disable.button": "Disable",
       "shop.bancontact.owner.required": "Required",
       "shop.financial.institution.id.required": "Required",
-      "shop.financial.institution.id.exists": "Unknown"
+      "shop.financial.institution.id.exists": "Unknown",
+      "shop.delivery.method.id.label": "Delivery method",
+      "shop.delivery.method.activate.button": "Activate",
+      "shop.delivery.method.id.required": "Required"
     },
     "fr": {
       "coupon.code.label": "Code Promo",
@@ -119,6 +127,7 @@
       "shop.account.deletion.info": "Supprimation de votre compte supprime votre mot de passe, profil, addresse et tout service avec nous. Excepté pour raisons legaux comme des commandes placées dans le passé.",
       "shop.account.deletion.button": "Supprime mon Compte",
       "shop.account.deletion.confirmation.label": "Êtes-vous sûr de vouloir supprimer votre compte? Cette opération n'est pas réversible.",
+      "purchase.orders.payment.method.wire-transfer": "Virement bancaire",
       "purchase.orders.payment.method.payment-on-receipt": "Sur collection",
       "purchase.orders.payment.method.cc": "Carte de Crédit",
       "purchase.orders.payment.method.bancontact": "Bancontact",
@@ -151,7 +160,10 @@
       "shop.payment-on-receipt.disable.button": "Désactiver",
       "shop.bancontact.owner.required": "Requise",
       "shop.financial.institution.id.required": "Requise",
-      "shop.financial.institution.id.exists": "Inconnu"
+      "shop.financial.institution.id.exists": "Inconnu",
+      "shop.delivery.method.id.label": "Methode de livraison",
+      "shop.delivery.method.activate.button": "Activer",
+      "shop.delivery.method.id.required": "Requise"
     },
     "de": {
       "coupon.code.label": "Gutscheincode",
@@ -170,6 +182,7 @@
       "shop.account.deletion.info": "Durch die Entfernung Ihres Kontos werden Ihre Anmeldedaten, Ihr Profil, Ihre Adresse und alle laufenden Mandate bei uns gelöscht. Es sei denn für legale historische Aufzeichnungen wie zuvor platzierte Aufträge.",
       "shop.account.deletion.button": "Konto entfernen",
       "shop.account.deletion.confirmation.label": "Möchten Sie Ihr Konto wirklich löschen? Dieser Schritt ist nicht umkehrbar.",
+      "purchase.orders.payment.method.wire-transfer": "Wire transfer",
       "purchase.orders.payment.method.payment-on-receipt": "Auf rezept",
       "purchase.orders.payment.method.cc": "Credit Card",
       "purchase.orders.payment.method.bancontact": "Bancontact",
@@ -202,7 +215,10 @@
       "shop.payment-on-receipt.disable.button": "Disable",
       "shop.bancontact.owner.required": "Required",
       "shop.financial.institution.id.required": "Required",
-      "shop.financial.institution.id.exists": "Unknown"
+      "shop.financial.institution.id.exists": "Unknown",
+      "shop.delivery.method.id.label": "Delivery method",
+      "shop.delivery.method.activate.button": "Activate",
+      "shop.delivery.method.id.required": "Required"
     }
   }
 }

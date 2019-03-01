@@ -328,7 +328,33 @@
             }).then(function () {
                 response.success();
             }, toErrorResponse(response));
-        }
+        };
+
+        this.getDeliveryMethodParams = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/get-delivery-method-params',
+                withCredentials: true,
+                data: {}
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.activateDeliveryMethod = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/activate-delivery-method',
+                withCredentials: true,
+                data: {
+                    payload: {
+                        id: request.id
+                    }
+                }
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
+        };
     }
 
     function GatewayIsInitialisedFactory($q) {

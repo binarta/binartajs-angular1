@@ -5,7 +5,8 @@
         'binarta-shopjs-gateways-angular1',
         'binarta-checkpointjs-angular1',
         'binarta-applicationjs-angular1',
-        'binarta-checkpointjs-recaptcha-angular1'
+        'binarta-checkpointjs-recaptcha-angular1',
+        'binarta-shopjs-tpls-angular1'
     ])
         .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', 'applicationProvider', ShopProvider])
         .component('binBasket', new BasketComponent())
@@ -30,6 +31,7 @@
         .component('binPaymentOnReceiptConfig', new PaymentOnReceiptConfigComponent())
         .component('binCcConfig', new CreditCardConfigComponent())
         .component('binBancontactConfig', new BancontactConfigComponent())
+        .component('binDeliveryMethods', new DeliveryMethodsComponent())
         .config(['binartaProvider', 'shopProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['shop', WireAngularDependencies])
@@ -692,6 +694,31 @@
                 binarta.shop.bancontact.disable();
             }
         }];
+    }
+
+    function DeliveryMethodsComponent() {
+        this.templateUrl = 'bin-shop-delivery-methods-component.html';
+        this.controller = ['binarta', binComponentController(function (binarta) {
+            $ctrl = this;
+
+            $ctrl.addInitHandler(function () {
+                $ctrl.addDestroyHandler(binarta.shop.deliveryMethods.observe({
+                    status: function (it) {
+                        $ctrl.status = it;
+                    },
+                    supportedDeliveryMethods: function (it) {
+                        $ctrl.supportedMethods = it;
+                    },
+                    activeDeliveryMethod: function (it) {
+                        $ctrl.activeMethod = it;
+                    }
+                }).disconnect);
+            });
+
+            $ctrl.activate = function() {
+                binarta.shop.deliveryMethods.activate($ctrl.activeMethod);
+            }
+        })];
     }
 
     function CouponComponent() {
