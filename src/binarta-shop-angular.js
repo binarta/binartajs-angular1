@@ -829,6 +829,11 @@
     function InstallSummarySupport(binarta, decorator) {
         decorator.add(function (ctrl) {
             ctrl.confirm = function () {
+                if(ctrl.comment) {
+                    var ctx = binarta.shop.checkout.context();
+                    ctx.order.comment = ctrl.comment;
+                    binarta.shop.checkout.persist(ctx);
+                }
                 binarta.shop.checkout.confirm(function () {
                     sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
                     ctrl.start();

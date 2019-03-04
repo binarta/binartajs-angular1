@@ -2151,6 +2151,15 @@
                     expect($location.path()).toEqual('/checkout/completed');
                 });
 
+                it('on summary step an optional comment can be specified', function() {
+                    binarta.shop.checkout.start({provider: 'with-sufficient-funds'}, ['summary', 'completed']);
+
+                    ctrl.comment = 'x';
+                    ctrl.confirm();
+
+                    expect(binarta.shop.checkout.context().order.comment).toEqual('x');
+                });
+
                 it('on setup payment provider retry will redeliver the order and proceed to next step', function () {
                     binarta.shop.checkout.start({provider: 'with-sufficient-funds'}, ['setup-payment-provider', 'completed']);
 
@@ -2633,7 +2642,7 @@
                 });
             });
 
-            fdescribe('<bin-address/>', function () {
+            describe('<bin-address/>', function () {
                 var $ctrl;
 
                 beforeEach(inject(function ($componentController) {

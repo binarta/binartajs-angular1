@@ -53,7 +53,8 @@
       "shop.financial.institution.id.exists": "Onbekend",
       "shop.delivery.method.id.label": "Leveringsmethode",
       "shop.delivery.method.activate.button": "Activeren",
-      "shop.delivery.method.id.required": "Verplicht"
+      "shop.delivery.method.id.required": "Verplicht",
+      "shop.comment.panel.title":"Opmerkingen"
     },
     "en": {
       "coupon.code.label": "Coupon Code",
@@ -108,7 +109,8 @@
       "shop.financial.institution.id.exists": "Unknown",
       "shop.delivery.method.id.label": "Delivery method",
       "shop.delivery.method.activate.button": "Activate",
-      "shop.delivery.method.id.required": "Required"
+      "shop.delivery.method.id.required": "Required",
+      "shop.comment.panel.title":"Comments"
     },
     "fr": {
       "coupon.code.label": "Code Promo",
@@ -163,7 +165,8 @@
       "shop.financial.institution.id.exists": "Inconnu",
       "shop.delivery.method.id.label": "Methode de livraison",
       "shop.delivery.method.activate.button": "Activer",
-      "shop.delivery.method.id.required": "Requise"
+      "shop.delivery.method.id.required": "Requise",
+      "shop.comment.panel.title":"Commentaires"
     },
     "de": {
       "coupon.code.label": "Gutscheincode",
@@ -218,7 +221,8 @@
       "shop.financial.institution.id.exists": "Unknown",
       "shop.delivery.method.id.label": "Delivery method",
       "shop.delivery.method.activate.button": "Activate",
-      "shop.delivery.method.id.required": "Required"
+      "shop.delivery.method.id.required": "Required",
+      "shop.comment.panel.title":"Kommentare"
     }
   }
 }

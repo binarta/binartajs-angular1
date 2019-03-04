@@ -4,25 +4,29 @@
       "component.upcoming.events.title": "Aankomende Gebeurtenissen",
       "contact.address": "Mijn adres, Leuven",
       "contact.phone": "012 34 56 78",
-      "contact.phone.info": "info"
+      "contact.phone.info": "info",
+      "shop.comment.panel.label":"Verdere opmerkingen over uw bestelling kunnen hier vermeld worden."
     },
     "en": {
       "component.upcoming.events.title": "Upcoming Events",
       "contact.address": "My address, Leuven",
       "contact.phone": "012 34 56 78",
-      "contact.phone.info": "info"
+      "contact.phone.info": "info",
+      "shop.comment.panel.label":"Further comments about your order can be mentioned here."
     },
     "fr": {
       "component.upcoming.events.title": "évènements à venir",
       "contact.address": "Mon adresse, Louvain",
       "contact.phone": "012 34 56 78",
-      "contact.phone.info": "info"
+      "contact.phone.info": "info",
+      "shop.comment.panel.label":"D'autres commentaires sur votre commande peuvent être mentionnés ici."
     },
     "de": {
       "component.upcoming.events.title": "Kommende Veranstaltungen",
       "contact.address": "Meine Adresse, Leuven",
       "contact.phone": "012 34 56 78",
-      "contact.phone.info": "info"
+      "contact.phone.info": "info",
+      "shop.comment.panel.label":"Weitere Anmerkungen zu Ihrer Bestellung können Sie hier angeben."
     }
   }
 }

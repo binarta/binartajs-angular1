@@ -5,7 +5,7 @@
     "./metadata-system.json"
   ],
   "dependencies": {
-    "binartajs": "file:///Users/sgo/workspaces/thinkerit.be/js/binartajs/.git#collect",
+    "binartajs": "^2.0.0",
     "binarta.web.storage.angular": "0.*.*",
     "binarta.config.angular": "0.*.*",
     "binarta.rest.client.angular": "0.*.*",
@@ -26,7 +26,6 @@
     "test"
   ],
   "resolutions": {
-    "angular": "1.5.*",
-    "binartajs": "collect"
+    "angular": "1.5.*"
   }
 }
