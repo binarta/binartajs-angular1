@@ -11,7 +11,6 @@
         .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', 'applicationProvider', ShopProvider])
         .component('binBasket', new BasketComponent())
         .component('binAddress', new AddressComponent())
-        .controller('BinartaAddressController', ['binarta', BinartaAddressController])
         .component('binPaymentMethods', new PaymentMethodsComponent())
         .controller('BinartaPaymentMethodsController', ['binarta', PaymentMethodsController])
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
@@ -172,156 +171,154 @@
             generateLabel: '@',
             initialAddress: '<'
         };
-        this.controller = 'BinartaAddressController';
         this.templateUrl = 'bin-shop-address.html';
-    }
+        this.controller = ['binarta', binComponentController(function (binarta) {
+            var $ctrl = this;
 
-    function BinartaAddressController(binarta) {
-        var profileEventListener = new ProfileEventListener(this);
-        var $ctrl = this;
+            this.mode = 'display';
 
-        this.mode = 'display';
+            $ctrl.addInitHandler(function () {
+                $ctrl.addDestroyHandler(binarta.checkpoint.profile.eventRegistry.observe(new ProfileEventListener($ctrl)).disconnect);
+                $ctrl.addDestroyHandler(binarta.shop.deliveryMethods.observe({
+                    activeDeliveryMethod: function (it) {
+                        $ctrl.status = $ctrl.purpose == 'shipping' && it == 'collect' ? 'disabled' : 'enabled';
+                    }
+                }));
 
-        this.$onInit = function () {
-            binarta.checkpoint.profile.eventRegistry.add(profileEventListener);
-
-            if ($ctrl.default && $ctrl.default.label)
-                $ctrl.select($ctrl.default.label);
-            if ($ctrl.initialAddress)
-                $ctrl.select($ctrl.initialAddress.label);
-        };
-
-        this.$onDestroy = function () {
-            binarta.checkpoint.profile.eventRegistry.remove(profileEventListener);
-        };
-
-        this.$onChanges = function (args) {
-            if (!$ctrl.divergedFromDefault && args.default && args.default.currentValue)
-                $ctrl.select(args.default.currentValue.label);
-        };
-
-        this.select = function (label) {
-            if ($ctrl.default && $ctrl.default.label != label)
-                $ctrl.divergedFromDefault = true;
-            $ctrl.label = label || $ctrl.default.label;
-            if ($ctrl.onSelect)
-                $ctrl.onSelect(address());
-        };
-
-        this.profileStatus = function () {
-            return binarta.checkpoint.profile.status();
-        };
-
-        this.addressStatus = function () {
-            return $ctrl.label ? address().status() : 'awaiting-selection';
-        };
-
-        this.new = function () {
-            binarta.checkpoint.profile.edit();
-            $ctrl.form = binarta.checkpoint.profile.updateRequest().address;
-            $ctrl.creatingAddress = true;
-        };
-
-        this.isCreatingAddress = function () {
-            return $ctrl.creatingAddress && ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection') && ($ctrl.profileStatus() == 'editing' || $ctrl.profileStatus() == 'working');
-        };
-
-        this.create = function () {
-            $ctrl.awaitingAddressCreation = true;
-            binarta.checkpoint.profile.update();
-        };
-
-        this.cancelNewAddress = function () {
-            if ($ctrl.creatingAddress) {
-                binarta.checkpoint.profile.cancel();
-                $ctrl.creatingAddress = false;
-            }
-        };
-
-        this.violationReport = function () {
-            return binarta.checkpoint.profile.violationReport().address;
-        };
-
-        this.edit = function () {
-            address().edit();
-            $ctrl.form = address().updateRequest();
-            $ctrl.editingAddress = true;
-        };
-
-        this.isSelectingAddress = function () {
-            return ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection' || !$ctrl.editingAddress) && ($ctrl.profileStatus() == 'idle' || !$ctrl.creatingAddress);
-        };
-
-        this.isEditingAddress = function () {
-            return $ctrl.editingAddress && ($ctrl.addressStatus() == 'editing' || $ctrl.addressStatus() == 'working');
-        };
-
-        this.update = function () {
-            if ($ctrl.generateLabel)
-                $ctrl.form.generateLabel = true;
-            address().update(function () {
-                $ctrl.editingAddress = false;
-                $ctrl.select($ctrl.form.label);
+                if ($ctrl.default && $ctrl.default.label)
+                    $ctrl.select($ctrl.default.label);
+                if ($ctrl.initialAddress)
+                    $ctrl.select($ctrl.initialAddress.label);
             });
-        };
 
-        this.cancel = function () {
-            address().cancel();
-        };
+            this.$onChanges = function (args) {
+                if (!$ctrl.divergedFromDefault && args.default && args.default.currentValue)
+                    $ctrl.select(args.default.currentValue.label);
+            };
 
-        this.addresses = function () {
-            return binarta.checkpoint.profile.addresses();
-        };
+            this.select = function (label) {
+                if ($ctrl.default && $ctrl.default.label != label)
+                    $ctrl.divergedFromDefault = true;
+                $ctrl.label = label || $ctrl.default.label;
+                if ($ctrl.onSelect)
+                    $ctrl.onSelect(address());
+            };
 
-        this.countries = function () {
-            return binarta.checkpoint.profile.supportedCountries();
-        };
+            this.profileStatus = function () {
+                return binarta.checkpoint.profile.status();
+            };
 
-        this.addressee = function () {
-            return address().addressee;
-        };
+            this.addressStatus = function () {
+                return $ctrl.label ? address().status() : 'awaiting-selection';
+            };
 
-        this.street = function () {
-            return address().street;
-        };
+            this.new = function () {
+                binarta.checkpoint.profile.edit();
+                $ctrl.form = binarta.checkpoint.profile.updateRequest().address;
+                $ctrl.creatingAddress = true;
+            };
 
-        this.number = function () {
-            return address().number;
-        };
+            this.isCreatingAddress = function () {
+                return $ctrl.creatingAddress && ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection') && ($ctrl.profileStatus() == 'editing' || $ctrl.profileStatus() == 'working');
+            };
 
-        this.zip = function () {
-            return address().zip;
-        };
+            this.create = function () {
+                $ctrl.awaitingAddressCreation = true;
+                binarta.checkpoint.profile.update();
+            };
 
-        this.city = function () {
-            return address().city;
-        };
-
-        this.country = function () {
-            return address().country;
-        };
-
-        function address() {
-            return binarta.checkpoint.profile.addresses().reduce(function (p, c) {
-                if (c.label == $ctrl.label)
-                    return c;
-                return p;
-            }, {
-                status: function () {
-                    return 'awaiting-selection';
-                }
-            });
-        }
-
-        function ProfileEventListener($ctrl) {
-            this.updated = function () {
-                if ($ctrl.awaitingAddressCreation) {
-                    $ctrl.select($ctrl.form.label);
+            this.cancelNewAddress = function () {
+                if ($ctrl.creatingAddress) {
+                    binarta.checkpoint.profile.cancel();
                     $ctrl.creatingAddress = false;
-                    $ctrl.awaitingAddressCreation = false;
+                }
+            };
+
+            this.violationReport = function () {
+                return binarta.checkpoint.profile.violationReport().address;
+            };
+
+            this.edit = function () {
+                address().edit();
+                $ctrl.form = address().updateRequest();
+                $ctrl.editingAddress = true;
+            };
+
+            this.isSelectingAddress = function () {
+                return ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection' || !$ctrl.editingAddress) && ($ctrl.profileStatus() == 'idle' || !$ctrl.creatingAddress);
+            };
+
+            this.isEditingAddress = function () {
+                return $ctrl.editingAddress && ($ctrl.addressStatus() == 'editing' || $ctrl.addressStatus() == 'working');
+            };
+
+            this.update = function () {
+                if ($ctrl.generateLabel)
+                    $ctrl.form.generateLabel = true;
+                address().update(function () {
+                    $ctrl.editingAddress = false;
+                    $ctrl.select($ctrl.form.label);
+                });
+            };
+
+            this.cancel = function () {
+                address().cancel();
+            };
+
+            this.addresses = function () {
+                return binarta.checkpoint.profile.addresses();
+            };
+
+            this.countries = function () {
+                return binarta.checkpoint.profile.supportedCountries();
+            };
+
+            this.addressee = function () {
+                return address().addressee;
+            };
+
+            this.street = function () {
+                return address().street;
+            };
+
+            this.number = function () {
+                return address().number;
+            };
+
+            this.zip = function () {
+                return address().zip;
+            };
+
+            this.city = function () {
+                return address().city;
+            };
+
+            this.country = function () {
+                return address().country;
+            };
+
+            function address() {
+                return binarta.checkpoint.profile.addresses().reduce(function (p, c) {
+                    if (c.label == $ctrl.label)
+                        return c;
+                    return p;
+                }, {
+                    status: function () {
+                        return 'awaiting-selection';
+                    }
+                });
+            }
+
+            function ProfileEventListener($ctrl) {
+                this.updated = function () {
+                    if ($ctrl.awaitingAddressCreation) {
+                        $ctrl.select($ctrl.form.label);
+                        $ctrl.creatingAddress = false;
+                        $ctrl.awaitingAddressCreation = false;
+                    }
                 }
             }
-        }
+        })];
     }
 
     function PaymentMethodsComponent() {
@@ -699,7 +696,7 @@
     function DeliveryMethodsComponent() {
         this.templateUrl = 'bin-shop-delivery-methods-component.html';
         this.controller = ['binarta', binComponentController(function (binarta) {
-            $ctrl = this;
+            var $ctrl = this;
 
             $ctrl.addInitHandler(function () {
                 $ctrl.addDestroyHandler(binarta.shop.deliveryMethods.observe({
@@ -715,9 +712,9 @@
                 }).disconnect);
             });
 
-            $ctrl.activate = function() {
+            $ctrl.activate = function () {
                 binarta.shop.deliveryMethods.activate($ctrl.activeMethod);
-            }
+            };
         })];
     }
 

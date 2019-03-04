@@ -37,6 +37,15 @@
             sessionStorage.removeItem('binartaJSSetupBillingAgreementReturnUrl');
         });
 
+        function render(source) {
+            var $scope = $rootScope.$new();
+            var component = $compile(source)($scope);
+            $rootScope.$digest();
+            var html = component.html().replace(/<!--[\s\S]*?-->/g, '');
+            $scope.$destroy();
+            return html;
+        }
+
         describe('binarta is initialised promise', function () {
             var initialisedBinarta, $rootScope, binartaIsInitialised, binartaGatewaysAreInitialised,
                 binartaConfigIsInitialised, binartaCachesAreInitialised;
@@ -2624,10 +2633,10 @@
                 });
             });
 
-            describe('AddressController', function () {
-                var ctrl;
+            fdescribe('<bin-address/>', function () {
+                var $ctrl;
 
-                beforeEach(inject(function ($controller) {
+                beforeEach(inject(function ($componentController) {
                     binarta.checkpoint.profile.edit();
                     binarta.checkpoint.profile.updateRequest().address.label = 'home';
                     binarta.checkpoint.profile.updateRequest().address.addressee = 'John Doe';
@@ -2637,94 +2646,98 @@
                     binarta.checkpoint.profile.updateRequest().address.city = 'Johnyville';
                     binarta.checkpoint.profile.updateRequest().address.country = 'BE';
                     binarta.checkpoint.profile.update();
-                    ctrl = $controller('BinartaAddressController');
-                    ctrl.onSelect = jasmine.createSpy('on-select');
+                    $ctrl = $componentController('binAddress', null, {});
+                    $ctrl.onSelect = jasmine.createSpy('on-select');
                 }));
 
+                afterEach(function () {
+                    $ctrl.$onDestroy();
+                });
+
                 it('mode defaults to display', function () {
-                    expect(ctrl.mode).toEqual('display');
+                    expect($ctrl.mode).toEqual('display');
                 });
 
                 it('expose profile status', function () {
-                    expect(ctrl.profileStatus()).toEqual('idle');
+                    expect($ctrl.profileStatus()).toEqual('idle');
                 });
 
                 it('expose address status', function () {
-                    expect(ctrl.addressStatus()).toEqual('awaiting-selection');
+                    expect($ctrl.addressStatus()).toEqual('awaiting-selection');
                 });
 
                 it('expose all addresses', function () {
-                    expect(ctrl.addresses().map(function (it) {
+                    expect($ctrl.addresses().map(function (it) {
                         return it.label;
                     })).toEqual(['home']);
                 });
 
                 it('when selecting an address then the selection listener is triggered', function () {
-                    ctrl.select('home');
-                    expect(ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
+                    $ctrl.select('home');
+                    expect($ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
                 });
 
                 it('when an undefined initial address is specified', function () {
-                    ctrl.initialAddress = undefined;
-                    ctrl.$onInit();
-                    expect(ctrl.onSelect).not.toHaveBeenCalled();
+                    $ctrl.initialAddress = undefined;
+                    $ctrl.$onInit();
+                    expect($ctrl.onSelect).not.toHaveBeenCalled();
                 });
 
                 it('when a known initial address is specified', function () {
-                    ctrl.initialAddress = {label: 'home'};
-                    ctrl.$onInit();
-                    expect(ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
+                    $ctrl.initialAddress = {label: 'home'};
+                    $ctrl.$onInit();
+                    expect($ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
                 });
 
                 it('when the initial address matches the default then changes to the default change the selection', function () {
-                    ctrl.default = {label: 'home'};
-                    ctrl.initialAddress = {label: 'home'};
-                    ctrl.$onInit();
-                    ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
-                    expect(ctrl.label).toEqual('work');
+                    $ctrl.default = {label: 'home'};
+                    $ctrl.initialAddress = {label: 'home'};
+                    $ctrl.$onInit();
+                    $ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
+                    expect($ctrl.label).toEqual('work');
                 });
 
                 it('when the initial address does not match the default then changes to the default are ignored', function () {
-                    ctrl.default = {label: 'work'};
-                    ctrl.initialAddress = {label: 'home'};
-                    ctrl.$onInit();
-                    ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
-                    expect(ctrl.label).toEqual('home');
+                    $ctrl.default = {label: 'work'};
+                    $ctrl.initialAddress = {label: 'home'};
+                    $ctrl.$onInit();
+                    $ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
+                    expect($ctrl.label).toEqual('home');
                 });
 
                 describe('when a specific address is selected', function () {
                     beforeEach(function () {
-                        ctrl.select('home');
+                        $ctrl.select('home');
                     });
 
                     it('expose address status', function () {
-                        expect(ctrl.addressStatus()).toEqual('idle');
+                        expect($ctrl.addressStatus()).toEqual('idle');
                     });
 
                     it('expose attributes', function () {
-                        expect(ctrl.addressee()).toEqual('John Doe');
-                        expect(ctrl.street()).toEqual('Johny Lane');
-                        expect(ctrl.number()).toEqual('1');
-                        expect(ctrl.zip()).toEqual('1000');
-                        expect(ctrl.city()).toEqual('Johnyville');
-                        expect(ctrl.country()).toEqual('BE');
+                        expect($ctrl.addressee()).toEqual('John Doe');
+                        expect($ctrl.street()).toEqual('Johny Lane');
+                        expect($ctrl.number()).toEqual('1');
+                        expect($ctrl.zip()).toEqual('1000');
+                        expect($ctrl.city()).toEqual('Johnyville');
+                        expect($ctrl.country()).toEqual('BE');
                     });
 
                     it('expose countries', function () {
-                        expect(ctrl.countries().length > 0).toBeTruthy();
+                        expect($ctrl.countries().length > 0).toBeTruthy();
                     });
 
                     describe('when in edit mode', function () {
                         beforeEach(function () {
-                            ctrl.edit();
+                            $ctrl.edit();
                         });
 
                         it('expose updated status', function () {
-                            expect(ctrl.addressStatus()).toEqual('editing');
+                            expect($ctrl.addressStatus()).toEqual('editing');
                         });
 
                         it('expose update request as form', function () {
-                            expect(ctrl.form).toEqual({
+                            expect($ctrl.form).toEqual({
                                 id: {label: 'home'},
                                 label: 'home',
                                 addressee: 'John Doe',
@@ -2737,100 +2750,104 @@
                         });
 
                         it('update the address', function () {
-                            ctrl.form.addressee = 'Jane Smith';
-                            ctrl.update();
-                            expect(ctrl.addressee()).toEqual('Jane Smith');
+                            $ctrl.form.addressee = 'Jane Smith';
+                            $ctrl.update();
+                            expect($ctrl.addressee()).toEqual('Jane Smith');
                         });
 
                         it('regenerate the address label on update', function () {
-                            ctrl.generateLabel = true;
+                            $ctrl.generateLabel = true;
 
-                            ctrl.update();
+                            $ctrl.update();
 
-                            expect(ctrl.form.label).toEqual('(1000) Johny Lane 1');
-                            expect(ctrl.addressee()).toEqual('John Doe');
+                            expect($ctrl.form.label).toEqual('(1000) Johny Lane 1');
+                            expect($ctrl.addressee()).toEqual('John Doe');
                         });
 
                         it('cancel editing', function () {
-                            ctrl.cancel();
-                            expect(ctrl.addressStatus()).toEqual('idle');
+                            $ctrl.cancel();
+                            expect($ctrl.addressStatus()).toEqual('idle');
                         });
                     });
                 });
 
                 describe('when specifying a default address', function () {
                     beforeEach(function () {
-                        ctrl.default = {label: 'home'};
-                        ctrl.$onInit();
+                        $ctrl.default = {label: 'home'};
+                        $ctrl.$onInit();
                     });
 
                     it('then the corresponding address is selected', function () {
-                        expect(ctrl.label).toEqual('home');
+                        expect($ctrl.label).toEqual('home');
                     });
 
                     it('then the selection listener is triggered', function () {
-                        expect(ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
+                        expect($ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
                     });
 
                     it('when the default address is changed then the selected address also changes', function () {
-                        ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
-                        expect(ctrl.label).toEqual('work');
+                        $ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
+                        expect($ctrl.label).toEqual('work');
                     });
 
                     it('when something other than the default address is changed then the selected address remains as is', function () {
-                        ctrl.$onChanges({purpose: {currentValue: '-'}});
-                        expect(ctrl.label).toEqual('home');
+                        $ctrl.$onChanges({purpose: {currentValue: '-'}});
+                        expect($ctrl.label).toEqual('home');
                     });
 
                     it('when selecting null then fallback to default label', function () {
-                        ctrl.select(null);
-                        expect(ctrl.label).toEqual('home');
+                        $ctrl.select(null);
+                        expect($ctrl.label).toEqual('home');
                     });
 
                     it('when a selection is made changes to the default address are ignored', function () {
-                        ctrl.select('neighbour');
-                        ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
-                        expect(ctrl.label).toEqual('neighbour');
+                        $ctrl.select('neighbour');
+                        $ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
+                        expect($ctrl.label).toEqual('neighbour');
                     });
                 });
 
                 it('cancel new address has no effect when profile is in editing mode but this controller did not cause it', function () {
                     binarta.checkpoint.profile.edit();
-                    ctrl.cancelNewAddress();
-                    expect(ctrl.profileStatus()).toEqual('editing');
+                    $ctrl.cancelNewAddress();
+                    expect($ctrl.profileStatus()).toEqual('editing');
                 });
 
                 describe('when entering create a new address mode', function () {
                     beforeEach(function () {
-                        ctrl.$onInit();
-                        ctrl.new();
+                        $ctrl.$onInit();
+                        $ctrl.new();
                     });
 
                     it('then profile status changes to editing', function () {
-                        expect(ctrl.profileStatus()).toEqual('editing');
+                        expect($ctrl.profileStatus()).toEqual('editing');
                     });
 
                     it('then expose profile update request', function () {
-                        expect(ctrl.form).toEqual(binarta.checkpoint.profile.updateRequest().address);
+                        expect($ctrl.form).toEqual(binarta.checkpoint.profile.updateRequest().address);
                     });
 
                     describe('when creating a new address', function () {
                         var ctrl2;
 
-                        beforeEach(inject(function ($controller) {
-                            ctrl2 = $controller('BinartaAddressController');
+                        beforeEach(inject(function ($componentController) {
+                            ctrl2 = $componentController('binAddress', null, {});
                             ctrl2.$onInit();
 
-                            ctrl.form.label = 'work';
-                            ctrl.form.addressee = 'John Doe';
-                            ctrl.form.street = 'Johny Lane';
-                            ctrl.form.number = '1';
-                            ctrl.form.zip = '1000';
-                            ctrl.form.city = 'Johnyville';
-                            ctrl.form.country = 'BE';
+                            $ctrl.form.label = 'work';
+                            $ctrl.form.addressee = 'John Doe';
+                            $ctrl.form.street = 'Johny Lane';
+                            $ctrl.form.number = '1';
+                            $ctrl.form.zip = '1000';
+                            $ctrl.form.city = 'Johnyville';
+                            $ctrl.form.country = 'BE';
 
-                            ctrl.create();
+                            $ctrl.create();
                         }));
+
+                        afterEach(function() {
+                            ctrl2.$onDestroy();
+                        });
 
                         it('then the address is added to the profile', function () {
                             expect(binarta.checkpoint.profile.addresses().map(function (it) {
@@ -2839,20 +2856,34 @@
                         });
 
                         it('then the newly created address is selected', function () {
-                            expect(ctrl.label).toEqual('work');
+                            expect($ctrl.label).toEqual('work');
                         });
                     });
 
                     it('when create address is rejected then expose the violation report', function () {
-                        ctrl.form.label = 'invalid';
-                        ctrl.create();
-                        expect(ctrl.violationReport()).toEqual({label: ['invalid']});
+                        $ctrl.form.label = 'invalid';
+                        $ctrl.create();
+                        expect($ctrl.violationReport()).toEqual({label: ['invalid']});
                     });
 
                     it('then it can be canceled', function () {
-                        ctrl.cancelNewAddress();
-                        expect(ctrl.profileStatus()).toEqual('idle');
+                        $ctrl.cancelNewAddress();
+                        expect($ctrl.profileStatus()).toEqual('idle');
                     });
+                });
+
+                it('with collect as active delivery method and purpose is collect then status becomes enabled', function () {
+                    $ctrl.purpose = 'collect';
+                    $ctrl.$onInit();
+                    binarta.application.setProfile({activeDeliveryMethod: 'collect'});
+                    expect($ctrl.status).toEqual('enabled');
+                });
+
+                it('with collect as active delivery method and purpose is shipping then status becomes disabled', function () {
+                    $ctrl.purpose = 'shipping';
+                    $ctrl.$onInit();
+                    binarta.application.setProfile({activeDeliveryMethod: 'collect'});
+                    expect($ctrl.status).toEqual('disabled');
                 });
             });
 
@@ -3489,26 +3520,6 @@
             });
 
             describe('<bin-delivery-methods/>', function () {
-                // var $ctrl;
-                //
-                // beforeEach(inject(function($componentController) {
-                //     $ctrl = $componentController('binDeliveryMethods', null, {});
-                //     $ctrl.$onInit();
-                // }));
-                //
-                // afterEach(function() {
-                //     $ctrl.$onDestroy();
-                // });
-
-                function render(source) {
-                    var $scope = $rootScope.$new();
-                    var component = $compile(source)($scope);
-                    $rootScope.$digest();
-                    var html = component.html().replace(/<!--[\s\S]*?-->/g, '');
-                    $scope.$destroy();
-                    return html;
-                }
-
                 describe('when unauthenticated', function () {
                     it('render blank', function () {
                         expect(render('<bin-delivery-methods></bin-delivery-methods>')).toEqual('');
@@ -3523,21 +3534,22 @@
                 describe('when authenticated', function () {
                     beforeEach(function () {
                         binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
-                        binarta.checkpoint.profile.refresh();
                     });
 
                     it('render blank', function () {
                         expect(render('<bin-delivery-methods></bin-delivery-methods>')).toEqual('');
                     });
 
+                    it('supported methods on controller are not known without permission', inject(function ($componentController) {
+                        $ctrl = $componentController('binDeliveryMethods', null, {});
+                        $ctrl.$onInit();
+                        expect($ctrl.supportedMethods).not.toBeDefined();
+                        $ctrl.$onDestroy();
+                    }));
+
                     describe('with permission', function () {
                         beforeEach(function () {
                             binarta.checkpoint.gateway.addPermission('get.delivery.method.params');
-                            binarta.checkpoint.profile.refresh();
-                        });
-
-                        it('the component renders', function () {
-                            expect(render('<bin-delivery-methods></bin-delivery-methods>')).not.toEqual('');
                         });
 
                         describe('with controller', function () {
@@ -3574,7 +3586,7 @@
                                     expect($ctrl.activeMethod).toEqual('collect');
                                 });
 
-                                it('internally the active metod is updated', function () {
+                                it('internally the active method is updated', function () {
                                     binarta.shop.deliveryMethods.observe({
                                         activeDeliveryMethod: function (it) {
                                             expect(it).toEqual('collect');
@@ -3586,32 +3598,7 @@
                     });
                 });
 
-                describe('???', function () {
-                    it('sandbox', function () {
-                    });
-
-                    // it('exposes status', function () {
-                    //     expect($ctrl.status).toEqual('disabled');
-                    // });
-                    //
-                    // it('exposes params', function () {
-                    //     expect($ctrl.params).toBeUndefined();
-                    // });
-                    //
-                    // it('configure', function () {
-                    //     $ctrl.configure();
-                    //     expect($ctrl.status).toEqual('configured');
-                    //     $ctrl.disable();
-                    // });
-                    //
-                    // it('configuring while controller destroy hook has been called will not receive updates', function () {
-                    //     $ctrl.$onDestroy();
-                    //     $ctrl.configure();
-                    //     expect($ctrl.status).toEqual('disabled');
-                    // });
-                });
-
-                xdescribe('when configured', function () {
+                describe('when configured', function () {
                     beforeEach(inject(function ($componentController) {
                         binarta.shop.gateway.configurePaymentOnReceipt({}, {
                             success: function () {

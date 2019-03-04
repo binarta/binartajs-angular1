@@ -2,7 +2,7 @@
     <div class="form-group" ng-class="{'has-error': $ctrl.violationReport.id}">
         <label i18n code="shop.delivery.method.id.label" read-only ng-bind="::var"></label>:
         <select class="form-control" ng-model="$ctrl.activeMethod"
-                ng-options="id for id in $ctrl.supportedMethods track by id"></select>
+                ng-options="method for method in $ctrl.supportedMethods track by method"></select>
         <p class="help-block" ng-repeat="v in $ctrl.violationReport.id"
            i18n code="shop.delivery.method.id.{{::v}}" default="{{::v}}"
            read-only>
