@@ -1,6 +1,9 @@
 <form ng-if="$ctrl.supportedMethods && $ctrl.status != 'working'" ng-submit="$ctrl.activate()">
     <div class="form-group" ng-class="{'has-error': $ctrl.violationReport.id}">
-        <label i18n code="shop.delivery.method.id.label" read-only ng-bind="::var"></label>:
+        <label ng-show="$ctrl.activeMethod == 'shipping'"
+               i18n code="shop.delivery.method.shipping.label" read-only ng-bind="::var"></label>
+        <label ng-show="$ctrl.activeMethod == 'collect'"
+               i18n code="shop.delivery.method.collect.label" read-only ng-bind="::var"></label>
         <select class="form-control" ng-model="$ctrl.activeMethod"
                 ng-options="method for method in $ctrl.supportedMethods track by method"></select>
         <p class="help-block" ng-repeat="v in $ctrl.violationReport.id"

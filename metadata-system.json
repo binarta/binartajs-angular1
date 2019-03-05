@@ -52,7 +52,8 @@
       "shop.bancontact.owner.required": "Verplicht",
       "shop.financial.institution.id.required": "Verplicht",
       "shop.financial.institution.id.exists": "Onbekend",
-      "shop.delivery.method.id.label": "Leveringsmethode",
+      "shop.delivery.method.shipping.label": "Bestelling verzenden is ingeschakeld, waarbij klanten zowel een factuur- als verzendadres moeten opgeven.",
+      "shop.delivery.method.collect.label": "Bestellingen moeten worden afgehaald op uw adres. Klanten zullen niet worden gevraagd om een verzendadres op te geven.",
       "shop.delivery.method.activate.button": "Activeren",
       "shop.delivery.method.id.required": "Verplicht",
       "shop.comment.panel.title":"Opmerkingen"
@@ -109,7 +110,8 @@
       "shop.bancontact.owner.required": "Required",
       "shop.financial.institution.id.required": "Required",
       "shop.financial.institution.id.exists": "Unknown",
-      "shop.delivery.method.id.label": "Delivery method",
+      "shop.delivery.method.shipping.label": "Order shipping is enabled requiring customers to specify both a billing and shipping address.",
+      "shop.delivery.method.collect.label": "Orders must be collected at your address. Customers will not be asked to specify a shipping address.",
       "shop.delivery.method.activate.button": "Activate",
       "shop.delivery.method.id.required": "Required",
       "shop.comment.panel.title":"Comments"
@@ -166,7 +168,8 @@
       "shop.bancontact.owner.required": "Requise",
       "shop.financial.institution.id.required": "Requise",
       "shop.financial.institution.id.exists": "Inconnu",
-      "shop.delivery.method.id.label": "Methode de livraison",
+      "shop.delivery.method.shipping.label": "L'expédition de commande est activée, obligeant les clients à spécifier une adresse de facturation et une adresse d'expédition.",
+      "shop.delivery.method.collect.label": "Les commandes doivent être collectées à votre adresse. Les clients ne seront pas invités à spécifier une adresse de livraison.",
       "shop.delivery.method.activate.button": "Activer",
       "shop.delivery.method.id.required": "Requise",
       "shop.comment.panel.title":"Commentaires"
@@ -223,7 +226,8 @@
       "shop.bancontact.owner.required": "Required",
       "shop.financial.institution.id.required": "Required",
       "shop.financial.institution.id.exists": "Unknown",
-      "shop.delivery.method.id.label": "Delivery method",
+      "shop.delivery.method.shipping.label": "Der Versand von Bestellungen ist möglich, und die Kunden müssen sowohl eine Rechnungs- als auch eine Versandadresse angeben.",
+      "shop.delivery.method.collect.label": "Bestellungen müssen an Ihrer Adresse abgeholt werden. Kunden werden nicht aufgefordert, eine Lieferadresse anzugeben.",
       "shop.delivery.method.activate.button": "Activate",
       "shop.delivery.method.id.required": "Required",
       "shop.comment.panel.title":"Kommentare"
