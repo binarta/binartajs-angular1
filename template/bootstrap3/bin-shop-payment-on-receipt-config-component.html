@@ -1,8 +1,14 @@
 <form ng-if="$ctrl.status != 'working'" ng-submit="$ctrl.configure()">
     <div class="form-group">
+        <label>
+            <i18n code="shop.payment-on-receipt.configure.label" read-only ng-bind="::var"></i18n>
+        </label>
+    </div>
+    <div class="form-group">
         <button type="submit" class="btn btn-success" i18n code="shop.payment-on-receipt.configure.button" read-only
                 ng-bind="::var"></button>
-        <button type="button" ng-if="$ctrl.status == 'configured'" class="btn btn-warning" ng-click="$ctrl.disable()" i18n
+        <button type="button" ng-if="$ctrl.status == 'configured'" class="btn btn-warning" ng-click="$ctrl.disable()"
+                i18n
                 code="shop.payment-on-receipt.disable.button" read-only ng-bind="::var"></button>
     </div>
 </form>
