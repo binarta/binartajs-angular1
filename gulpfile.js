@@ -62,6 +62,13 @@ gulp.task('shop-bootstrap3', function () {
         .pipe(gulp.dest('src'));
 });
 
+gulp.task('namespaces-bootstrap3', function () {
+    gulp.src('template/bootstrap3/bin-namespaces-*.html')
+        .pipe(minifyHtml(minifyHtmlOpts))
+        .pipe(templateCache('binarta-namespaces-tpls-bootstrap3-angular1.js', {standalone: true, module: 'binarta-namespacesjs-tpls-angular1'}))
+        .pipe(gulp.dest('src'));
+});
+
 gulp.task('test-ui-widgets', test('karma.conf.js'));
 gulp.task('test-rest-plugin', test('karma-rest.conf.js'));
 
@@ -81,5 +88,6 @@ gulp.task('default', [
     'checkpoint-shop-bootstrap3',
     'publisher-bootstrap3',
     'calendar-bootstrap3',
-    'shop-bootstrap3'
+    'shop-bootstrap3',
+    'namespaces-bootstrap3'
 ]);

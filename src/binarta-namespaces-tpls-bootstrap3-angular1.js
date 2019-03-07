@@ -1,0 +1,1 @@
+angular.module("binarta-namespacesjs-tpls-angular1", []).run(["$templateCache", function($templateCache) {$templateCache.put("bin-namespaces-add-component.html","<ng-include src=\"$ctrl.templateUrl\"></ng-include>");}]);

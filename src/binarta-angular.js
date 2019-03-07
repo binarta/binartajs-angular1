@@ -272,6 +272,14 @@ function binComponentController(ConcreteController) {
         $ctrl.addInitHandler = function (h) {
             onInitHandlers.add(h);
         };
+        $ctrl.addInitHandler(function() {
+            if($ctrl.observables)
+                $ctrl.observables.map(function(it) {
+                    return it.toObserver();
+                }).forEach(function(it) {
+                    $ctrl.addDestroyHandler(it.disconnect);
+                });
+        });
 
         $ctrl.$onInit = function () {
             onInitHandlers.release();

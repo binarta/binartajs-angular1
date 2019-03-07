@@ -353,6 +353,59 @@
                 $ctrl.addDestroyHandler(spy1);
                 expect(spy1).toHaveBeenCalled();
             });
+
+            describe('with observer installed', function () {
+                var rx1, rx2;
+
+                beforeEach(function () {
+                    rx1 = new BinartaRX();
+                    rx2 = new BinartaRX();
+                    $ctrl.observables = [{
+                        toObserver: function () {
+                            return rx1.observe({
+                                hello: function (it) {
+                                    $ctrl.msg = 'Hello ' + it + '!';
+                                }
+                            });
+                        }
+                    }, {
+                        toObserver: function () {
+                            return rx2.observe({
+                                status: function (it) {
+                                    $ctrl.status = it;
+                                }
+                            });
+                        }
+                    }];
+                });
+
+                it('notifications are ignored before init', function () {
+                    rx1.notify('hello', 'world');
+                    expect($ctrl.msg).not.toBeDefined();
+                });
+
+                describe('on init', function () {
+                    beforeEach(function () {
+                        $ctrl.$onInit();
+                    });
+
+                    it('process first observer', function () {
+                        rx1.notify('hello', 'world');
+                        expect($ctrl.msg).toEqual('Hello world!');
+                    });
+
+                    it('process second observer', function () {
+                        rx2.notify('status', 'listening');
+                        expect($ctrl.status).toEqual('listening');
+                    });
+
+                    it('on destroy stop listening', function () {
+                        $ctrl.$onDestroy();
+                        rx1.notify('hello', 'world');
+                        expect($ctrl.msg).not.toBeDefined();
+                    });
+                });
+            });
         });
 
         describe('binarta-applicationjs-angular1', function () {
@@ -2151,7 +2204,7 @@
                     expect($location.path()).toEqual('/checkout/completed');
                 });
 
-                it('on summary step an optional comment can be specified', function() {
+                it('on summary step an optional comment can be specified', function () {
                     binarta.shop.checkout.start({provider: 'with-sufficient-funds'}, ['summary', 'completed']);
 
                     ctrl.comment = 'x';
@@ -2854,7 +2907,7 @@
                             $ctrl.create();
                         }));
 
-                        afterEach(function() {
+                        afterEach(function () {
                             ctrl2.$onDestroy();
                         });
 
@@ -3710,6 +3763,38 @@
             });
         });
 
+        describe('binarta-namespacesjs-angular1', function () {
+            var $ctrl;
+
+            beforeEach(inject(function ($componentController) {
+                $ctrl = $componentController('binNamespaceAdd', null, {});
+                $ctrl.$onInit();
+            }));
+
+            afterEach(function () {
+                $ctrl.$onDestroy();
+            });
+
+            it('initially enters personal mode', function () {
+                expect($ctrl.mode).toEqual('personal');
+            });
+
+            describe('on reseller', function() {
+                beforeEach(function() {
+                    $ctrl.hooks.reseller();
+                });
+
+                it('switch to reseller mode', function () {
+                    expect($ctrl.mode).toEqual('reseller');
+                });
+
+                it('switch to personal mode', function () {
+                    $ctrl.hooks.disabled();
+                    expect($ctrl.mode).toEqual('personal');
+                });
+            });
+        });
+
         function expectAdhesiveReadingListenerUninstalled(listenerName) {
             expectEventListenerUninstalled(binarta.application.adhesiveReading.eventRegistry, listenerName);
         }
@@ -3733,7 +3818,8 @@
         'binarta-publisherjs-angular1',
         'binarta-shopjs-angular1',
         'binarta-humanresourcesjs-angular1',
-        'binarta-calendarjs-angular1'
+        'binarta-calendarjs-angular1',
+        'binarta-namespacesjs-angular1'
     ])
         .service('$window', MockWindow)
         .factory('i18nLocation', MockI18nLocationFactory)
@@ -3859,8 +3945,6 @@
         $ctrl.constructorArguments = arguments;
         $ctrl.customAttribute = 'custom-attribute';
     }
-
-
 })();
 
 var $ = function () {
