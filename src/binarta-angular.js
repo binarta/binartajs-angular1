@@ -13,6 +13,7 @@
         .component('binContactPhoneInfo', new BinContactPhoneInfoComponent())
         .component('binContactEmail', new BinContactEmailComponent())
         .component('binSearchMore', new SearchMoreComponent())
+        .component('binNoItems', new NoItemsComponent())
         .directive('binAffix', ['binAffix', binAffixDirective])
         .service('binAffix', ['$window', '$document', BinAffixService]);
 
@@ -178,22 +179,18 @@
         this.bindings = {
             mode: '@',
             searchMore: '<',
-            statusUpdater: '<'
+            status: '<'
         };
 
         this.templateUrl = ['$attrs', function ($attrs) {
             return $attrs.templateUrl || 'bin-all-search-more.html';
         }];
-        this.controller = function () {
-            var $ctrl = this;
+    }
 
-            $ctrl.$onInit = function () {
-                if ($ctrl.statusUpdater)
-                    $ctrl.statusUpdater(function (it) {
-                        $ctrl.status = it;
-                    });
-            }
-        }
+    function NoItemsComponent() {
+        this.templateUrl = ['$attrs', function ($attrs) {
+            return $attrs.templateUrl || 'bin-all-no-items.html';
+        }];
     }
 
     function binAffixDirective(affix) {

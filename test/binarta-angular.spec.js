@@ -1631,9 +1631,88 @@
                 binarta.publisher.db = jasmine.createSpyObj('db', ['findAllPublishedBlogsForLocale', 'findAllBlogsInDraftForLocale']);
             });
 
+            describe('<div bin-blog-searchable-feed/>', function () {
+                beforeEach(inject(function ($compile, $rootScope) {
+                    var $scope = $rootScope.$new();
+                    var element = $compile('<div bin-blog-searchable-feed/>')($scope);
+                    $rootScope.$digest();
+                    this.$ctrl = element.controller('binBlogSearchableFeed');
+                }));
+
+                it('exposes a replayable binartax instance', function () {
+                    var spy = jasmine.createSpyObj('spy', ['evt']);
+                    this.$ctrl.events.notify('evt', 'ctx');
+
+                    this.$ctrl.events.observe(spy);
+
+                    expect(spy.evt).toHaveBeenCalledWith('ctx');
+                });
+
+            });
+
+            describe('<bin-blog-search/>', function () {
+                beforeEach(inject(function ($componentController, $location) {
+                    this.$location = $location;
+                    this.searchableFeed = {events: new ReplayableBinartaRX()};
+                    this.$ctrl = $componentController('binBlogSearch', {}, {searchableFeed: this.searchableFeed});
+                    this.searchableFeed.events.observe({
+                        search: function (payload) {
+                            this.payload = payload;
+                        }.bind(this)
+                    })
+                }));
+
+                describe('$onInit', function () {
+                    beforeEach(function () {
+                        binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                        this.$ctrl.$onInit();
+                    });
+
+                    it('fires a search event with an undefined content fitler', function () {
+                        expect(this.payload).toEqual({content: undefined});
+                    });
+
+                    describe('and entering search terms', function () {
+                        beforeEach(function () {
+                            this.withSearchTerm = function (term) {
+                                this.$ctrl.content = term;
+                                this.$ctrl.search();
+                            }
+                        });
+
+                        it('stores the search term in $location and notifies listeners', function () {
+                            this.withSearchTerm('content');
+
+                            expect(this.$location.search().content).toEqual('content');
+                            expect(this.payload.content).toEqual('content');
+                        });
+
+                        it('coerces empty strings into undefined', function () {
+                            this.withSearchTerm('');
+
+                            expect(this.$location.search().content).toBeUndefined();
+                            expect(this.payload.content).toBeUndefined();
+                        });
+                    });
+                });
+
+                describe('$onInit with previous search term in url', function () {
+                    beforeEach(function () {
+                        binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                        this.$location.search('content', 'content');
+                        this.$ctrl.$onInit();
+                    });
+
+                    it('fires a search event with the extracted search term', function () {
+                        expect(this.payload.content).toEqual('content');
+                    });
+                })
+            });
+
             describe('<bin-blog-feed/>', function () {
                 beforeEach(inject(function ($componentController) {
-                    $ctrl = $componentController('binBlogFeed', null, {});
+                    this.searchableFeed = {events: new ReplayableBinartaRX()};
+                    $ctrl = $componentController('binBlogFeed', null, {searchableFeed: this.searchableFeed});
                 }));
 
                 it('load an initial set of published blog posts when the component initialises and binarta has initialised', function () {
@@ -1641,6 +1720,13 @@
                     $ctrl.$onInit();
                     expect(binarta.publisher.db.findAllPublishedBlogsForLocale).toHaveBeenCalled();
                 });
+
+                it('does not load an initial set of posts when autoload is disabled', inject(function ($componentController) {
+                    $ctrl = $componentController('binBlogFeed', null, {autoload: 'false'});
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    $ctrl.$onInit();
+                    expect(binarta.publisher.db.findAllPublishedBlogsForLocale).not.toHaveBeenCalled();
+                }));
 
                 describe('$onInit', function () {
                     beforeEach(function () {
@@ -1652,6 +1738,10 @@
                         };
                         $ctrl.$onInit();
                         binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    });
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
                     });
 
                     it('initially loaded posts are exposed', function () {
@@ -1673,6 +1763,22 @@
                             id: 'y',
                             uri: '/blog/post/y'
                         }, {id: 'z', uri: '/blog/post/z'}]);
+                    });
+
+                    describe('and search event was received', function () {
+                        beforeEach(function () {
+                            binarta.publisher.db = {
+                                findAllPublishedBlogsForLocale: function (request, response) {
+                                    expect(request.content).toEqual('content');
+                                    response.success([{id: 'x'}]);
+                                }
+                            };
+                            this.searchableFeed.events.notify('search', {content: 'content'});
+                        });
+
+                        it('throws away previously loaded posts and exposes the new ones', function () {
+                            expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}]);
+                        });
                     });
                 });
 

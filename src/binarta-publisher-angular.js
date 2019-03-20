@@ -16,6 +16,8 @@
         .component('binDisplayBlogTitle', new DisplayBlogAttributeComponent('title'))
         .component('binDisplayBlogLead', new DisplayBlogAttributeComponent('lead'))
         .component('binDisplayBlogBody', new DisplayBlogAttributeComponent('body'))
+        .component('binBlogSearch', new BlogSearchComponent())
+        .directive('binBlogSearchableFeed', BinBlogSearchableFeedDirectiveFactory)
         .controller('BinDisplayBlogPostRouteController', ['$routeParams', 'BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteController])
         .service('BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteControllerConfig)
         .controller('BinSearchBlogPostsRouteController', ['$routeParams', 'BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteController])
@@ -26,42 +28,62 @@
 
     function BlogFeedComponent() {
         this.bindings = {
+            autoload: '@',
             count: '@',
             max: '@',
             postTemplate: '@',
             type: '<?type'
         };
-
+        this.require = {
+            searchableFeed: '?^^binBlogSearchableFeed'
+        };
         this.templateUrl = 'bin-publisher-blog-feed.html';
-        this.controller = ['binarta', binComponentController(function (binarta) {
-            var $ctrl = this, statusUpdater;
+        this.controller = ['$location', 'binarta', binComponentController(function ($location, binarta) {
+            var $ctrl = this;
 
             $ctrl.posts = [];
 
+            function loadPosts(overrides) {
+                var request = {type: $ctrl.type};
+                Object.keys(overrides || {}).forEach(function (key) {
+                    request[key] = overrides[key];
+                });
+                var handle = binarta.publisher.blog.published(request, {
+                    status: function (it) {
+                        $ctrl.status = it;
+                    },
+                    more: function (it) {
+                        $ctrl.posts = $ctrl.posts.concat(it);
+                    }
+                });
+
+                $ctrl.more = handle.more;
+                if ($ctrl.count || $ctrl.max)
+                    handle.subset.max = 1 * ($ctrl.count || $ctrl.max);
+
+                $ctrl.posts = [];
+                handle.more();
+            }
+
             binarta.schedule(function () {
+                var subscription;
+
                 $ctrl.addInitHandler(function () {
-                    var handle = binarta.publisher.blog.published({type: $ctrl.type}, {
-                        status: function (it) {
-                            $ctrl.status = it;
-                            if (statusUpdater)
-                                statusUpdater(it);
-                        },
-                        more: function (it) {
-                            $ctrl.posts = $ctrl.posts.concat(it);
-                        }
-                    });
-
-                    $ctrl.more = handle.more;
-                    if ($ctrl.count || $ctrl.max)
-                        handle.subset.max = 1 * ($ctrl.count || $ctrl.max);
-
-                    handle.more();
+                    if ($ctrl.searchableFeed)
+                        subscription = $ctrl.searchableFeed.events.observe({
+                            search: loadPosts
+                        });
+                });
+                $ctrl.addInitHandler(function () {
+                    $ctrl.autoload = $ctrl.autoload || 'true';
+                    if ($ctrl.autoload === 'true')
+                        loadPosts();
+                });
+                $ctrl.addDestroyHandler(function () {
+                    if (subscription)
+                        subscription.disconnect();
                 });
             });
-
-            $ctrl.installStatusUpdater = function (it) {
-                statusUpdater = it;
-            };
         })]
     }
 
@@ -73,7 +95,7 @@
 
         this.templateUrl = 'bin-publisher-blog-draft-feed.html';
         this.controller = ['binarta', binComponentController(function (binarta) {
-            var $ctrl = this, statusUpdater;
+            var $ctrl = this;
 
             $ctrl.posts = [];
 
@@ -82,8 +104,6 @@
                     var handle = binarta.publisher.blog.drafts({type: $ctrl.type}, {
                         status: function (it) {
                             $ctrl.status = it;
-                            if (statusUpdater)
-                                statusUpdater(it);
                         },
                         more: function (it) {
                             $ctrl.posts = $ctrl.posts.concat(it);
@@ -97,10 +117,6 @@
                     handle.more();
                 });
             });
-
-            $ctrl.installStatusUpdater = function (it) {
-                statusUpdater = it;
-            };
         })]
     }
 
@@ -252,7 +268,7 @@
                 handle.delete();
             };
 
-            $ctrl.setType = function() {
+            $ctrl.setType = function () {
                 handle.setType($ctrl.post.type);
             };
 
@@ -281,6 +297,48 @@
             bindToController: true,
             link: function (scope, el, attrs, ctrl) {
                 scope.$ctrl = ctrl;
+            }
+        }
+    }
+
+    function BlogSearchComponent() {
+        this.templateUrl = 'bin-publisher-blog-search.html';
+        this.require = {
+            searchableFeed: '?^^binBlogSearchableFeed'
+        };
+        this.controller = ['$location', 'binarta', binComponentController(function ($location, binarta) {
+            var $ctrl = this;
+
+            binarta.schedule(function () {
+                $ctrl.addInitHandler(function () {
+                    $ctrl.content = $location.search().content;
+                    notify();
+                });
+            });
+
+            $ctrl.search = function () {
+                $location.search('content', getContent());
+                notify();
+            };
+
+            function notify() {
+                if ($ctrl.searchableFeed)
+                    $ctrl.searchableFeed.events.notify('search', {content: getContent()});
+            }
+
+            function getContent() {
+                return $ctrl.content === '' ? undefined : $ctrl.content;
+            }
+        })];
+    }
+
+    function BinBlogSearchableFeedDirectiveFactory() {
+        return {
+            restrict: 'A',
+            scope: true,
+            bindToController: true,
+            controller: function () {
+                this.events = new ReplayableBinartaRX();
             }
         }
     }
@@ -356,7 +414,8 @@ function InstallBinartaPublisherRoutes($routeProvider) {
             $routeProvider.when(route, {
                 templateUrl: 'bin-all-route.html',
                 controller: it.controller,
-                controllerAs: it.controllerAs
+                controllerAs: it.controllerAs,
+                reloadOnSearch: false
             })
         })
     });

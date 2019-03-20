@@ -594,10 +594,11 @@
                         },
                         payload: {
                             type: 'type',
+                            content: 'content',
                             subset: {offset: 0, max: 5}
                         }
                     });
-                    request = {locale: 'en', type: 'type', subset: {offset: 0, max: 5}}
+                    request = {locale: 'en', type: 'type', content: 'content', subset: {offset: 0, max: 5}}
                 });
 
                 it('returns blog posts', function () {

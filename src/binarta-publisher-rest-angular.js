@@ -51,6 +51,7 @@
                     },
                     payload: {
                         type: request.type,
+                        content: request.content,
                         subset: request.subset
                     }
                 }
@@ -181,7 +182,7 @@
             }, toErrorResponse(response));
         };
 
-        self.delete = function(request, response) {
+        self.delete = function (request, response) {
             self.$http({
                 method: 'POST',
                 url: self.config.baseUri + 'api/usecase',
@@ -200,7 +201,7 @@
             }, toErrorResponse(response));
         };
 
-        self.setType = function(request, response) {
+        self.setType = function (request, response) {
             self.$http({
                 method: 'POST',
                 url: self.config.baseUri + 'api/usecase',

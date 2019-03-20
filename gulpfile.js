@@ -42,7 +42,7 @@ gulp.task('checkpoint-shop-bootstrap3', function () {
 });
 
 gulp.task('publisher-bootstrap3', function () {
-    gulp.src('template/bootstrap3/bin-publisher-*.html')
+    gulp.src(['template/bootstrap3/bin-publisher-*.html', 'template/bootstrap3/publisher/*.html'])
         .pipe(minifyHtml(minifyHtmlOpts))
         .pipe(templateCache('binarta-publisher-tpls-bootstrap3-angular1.js', {standalone: true, module: 'binarta-publisherjs-tpls-angular1'}))
         .pipe(gulp.dest('src'));
