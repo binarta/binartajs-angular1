@@ -4118,6 +4118,12 @@
             });
         });
 
+        describe('binarta-catalogjs-angular1', function () {
+            it('is installed', function () {
+                expect(binarta.catalog).toBeDefined();
+            });
+        });
+
         function expectAdhesiveReadingListenerUninstalled(listenerName) {
             expectEventListenerUninstalled(binarta.application.adhesiveReading.eventRegistry, listenerName);
         }
@@ -4137,6 +4143,7 @@
         'binarta-applicationjs-angular1',
         'binarta-mediajs-angular1',
         'binarta-checkpointjs-angular1',
+        'binarta-catalogjs-angular1',
         'binarta-edit-modejs-angular1',
         'binarta-publisherjs-angular1',
         'binarta-shopjs-angular1',

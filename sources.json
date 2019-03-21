@@ -8,6 +8,7 @@
     "binarta-checkpointjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-tpls-bootstrap3-angular1.js",
     "binarta-edit-modejs-angular1": "bower_components/binartajs-angular1/src/edit-mode/**/*.js",
     "binarta-mediajs-angular1": "bower_components/binartajs-angular1/src/binarta-media-angular.js",
+    "binarta-catalogjs-angular1": "bower_components/binartajs-angular1/src/binarta-catalog-angular.js",
     "binarta-alljs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-all-tpls-bootstrap3-angular1.js",
     "binarta-publisherjs-angular1": "bower_components/binartajs-angular1/src/binarta-publisher-angular.js",
     "binarta-publisherjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-publisher-rest-angular.js",
