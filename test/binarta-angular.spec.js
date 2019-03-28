@@ -1709,6 +1709,45 @@
                 })
             });
 
+            describe('<bin-blog-spotlight/>', function () {
+                afterEach(function() {
+                    $ctrl.$onDestroy();
+                });
+
+                describe('with defaults', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogSpotlight', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    it('defaults to max 8 blog posts to load', function () {
+                        expect($ctrl.max).toEqual(8);
+                    });
+
+                    it('post template url is undefined', function () {
+                        expect($ctrl.postTemplateUrl).toBeUndefined();
+                    });
+                });
+
+                describe('with optionals', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogSpotlight', null, {
+                            max: 6,
+                            postTemplateUrl: 'post-template-url'
+                        });
+                        $ctrl.$onInit();
+                    }));
+
+                    it('defaults to max 8 blog posts to load', function () {
+                        expect($ctrl.max).toEqual(6);
+                    });
+
+                    it('post template url is undefined', function () {
+                        expect($ctrl.postTemplateUrl).toEqual('post-template-url');
+                    });
+                });
+            });
+
             describe('<bin-blog-feed/>', function () {
                 beforeEach(inject(function ($componentController) {
                     this.searchableFeed = {events: new ReplayableBinartaRX()};
