@@ -12,6 +12,7 @@
         .component('binBlogDraftFeed', new BlogDraftFeedComponent())
         .directive('binBlogFeedResults', blogFeedResults)
         .component('binBlogPost', new BlogPostComponent())
+        .component('binBlogPostCoverImage', new BlogPostCoverImageComponent())
         .component('binAddBlogPost', new AddBlogPostComponent())
         .component('binDisplayBlogPost', new DisplayBlogPostComponent())
         .directive('binDisplayBlogPostResult', displayBlogPostResult)
@@ -172,6 +173,18 @@
                 $ctrl.postTemplate = $ctrl.template || 'bin-publisher-blog-post-default.html';
             });
         })
+    }
+
+    function BlogPostCoverImageComponent() {
+        this.templateUrl = 'bin-publisher-blog-post-cover-image.html';
+        this.require = {$parent: '^^binBlogPost'};
+        this.controller = [binComponentController(function () {
+            var $ctrl = this;
+
+            $ctrl.addInitHandler(function () {
+                $ctrl.uri = $ctrl.$parent.post.coverImageURI;
+            });
+        })];
     }
 
     function AddBlogPostComponent() {

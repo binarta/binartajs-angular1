@@ -1982,16 +1982,38 @@
             });
 
             describe('<bin-blog-post/>', function () {
+                var post;
+
                 beforeEach(inject(function ($componentController) {
+                    post = {
+                        coverImageURI: 'cover-image-uri'
+                    };
                     $ctrl = $componentController('binBlogPost', null, {
-                        post: 'post',
+                        post: post,
                         templateUrl: 'template-url'
                     });
                 }));
 
                 it('bindings', function () {
-                    expect($ctrl.post).toEqual('post');
+                    expect($ctrl.post).toEqual(post);
                     expect($ctrl.templateUrl).toEqual('template-url');
+                });
+
+                describe('<bin-blog-post-cover-image/>', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogPostCoverImage', null, {
+                            $parent: $ctrl
+                        });
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function() {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('sandbox', function () {
+                        expect($ctrl.uri).toEqual('cover-image-uri');
+                    });
                 });
             });
 
