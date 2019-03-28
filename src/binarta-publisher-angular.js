@@ -12,7 +12,8 @@
         .component('binBlogDraftFeed', new BlogDraftFeedComponent())
         .directive('binBlogFeedResults', blogFeedResults)
         .component('binBlogPost', new BlogPostComponent())
-        .component('binBlogPostCoverImage', new BlogPostCoverImageComponent())
+        .component('binBlogPostCoverImage', new BlogPostAttributeComponent('coverImageURI', BlogPostCoverImageComponent))
+        .component('binBlogPostTitle', new BlogPostAttributeComponent('title', BlogPostTitleComponent))
         .component('binAddBlogPost', new AddBlogPostComponent())
         .component('binDisplayBlogPost', new DisplayBlogPostComponent())
         .directive('binDisplayBlogPostResult', displayBlogPostResult)
@@ -175,16 +176,25 @@
         })
     }
 
-    function BlogPostCoverImageComponent() {
-        this.templateUrl = 'bin-publisher-blog-post-cover-image.html';
+    function BlogPostAttributeComponent(attributeName, Child) {
+        var parent = this;
+        this.templateUrl = 'bin-publisher-blog-post-attribute.html';
         this.require = {$parent: '^^binBlogPost'};
         this.controller = [binComponentController(function () {
             var $ctrl = this;
 
             $ctrl.addInitHandler(function () {
-                $ctrl.uri = $ctrl.$parent.post.coverImageURI;
+                $ctrl.value = $ctrl.$parent.post[attributeName];
             });
         })];
+        Child.apply(parent, [parent.controller]);
+    }
+
+    function BlogPostCoverImageComponent() {
+        this.templateUrl = 'bin-publisher-blog-post-cover-image.html';
+    }
+
+    function BlogPostTitleComponent() {
     }
 
     function AddBlogPostComponent() {

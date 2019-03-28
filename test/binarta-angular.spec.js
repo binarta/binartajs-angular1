@@ -1986,7 +1986,8 @@
 
                 beforeEach(inject(function ($componentController) {
                     post = {
-                        coverImageURI: 'cover-image-uri'
+                        coverImageURI: 'cover-image-uri',
+                        title: 'title'
                     };
                     $ctrl = $componentController('binBlogPost', null, {
                         post: post,
@@ -2007,12 +2008,29 @@
                         $ctrl.$onInit();
                     }));
 
-                    afterEach(function() {
+                    afterEach(function () {
                         $ctrl.$onDestroy();
                     });
 
-                    it('sandbox', function () {
-                        expect($ctrl.uri).toEqual('cover-image-uri');
+                    it('exposes cover image uri', function () {
+                        expect($ctrl.value).toEqual('cover-image-uri');
+                    });
+                });
+
+                describe('<bin-blog-post-title/>', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogPostTitle', null, {
+                            $parent: $ctrl
+                        });
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('exposes title', function () {
+                        expect($ctrl.value).toEqual('title');
                     });
                 });
             });
