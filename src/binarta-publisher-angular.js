@@ -14,6 +14,8 @@
         .component('binBlogPost', new BlogPostComponent())
         .component('binBlogPostCoverImage', new BlogPostAttributeComponent('coverImageURI', BlogPostCoverImageComponent))
         .component('binBlogPostTitle', new BlogPostAttributeComponent('title', BlogPostTitleComponent))
+        .component('binBlogPostPublicationTime', new BlogPostAttributeComponent('publicationTime', BlogPostPublicationTimeComponent))
+        .component('binBlogPostLink', new BlogPostAttributeComponent('uri', BlogPostLinkComponent))
         .component('binAddBlogPost', new AddBlogPostComponent())
         .component('binDisplayBlogPost', new DisplayBlogPostComponent())
         .directive('binDisplayBlogPostResult', displayBlogPostResult)
@@ -180,14 +182,18 @@
         var parent = this;
         this.templateUrl = 'bin-publisher-blog-post-attribute.html';
         this.require = {$parent: '^^binBlogPost'};
-        this.controller = [binComponentController(function () {
+        Child.apply(parent, []);
+        var ChildController = this.controller;
+        this.controller = binComponentController(function () {
             var $ctrl = this;
 
             $ctrl.addInitHandler(function () {
                 $ctrl.value = $ctrl.$parent.post[attributeName];
             });
-        })];
-        Child.apply(parent, [parent.controller]);
+
+            if (ChildController)
+                ChildController.apply($ctrl);
+        });
     }
 
     function BlogPostCoverImageComponent() {
@@ -195,6 +201,30 @@
     }
 
     function BlogPostTitleComponent() {
+    }
+
+    function BlogPostPublicationTimeComponent() {
+        this.bindings = {format: '@'};
+        this.templateUrl = 'bin-publisher-blog-post-publication-time.html';
+        this.controller = function () {
+            var $ctrl = this;
+
+            $ctrl.addInitHandler(function () {
+                $ctrl.format = $ctrl.format || 'LL';
+            });
+        };
+    }
+
+    function BlogPostLinkComponent() {
+        this.bindings = {labelTemplateUrl: '@'};
+        this.templateUrl = 'bin-publisher-blog-post-link.html';
+        this.controller = function () {
+            var $ctrl = this;
+
+            $ctrl.addInitHandler(function () {
+                $ctrl.labelTemplateUrl = $ctrl.labelTemplateUrl || 'bin-publisher-blog-post-link-label.html';
+            });
+        };
     }
 
     function AddBlogPostComponent() {

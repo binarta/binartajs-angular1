@@ -4,8 +4,11 @@ $templateCache.put("bin-publisher-blog-feed.html","<bin-blog-post ng-repeat=\"po
 $templateCache.put("bin-publisher-blog-more.html","<a ng-if=\"$ctrl.mode == \'link\'\" bin-href=\"/blog\" class=\"btn btn-primary view-more-link\"><span i18n=\"\" code=\"catalog.view.more.button\" read-only=\"\" ng-bind=\"::var\"></span> <i class=\"fa fa-arrow-right fa-fw\"></i></a>");
 $templateCache.put("bin-publisher-blog-post-attribute.html","{{::$ctrl.value}}");
 $templateCache.put("bin-publisher-blog-post-cover-image.html","<img class=\"cover\" bin-image=\"{{::$ctrl.value}}\" read-only=\"\">");
-$templateCache.put("bin-publisher-blog-post-default.html","<bin-blog-post-cover-image></bin-blog-post-cover-image><bin-blog-post-title></bin-blog-post-title><bin-catalog-publication-time time=\"$ctrl.post.publicationTime\" format=\"LL\" class=\"info theme-pc theme-hover-pbc\"></bin-catalog-publication-time><a bin-href=\"{{::$ctrl.post.uri}}\">more</a>");
+$templateCache.put("bin-publisher-blog-post-default.html","<bin-blog-post-cover-image></bin-blog-post-cover-image><bin-blog-post-title></bin-blog-post-title><bin-blog-post-publication-time></bin-blog-post-publication-time><bin-blog-post-link></bin-blog-post-link>");
 $templateCache.put("bin-publisher-blog-post-draft-list.html","<a bin-href=\"{{::$ctrl.post.uri}}\">{{::$ctrl.post.title}}</a>");
+$templateCache.put("bin-publisher-blog-post-link-label.html","more");
+$templateCache.put("bin-publisher-blog-post-link.html","<a bin-href=\"{{::$ctrl.value}}\"><ng-include src=\"::$ctrl.labelTemplateUrl\"></ng-include></a>");
+$templateCache.put("bin-publisher-blog-post-publication-time.html","<bin-catalog-publication-time time=\"::$ctrl.value\" format=\"{{::$ctrl.format}}\" class=\"info theme-pc theme-hover-pbc\"></bin-catalog-publication-time>");
 $templateCache.put("bin-publisher-blog-post-route.html","<bin-display-blog-post id=\"{{::$ctrl.id}}\" template=\"{{::$ctrl.template}}\" header-template=\"{{::$ctrl.headerTemplate}}\" sidebar-template=\"{{::$ctrl.sidebarTemplate}}\" class=\"bin-blog\"></bin-display-blog-post>");
 $templateCache.put("bin-publisher-blog-post.html","<ng-include src=\"$ctrl.postTemplate\"></ng-include>");
 $templateCache.put("bin-publisher-blog-search-route.html","<bin-add-blog-post></bin-add-blog-post><bin-blog-feed class=\"search\" count=\"20\" post-template=\"{{::$ctrl.publicationTemplate}}\"></bin-blog-feed>");

@@ -1987,7 +1987,9 @@
                 beforeEach(inject(function ($componentController) {
                     post = {
                         coverImageURI: 'cover-image-uri',
-                        title: 'title'
+                        title: 'title',
+                        publicationTime: 'publication-time',
+                        uri: 'uri'
                     };
                     $ctrl = $componentController('binBlogPost', null, {
                         post: post,
@@ -2031,6 +2033,88 @@
 
                     it('exposes title', function () {
                         expect($ctrl.value).toEqual('title');
+                    });
+                });
+
+                describe('<bin-blog-post-publication-time/>', function () {
+                    describe('with defaults', function () {
+                        beforeEach(inject(function ($componentController) {
+                            $ctrl = $componentController('binBlogPostPublicationTime', null, {
+                                $parent: $ctrl
+                            });
+                            $ctrl.$onInit();
+                        }));
+
+                        afterEach(function () {
+                            $ctrl.$onDestroy();
+                        });
+
+                        it('exposes publication time', function () {
+                            expect($ctrl.value).toEqual('publication-time');
+                        });
+
+                        it('exposes format', function () {
+                            expect($ctrl.format).toEqual('LL');
+                        });
+                    });
+
+                    describe('with optionals', function () {
+                        beforeEach(inject(function ($componentController) {
+                            $ctrl = $componentController('binBlogPostPublicationTime', null, {
+                                $parent: $ctrl,
+                                format: 'format'
+                            });
+                            $ctrl.$onInit();
+                        }));
+
+                        afterEach(function () {
+                            $ctrl.$onDestroy();
+                        });
+
+                        it('exposes format', function () {
+                            expect($ctrl.format).toEqual('format');
+                        });
+                    });
+                });
+
+                describe('<bin-blog-post-link/>', function () {
+                    describe('with defaults', function () {
+                        beforeEach(inject(function ($componentController) {
+                            $ctrl = $componentController('binBlogPostLink', null, {
+                                $parent: $ctrl
+                            });
+                            $ctrl.$onInit();
+                        }));
+
+                        afterEach(function () {
+                            $ctrl.$onDestroy();
+                        });
+
+                        it('exposes link', function () {
+                            expect($ctrl.value).toEqual('uri');
+                        });
+
+                        it('exposes label template url', function () {
+                            expect($ctrl.labelTemplateUrl).toEqual('bin-publisher-blog-post-link-label.html');
+                        });
+                    });
+
+                    describe('with optionals', function () {
+                        beforeEach(inject(function ($componentController) {
+                            $ctrl = $componentController('binBlogPostLink', null, {
+                                $parent: $ctrl,
+                                labelTemplateUrl: 'label-template-url'
+                            });
+                            $ctrl.$onInit();
+                        }));
+
+                        afterEach(function () {
+                            $ctrl.$onDestroy();
+                        });
+
+                        it('exposes label template url', function () {
+                            expect($ctrl.labelTemplateUrl).toEqual('label-template-url');
+                        });
                     });
                 });
             });
