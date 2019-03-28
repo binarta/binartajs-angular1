@@ -1709,8 +1709,32 @@
                 })
             });
 
+            describe('<bin-blog-more/>', function () {
+                describe('with defaults', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogMore', null, {});
+                    }));
+
+                    it('no mode selected', function () {
+                        expect($ctrl.mode).toBeUndefined();
+                    });
+                });
+
+                describe('with link mode', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogMore', null, {
+                            mode: 'link'
+                        });
+                    }));
+
+                    it('no mode selected', function () {
+                        expect($ctrl.mode).toEqual('link');
+                    });
+                });
+            });
+
             describe('<bin-blog-spotlight/>', function () {
-                afterEach(function() {
+                afterEach(function () {
                     $ctrl.$onDestroy();
                 });
 

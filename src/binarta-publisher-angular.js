@@ -6,6 +6,7 @@
         'binarta-publisherjs-tpls-angular1'
     ])
         .provider('publisher', ['binartaPublisherGatewayProvider', 'applicationProvider', PublisherProvider])
+        .component('binBlogMore', new BlogMoreComponent())
         .component('binBlogSpotlight', new BlogSpotlightComponent())
         .component('binBlogFeed', new BlogFeedComponent())
         .component('binBlogDraftFeed', new BlogDraftFeedComponent())
@@ -26,6 +27,13 @@
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
         // .config(['$routeProvider', InstallBinartaPublisherRoutes]) // TODO - we can't install this before all templates have switched over
         .run(['publisher', WireAngularDependencies]);
+
+    function BlogMoreComponent() {
+        this.bindings = {
+            mode: '@'
+        };
+        this.templateUrl = 'bin-publisher-blog-more.html';
+    }
 
     function BlogSpotlightComponent() {
         this.bindings = {
