@@ -27,10 +27,10 @@
         .directive('binBlogSearchableFeed', BinBlogSearchableFeedDirectiveFactory)
         .controller('BinDisplayBlogPostRouteController', ['$routeParams', 'BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteController])
         .service('BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteControllerConfig)
-        .controller('BinSearchBlogPostsRouteController', ['$routeParams', 'BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteController])
+        .controller('BinSearchBlogPostsRouteController', ['$scope', '$routeParams', 'BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteController])
         .service('BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteControllerConfig)
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
-        // .config(['$routeProvider', InstallBinartaPublisherRoutes]) // TODO - we can't install this before all templates have switched over
+        .config(['$routeProvider', InstallBinartaPublisherRoutes])
         .run(['publisher', WireAngularDependencies]);
 
     function BlogMoreComponent() {
@@ -205,7 +205,7 @@
     }
 
     function BlogPostPublicationTimeComponent() {
-        this.bindings = {format: '@', templateUrl:'@'};
+        this.bindings = {format: '@', templateUrl: '@'};
         this.require = {$parent: '^^binBlogPost'};
         this.templateUrl = 'bin-publisher-blog-post-publication-time.html';
         this.controller = function () {
@@ -463,12 +463,15 @@
         this.template = 'bin-publisher-display-blog-post-details.html';
     }
 
-    function SearchBlogPostsRouteController($routeParams, config) {
+    function SearchBlogPostsRouteController($scope, $routeParams, config) {
         var $ctrl = this;
-        $ctrl.type = $routeParams.blogType;
-        $ctrl.decoratorTemplate = config.decoratorTemplate;
-        $ctrl.pageTemplate = 'bin-publisher-blog-search-route.html';
-        $ctrl.publicationTemplate = config.publicationTemplate;
+        $ctrl.decoratorTemplate = config.useLibraryTemplate ? config.decoratorTemplate : 'partials/blog/index.html';
+        if (config.useLibraryTemplate) {
+            $ctrl.type = $routeParams.blogType;
+            $ctrl.pageTemplate = 'bin-publisher-blog-search-route.html';
+            $ctrl.publicationTemplate = config.publicationTemplate;
+        } else
+            $scope.blogType = $routeParams.blogType;
     }
 
     function SearchBlogPostsRouteControllerConfig() {

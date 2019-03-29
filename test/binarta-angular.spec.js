@@ -2489,39 +2489,71 @@
             });
 
             describe('/blog{/type}', function () {
-                var config;
+                var config, $scope;
 
                 beforeEach(inject(['$controller', '$routeParams', 'BinSearchBlogPostsRouteController.config', function ($controller, $routeParams, _config_) {
+                    $scope = {};
                     this.config = _config_;
                     this.$routeParams = $routeParams;
 
                     this.init = function () {
-                        this.$ctrl = $controller('BinSearchBlogPostsRouteController', {});
+                        this.$ctrl = $controller('BinSearchBlogPostsRouteController', {$scope: $scope});
                     }
                 }]));
 
-                it('exposes template names', function () {
-                    this.init();
+                describe('in legacy mode', function () {
+                    it('exposes template names', function () {
+                        this.init();
 
-                    expect(this.$ctrl.decoratorTemplate).toEqual('bin-all-route-decorator.html');
-                    expect(this.$ctrl.pageTemplate).toEqual('bin-publisher-blog-search-route.html');
+                        expect(this.$ctrl.decoratorTemplate).toEqual('partials/blog/index.html');
+                        expect(this.$ctrl.pageTemplate).toBeUndefined();
+                        expect(this.$ctrl.publicationTemplate).toBeUndefined();
+                    });
+
+                    it('exposes the blogType', function () {
+                        $routeParams.blogType = 'type';
+                        this.init();
+                        expect($scope.blogType).toBe('type');
+                        expect(this.$ctrl.type).toBeUndefined();
+                    });
                 });
 
-                it('the decorator template can be overridden', inject(function ($controller) {
-                    this.config.decoratorTemplate = 't';
+                describe('when legacy mode disabled', function () {
+                    beforeEach(function () {
+                        this.config.useLibraryTemplate = true;
+                    });
 
-                    this.init();
+                    it('exposes template names', function () {
+                        this.init();
 
-                    expect(this.$ctrl.decoratorTemplate).toEqual('t');
-                }));
+                        expect(this.$ctrl.decoratorTemplate).toEqual('bin-all-route-decorator.html');
+                        expect(this.$ctrl.pageTemplate).toEqual('bin-publisher-blog-search-route.html');
+                        expect(this.$ctrl.publicationTemplate).toBeUndefined();
+                    });
 
-                it('exposes the blogType', function () {
-                    $routeParams.blogType = 'type';
+                    it('publication template can be overridden', function () {
+                        this.config.publicationTemplate = 'publication-template';
+                        this.init();
+                        expect(this.$ctrl.publicationTemplate).toEqual('publication-template');
+                    });
 
-                    this.init();
+                    it('the decorator template can be overridden', inject(function ($controller) {
+                        this.config.decoratorTemplate = 't';
 
-                    expect(this.$ctrl.type).toBe('type');
-                })
+                        this.init();
+
+                        expect(this.$ctrl.decoratorTemplate).toEqual('t');
+                    }));
+
+                    it('exposes the blogType', function () {
+                        $routeParams.blogType = 'type';
+
+                        this.init();
+
+                        expect(this.$ctrl.type).toBe('type');
+                        expect($scope.blogType).toBeUndefined();
+                    });
+                });
             });
 
             describe('/blog/post/:id', function () {
