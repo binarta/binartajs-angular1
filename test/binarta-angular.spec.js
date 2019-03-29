@@ -2056,6 +2056,12 @@
                         it('exposes format', function () {
                             expect($ctrl.format).toEqual('LL');
                         });
+
+                        it('<bin-blog-post-raw-publication-time/>', inject(function ($componentController) {
+                            $componentController('binBlogPostPublicationTime', null, {
+                                $parent: $ctrl
+                            });
+                        }));
                     });
 
                     describe('with optionals', function () {

@@ -8,7 +8,8 @@ $templateCache.put("bin-publisher-blog-post-default.html","<bin-blog-post-cover-
 $templateCache.put("bin-publisher-blog-post-draft-list.html","<a bin-href=\"{{::$ctrl.post.uri}}\">{{::$ctrl.post.title}}</a>");
 $templateCache.put("bin-publisher-blog-post-link-label.html","more");
 $templateCache.put("bin-publisher-blog-post-link.html","<a bin-href=\"{{::$ctrl.value}}\"><ng-include src=\"::$ctrl.labelTemplateUrl\"></ng-include></a>");
-$templateCache.put("bin-publisher-blog-post-publication-time.html","<bin-catalog-publication-time time=\"::$ctrl.value\" format=\"{{::$ctrl.format}}\" class=\"info theme-pc theme-hover-pbc\"></bin-catalog-publication-time>");
+$templateCache.put("bin-publisher-blog-post-publication-time-raw.html","<bin-catalog-publication-time time=\"::$ctrl.$parent.value\" format=\"{{::$ctrl.$parent.format}}\" class=\"info theme-pc theme-hover-pbc\"></bin-catalog-publication-time>");
+$templateCache.put("bin-publisher-blog-post-publication-time.html","<bin-blog-post-raw-publication-time ng-if=\"!$ctrl.templateUrl\"></bin-blog-post-raw-publication-time><ng-include ng-if=\"$ctrl.$value && $ctrl.templateUrl\" src=\"$ctrl.templateUrl\"></ng-include>");
 $templateCache.put("bin-publisher-blog-post-route.html","<bin-display-blog-post id=\"{{::$ctrl.id}}\" template=\"{{::$ctrl.template}}\" header-template=\"{{::$ctrl.headerTemplate}}\" sidebar-template=\"{{::$ctrl.sidebarTemplate}}\" class=\"bin-blog\"></bin-display-blog-post>");
 $templateCache.put("bin-publisher-blog-post.html","<ng-include src=\"$ctrl.postTemplate\"></ng-include>");
 $templateCache.put("bin-publisher-blog-search-route.html","<bin-add-blog-post></bin-add-blog-post><bin-blog-feed class=\"search\" count=\"20\" post-template=\"{{::$ctrl.publicationTemplate}}\"></bin-blog-feed>");

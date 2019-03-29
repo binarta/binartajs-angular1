@@ -1,2 +1,2 @@
-<bin-catalog-publication-time time="::$ctrl.value" format="{{::$ctrl.format}}"
-                              class="info theme-pc theme-hover-pbc"></bin-catalog-publication-time>
+<bin-blog-post-raw-publication-time ng-if="!$ctrl.templateUrl"></bin-blog-post-raw-publication-time>
+<ng-include ng-if="$ctrl.$value && $ctrl.templateUrl" src="$ctrl.templateUrl"></ng-include>

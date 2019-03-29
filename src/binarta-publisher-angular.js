@@ -15,6 +15,7 @@
         .component('binBlogPostCoverImage', new BlogPostAttributeComponent('coverImageURI', BlogPostCoverImageComponent))
         .component('binBlogPostTitle', new BlogPostAttributeComponent('title', BlogPostTitleComponent))
         .component('binBlogPostPublicationTime', new BlogPostAttributeComponent('publicationTime', BlogPostPublicationTimeComponent))
+        .component('binBlogPostRawPublicationTime', new BlogPostRawPublicationTimeComponent())
         .component('binBlogPostLink', new BlogPostAttributeComponent('uri', BlogPostLinkComponent))
         .component('binAddBlogPost', new AddBlogPostComponent())
         .component('binDisplayBlogPost', new DisplayBlogPostComponent())
@@ -204,7 +205,8 @@
     }
 
     function BlogPostPublicationTimeComponent() {
-        this.bindings = {format: '@'};
+        this.bindings = {format: '@', templateUrl:'@'};
+        this.require = {$parent: '^^binBlogPost'};
         this.templateUrl = 'bin-publisher-blog-post-publication-time.html';
         this.controller = function () {
             var $ctrl = this;
@@ -213,6 +215,11 @@
                 $ctrl.format = $ctrl.format || 'LL';
             });
         };
+    }
+
+    function BlogPostRawPublicationTimeComponent() {
+        this.require = {$parent: '^^binBlogPostPublicationTime'};
+        this.templateUrl = 'bin-publisher-blog-post-publication-time-raw.html';
     }
 
     function BlogPostLinkComponent() {
