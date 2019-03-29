@@ -28,6 +28,7 @@
             var binartajs = factory.create();
             binartajs.localStorage = localStorage;
             binartajs.sessionStorage = sessionStorage;
+            binartajs.pages = {};
             return binartajs;
         }]
     }

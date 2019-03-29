@@ -46,6 +46,10 @@
             return html;
         }
 
+        it('decorated with an empty pages attribute', function () {
+            expect(binarta.pages).toEqual({});
+        });
+
         describe('binarta is initialised promise', function () {
             var initialisedBinarta, $rootScope, binartaIsInitialised, binartaGatewaysAreInitialised,
                 binartaConfigIsInitialised, binartaCachesAreInitialised;
@@ -2520,7 +2524,7 @@
 
                 describe('when legacy mode disabled', function () {
                     beforeEach(function () {
-                        this.config.useLibraryTemplate = true;
+                        binarta.pages.BlogSearch = {useLibraryTemplate: true};
                     });
 
                     it('exposes template names', function () {
@@ -2531,25 +2535,33 @@
                         expect(this.$ctrl.publicationTemplate).toBeUndefined();
                     });
 
-                    it('publication template can be overridden', function () {
-                        this.config.publicationTemplate = 'publication-template';
+                    it('publication template can be overridden via config', function () {
+                        binarta.pages.BlogSearch.publicationTemplateUrl = 'publication-template';
                         this.init();
                         expect(this.$ctrl.publicationTemplate).toEqual('publication-template');
                     });
 
-                    it('the decorator template can be overridden', inject(function ($controller) {
-                        this.config.decoratorTemplate = 't';
-
+                    it('publication template can be overridden via legacy config', function () {
+                        this.config.publicationTemplate = 't';
                         this.init();
+                        expect(this.$ctrl.publicationTemplate).toEqual('t');
+                    });
 
+                    it('the decorator template can be overridden via config', function () {
+                        binarta.pages.BlogSearch.decoratorTemplateUrl = 't';
+                        this.init();
                         expect(this.$ctrl.decoratorTemplate).toEqual('t');
-                    }));
+                    });
+
+                    it('the decorator template can be overridden via legacy config', function () {
+                        this.config.decoratorTemplate = 't';
+                        this.init();
+                        expect(this.$ctrl.decoratorTemplate).toEqual('t');
+                    });
 
                     it('exposes the blogType', function () {
                         $routeParams.blogType = 'type';
-
                         this.init();
-
                         expect(this.$ctrl.type).toBe('type');
                         expect($scope.blogType).toBeUndefined();
                     });

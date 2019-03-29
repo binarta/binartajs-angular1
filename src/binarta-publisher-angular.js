@@ -27,8 +27,8 @@
         .directive('binBlogSearchableFeed', BinBlogSearchableFeedDirectiveFactory)
         .controller('BinDisplayBlogPostRouteController', ['$routeParams', 'BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteController])
         .service('BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteControllerConfig)
-        .controller('BinSearchBlogPostsRouteController', ['$scope', '$routeParams', 'BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteController])
-        .service('BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteControllerConfig)
+        .controller('BinSearchBlogPostsRouteController', ['binarta', '$scope', '$routeParams', 'BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteController])
+        .service('BinSearchBlogPostsRouteController.config', ['binarta', SearchBlogPostsRouteControllerConfig])
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
         .config(['$routeProvider', InstallBinartaPublisherRoutes])
         .run(['publisher', WireAngularDependencies]);
@@ -463,13 +463,15 @@
         this.template = 'bin-publisher-display-blog-post-details.html';
     }
 
-    function SearchBlogPostsRouteController($scope, $routeParams, config) {
+    function SearchBlogPostsRouteController(binarta, $scope, $routeParams, legacyConfig) {
+        var config = binarta.pages.BlogSearch || {};
         var $ctrl = this;
-        $ctrl.decoratorTemplate = config.useLibraryTemplate ? config.decoratorTemplate : 'partials/blog/index.html';
+
+        $ctrl.decoratorTemplate = config.useLibraryTemplate ? config.decoratorTemplateUrl || legacyConfig.decoratorTemplate : 'partials/blog/index.html';
         if (config.useLibraryTemplate) {
             $ctrl.type = $routeParams.blogType;
             $ctrl.pageTemplate = 'bin-publisher-blog-search-route.html';
-            $ctrl.publicationTemplate = config.publicationTemplate;
+            $ctrl.publicationTemplate = config.publicationTemplateUrl || legacyConfig.publicationTemplate;
         } else
             $scope.blogType = $routeParams.blogType;
     }
