@@ -2492,6 +2492,17 @@
                 });
             });
 
+            describe('<bin-blog-search-widget/>', function() {
+                describe('with defaults', function() {
+                    beforeEach(inject(function($componentController) {
+                        $ctrl = $componentController('binBlogFeedWidget', null, {});
+                    }));
+
+                    it('exists', function() {
+                    });
+                });
+            });
+
             describe('/blog{/type}', function () {
                 var config, $scope;
 
@@ -2535,20 +2546,8 @@
                         expect(this.$ctrl.publicationTemplate).toBeUndefined();
                     });
 
-                    it('publication template can be overridden via config', function () {
-                        binarta.pages.BlogSearch.publicationTemplateUrl = 'publication-template';
-                        this.init();
-                        expect(this.$ctrl.publicationTemplate).toEqual('publication-template');
-                    });
-
-                    it('publication template can be overridden via legacy config', function () {
-                        this.config.publicationTemplate = 't';
-                        this.init();
-                        expect(this.$ctrl.publicationTemplate).toEqual('t');
-                    });
-
                     it('the decorator template can be overridden via config', function () {
-                        binarta.pages.BlogSearch.decoratorTemplateUrl = 't';
+                        binarta.pages.BlogSearch.templateUrl = 't';
                         this.init();
                         expect(this.$ctrl.decoratorTemplate).toEqual('t');
                     });

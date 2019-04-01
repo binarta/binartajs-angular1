@@ -23,6 +23,7 @@
         .component('binDisplayBlogTitle', new DisplayBlogAttributeComponent('title'))
         .component('binDisplayBlogLead', new DisplayBlogAttributeComponent('lead'))
         .component('binDisplayBlogBody', new DisplayBlogAttributeComponent('body'))
+        .component('binBlogFeedWidget', new BlogFeedWidgetComponent())
         .component('binBlogSearch', new BlogSearchComponent())
         .directive('binBlogSearchableFeed', BinBlogSearchableFeedDirectiveFactory)
         .controller('BinDisplayBlogPostRouteController', ['$routeParams', 'BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteController])
@@ -385,6 +386,10 @@
         };
     }
 
+    function BlogFeedWidgetComponent() {
+        this.templateUrl = 'bin-publisher-blog-feed-widget.html';
+    }
+
     function displayBlogPostResult() {
         return {
             restrict: 'E',
@@ -467,11 +472,10 @@
         var config = binarta.pages.BlogSearch || {};
         var $ctrl = this;
 
-        $ctrl.decoratorTemplate = config.useLibraryTemplate ? config.decoratorTemplateUrl || legacyConfig.decoratorTemplate : 'partials/blog/index.html';
+        $ctrl.decoratorTemplate = config.useLibraryTemplate ? config.templateUrl || legacyConfig.decoratorTemplate : 'partials/blog/index.html';
         if (config.useLibraryTemplate) {
             $ctrl.type = $routeParams.blogType;
             $ctrl.pageTemplate = 'bin-publisher-blog-search-route.html';
-            $ctrl.publicationTemplate = config.publicationTemplateUrl || legacyConfig.publicationTemplate;
         } else
             $scope.blogType = $routeParams.blogType;
     }
