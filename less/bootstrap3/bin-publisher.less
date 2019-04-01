@@ -1,3 +1,40 @@
+bin-blog-feed-widget {
+  display: flex;
+  flex-flow: column;
+
+  bin-blog-draft-feed {
+    order: 1;
+
+    .panel-body {
+      display: flex;
+      flex-flow: column;
+    }
+  }
+
+  bin-add-blog-post {
+    order: 2;
+    margin-bottom: 30px;
+
+    * {
+      text-align: center;
+    }
+  }
+
+  bin-blog-feed {
+    display: flex;
+    flex-flow: row wrap;
+    order: 3;
+
+    bin-search-more {
+      width: 100%;
+
+      * {
+        text-align: center;
+      }
+    }
+  }
+}
+
 bin-blog-feed {
   &.grid {
     display: flex;

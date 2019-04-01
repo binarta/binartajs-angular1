@@ -387,6 +387,9 @@
     }
 
     function BlogFeedWidgetComponent() {
+        this.bindings = {
+            postTemplateUrl: '@'
+        };
         this.templateUrl = 'bin-publisher-blog-feed-widget.html';
     }
 

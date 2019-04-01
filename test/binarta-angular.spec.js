@@ -2498,7 +2498,20 @@
                         $ctrl = $componentController('binBlogFeedWidget', null, {});
                     }));
 
-                    it('exists', function() {
+                    it('exposes default attributes', function() {
+                        expect($ctrl.postTemplateUrl).toBeUndefined();
+                    });
+                });
+
+                describe('with optionals', function() {
+                    beforeEach(inject(function($componentController) {
+                        $ctrl = $componentController('binBlogFeedWidget', null, {
+                            postTemplateUrl:'post-template-url'
+                        });
+                    }));
+
+                    it('exposes default attributes', function() {
+                        expect($ctrl.postTemplateUrl).toEqual('post-template-url');
                     });
                 });
             });
