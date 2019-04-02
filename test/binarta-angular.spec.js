@@ -2260,10 +2260,21 @@
             });
 
             describe('<bin-display-blog-post/>', function () {
-                beforeEach(inject(function ($componentController) {
+                beforeEach(inject(function ($componentController, $routeParams) {
                     $ctrl = $componentController('binDisplayBlogPost', null, {});
                     binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    $routeParams.part1 = 'blog';
+                    $routeParams.part2 = 'id';
                 }));
+
+                it('resolves id from $routeParams', function () {
+                    binarta.publisher.db = {
+                        get: function (request, response) {
+                        }
+                    };
+                    $ctrl.$onInit();
+                    expect($ctrl.id).toEqual('/blog/id');
+                });
 
                 it('when blog post is unknown redirect to blog overview', function () {
                     binarta.publisher.db = {
@@ -2278,10 +2289,9 @@
                 it('passes bound id to db', function () {
                     binarta.publisher.db = {
                         get: function (request, response) {
-                            expect(request.id).toEqual('b');
+                            expect(request.id).toEqual('/blog/id');
                         }
                     };
-                    $ctrl.id = 'b';
                     $ctrl.$onInit();
                 });
 
@@ -2590,37 +2600,62 @@
                     config = _config_;
                 }]));
 
-                it('exposes id', function () {
-                    expect($ctrl.id).toEqual('/blog/id');
+                describe('in legacy mode', function() {
+                    it('exposes id', function () {
+                        expect($ctrl.id).toEqual('/blog/id');
+                    });
+
+                    it('exposes template names', function () {
+                        expect($ctrl.decoratorTemplate).toEqual('bin-all-route-decorator.html');
+                        expect($ctrl.pageTemplate).toEqual('bin-publisher-blog-post-route.html');
+                        expect($ctrl.template).toEqual('bin-publisher-display-blog-post-details.html');
+                        expect($ctrl.headerTemplate).toBeUndefined();
+                        expect($ctrl.sidebarTemplate).toBeUndefined();
+                    });
+
+                    it('the decorator template can be overridden', inject(function ($controller) {
+                        config.decoratorTemplate = 't';
+                        expect($controller('BinDisplayBlogPostRouteController', {}).decoratorTemplate).toEqual('t');
+                    }));
+
+                    it('the template can be overridden', inject(function ($controller) {
+                        config.template = 't';
+                        expect($controller('BinDisplayBlogPostRouteController', {}).template).toEqual('t');
+                    }));
+
+                    it('supports overriding the headerTemplate', inject(function ($controller) {
+                        config.headerTemplate = 't';
+                        expect($controller('BinDisplayBlogPostRouteController', {}).headerTemplate).toEqual('t');
+                    }));
+
+                    it('supports overriding the sidebarTemplate', inject(function ($controller) {
+                        config.sidebarTemplate = 't';
+                        expect($controller('BinDisplayBlogPostRouteController', {}).sidebarTemplate).toEqual('t');
+                    }));
                 });
 
-                it('exposes template names', function () {
-                    expect($ctrl.decoratorTemplate).toEqual('bin-all-route-decorator.html');
-                    expect($ctrl.pageTemplate).toEqual('bin-publisher-blog-post-route.html');
-                    expect($ctrl.template).toEqual('bin-publisher-display-blog-post-details.html');
-                    expect($ctrl.headerTemplate).toBeUndefined();
-                    expect($ctrl.sidebarTemplate).toBeUndefined();
+                describe('when legacy mode disabled', function() {
+                    beforeEach(function () {
+                        binarta.pages.BlogPost = {useLibraryTemplate: true};
+                    });
+
+                    it('exposes id', function () {
+                        expect($ctrl.id).toEqual('/blog/id');
+                    });
+
+                    it('exposes template names', function () {
+                        expect($ctrl.decoratorTemplate).toEqual('bin-all-route-decorator.html');
+                        expect($ctrl.pageTemplate).toEqual('bin-publisher-blog-post-route.html');
+                        expect($ctrl.template).toEqual('bin-publisher-display-blog-post-details.html');
+                        expect($ctrl.headerTemplate).toBeUndefined();
+                        expect($ctrl.sidebarTemplate).toBeUndefined();
+                    });
+
+                    it('the page template can be overridden', inject(function ($controller) {
+                        binarta.pages.BlogPost.templateUrl = 't';
+                        expect($controller('BinDisplayBlogPostRouteController', {}).pageTemplate).toEqual('t');
+                    }));
                 });
-
-                it('the decorator template can be overridden', inject(function ($controller) {
-                    config.decoratorTemplate = 't';
-                    expect($controller('BinDisplayBlogPostRouteController', {}).decoratorTemplate).toEqual('t');
-                }));
-
-                it('the template can be overridden', inject(function ($controller) {
-                    config.template = 't';
-                    expect($controller('BinDisplayBlogPostRouteController', {}).template).toEqual('t');
-                }));
-
-                it('supports overriding the headerTemplate', inject(function ($controller) {
-                    config.headerTemplate = 't';
-                    expect($controller('BinDisplayBlogPostRouteController', {}).headerTemplate).toEqual('t');
-                }));
-
-                it('supports overriding the sidebarTemplate', inject(function ($controller) {
-                    config.sidebarTemplate = 't';
-                    expect($controller('BinDisplayBlogPostRouteController', {}).sidebarTemplate).toEqual('t');
-                }));
             });
         });
 

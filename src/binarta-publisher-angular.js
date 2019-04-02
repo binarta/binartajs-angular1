@@ -26,7 +26,7 @@
         .component('binBlogFeedWidget', new BlogFeedWidgetComponent())
         .component('binBlogSearch', new BlogSearchComponent())
         .directive('binBlogSearchableFeed', BinBlogSearchableFeedDirectiveFactory)
-        .controller('BinDisplayBlogPostRouteController', ['$routeParams', 'BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteController])
+        .controller('BinDisplayBlogPostRouteController', ['binarta', '$routeParams', 'BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteController])
         .service('BinDisplayBlogPostRouteController.config', DisplayBlogPostRouteControllerConfig)
         .controller('BinSearchBlogPostsRouteController', ['binarta', '$scope', '$routeParams', 'BinSearchBlogPostsRouteController.config', SearchBlogPostsRouteController])
         .service('BinSearchBlogPostsRouteController.config', ['binarta', SearchBlogPostsRouteControllerConfig])
@@ -296,11 +296,12 @@
             sidebarTemplate: '@'
         };
         this.templateUrl = 'bin-publisher-display-blog-post.html';
-        this.controller = ['binarta', 'i18nLocation', '$q', binComponentController(function (binarta, $location, $q) {
+        this.controller = ['binarta', 'i18nLocation', '$q', '$routeParams', binComponentController(function (binarta, $location, $q, $routeParams) {
             var $ctrl = this;
             var handle;
 
             $ctrl.addInitHandler(function () {
+                $ctrl.id = '/' + $routeParams.part1 + '/' + $routeParams.part2;
                 if (!$ctrl.template)
                     $ctrl.template = 'bin-publisher-display-blog-post-details.html';
             });
@@ -456,14 +457,16 @@
         }];
     }
 
-    function DisplayBlogPostRouteController($routeParams, config) {
+    function DisplayBlogPostRouteController(binarta, $routeParams, legacyConfig) {
+        var config = binarta.pages.BlogPost || {};
         var $ctrl = this;
+
         $ctrl.id = '/' + $routeParams.part1 + '/' + $routeParams.part2;
-        $ctrl.decoratorTemplate = config.decoratorTemplate;
-        $ctrl.pageTemplate = 'bin-publisher-blog-post-route.html';
-        $ctrl.template = config.template;
-        $ctrl.headerTemplate = config.headerTemplate;
-        $ctrl.sidebarTemplate = config.sidebarTemplate;
+        $ctrl.decoratorTemplate = legacyConfig.decoratorTemplate;
+        $ctrl.pageTemplate = config.useLibraryTemplate && config.templateUrl ? config.templateUrl : 'bin-publisher-blog-post-route.html';
+        $ctrl.template = legacyConfig.template;
+        $ctrl.headerTemplate = legacyConfig.headerTemplate;
+        $ctrl.sidebarTemplate = legacyConfig.sidebarTemplate;
     }
 
     function DisplayBlogPostRouteControllerConfig() {
