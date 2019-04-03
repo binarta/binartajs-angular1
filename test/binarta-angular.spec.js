@@ -2268,6 +2268,33 @@
                 });
             });
 
+            describe('<bin-display-blog-lead/>', function() {
+                beforeEach(inject(function($componentController) {
+                    this.bindings = {};
+                    this.onInit = function() {
+                        this.component = $componentController('binDisplayBlogLead', null, this.bindings);
+                        this.component.$onInit();
+                    }
+                }));
+
+                it('uses default templates when no overrides are provided', function() {
+                    this.onInit();
+
+                    expect(this.component.openedTemplate).toEqual('bin-publisher-display-blog-lead-opened-default.html');
+                    expect(this.component.closedTemplate).toEqual('bin-publisher-display-blog-lead-closed-default.html');
+                });
+
+                it('uses the overridden templates if they were provided', function() {
+                    this.bindings.openedTemplate = 'my-opened-template.html';
+                    this.bindings.closedTemplate = 'my-closed-template.html';
+
+                    this.onInit();
+
+                    expect(this.component.openedTemplate).toEqual('my-opened-template.html');
+                    expect(this.component.closedTemplate).toEqual('my-closed-template.html');
+                });
+            });
+
             describe('/blog{/type}', function () {
                 var config;
 

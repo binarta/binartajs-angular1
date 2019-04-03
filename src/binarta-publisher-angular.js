@@ -286,7 +286,19 @@
         this.require = {
             parent: '^^binDisplayBlogPost'
         };
+        this.bindings = {
+            openedTemplate: '@',
+            closedTemplate: '@'
+        };
         this.templateUrl = 'bin-publisher-display-blog-' + attr + '.html';
+        this.controller = function() {
+            this.$onInit = function() {
+                if (!this.openedTemplate)
+                    this.openedTemplate = 'bin-publisher-display-blog-' + attr + '-opened-default.html';
+                if (!this.closedTemplate)
+                    this.closedTemplate = 'bin-publisher-display-blog-' + attr + '-closed-default.html';
+            };
+        };
     }
 
     function displayBlogPostResult() {

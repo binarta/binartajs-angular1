@@ -1,4 +1,12 @@
 <bin-application-lock>
-    <span ng-if="$lock.status == 'open'" ng-bind-html="$ctrl.parent.post.lead|trust"></span>
-    <i18n ng-if="$lock.status == 'closed' && $ctrl.parent.post.id" code="{{::$ctrl.parent.post.id}}.lead" editor="full" ng-bind-html="var|trust"></i18n>
+    <ng-include ng-if="$lock.status == 'open'" src="$ctrl.openedTemplate"></ng-include>
+    <ng-include ng-if="$lock.status == 'closed' && $ctrl.parent.post.id" src="$ctrl.closedTemplate"></ng-include>
 </bin-application-lock>
+
+<script type="text/ng-template" id="bin-publisher-display-blog-lead-opened-default.html">
+    <span ng-bind-html="$ctrl.parent.post.lead|trust"></span>
+</script>
+
+<script type="text/ng-template" id="bin-publisher-display-blog-lead-closed-default.html">
+    <i18n code="{{::$ctrl.parent.post.id}}.lead" editor="full" ng-bind-html="var|trust"></i18n>
+</script>
