@@ -2016,6 +2016,23 @@
                     expect($ctrl.linkMode).toEqual('m');
                 }));
 
+                describe('<bin-blog-post-breadcrumb/>', function() {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogPostBreadcrumb', null, {
+                            $parent: $ctrl
+                        });
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('exposes title', function () {
+                        expect($ctrl.value).toEqual('title');
+                    });
+                });
+
                 describe('<bin-blog-post-cover-image/>', function () {
                     beforeEach(inject(function ($componentController) {
                         $ctrl = $componentController('binBlogPostCoverImage', null, {

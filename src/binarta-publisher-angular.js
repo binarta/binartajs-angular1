@@ -13,6 +13,7 @@
         .directive('binBlogFeedResults', blogFeedResults)
         .component('binBlogPost', new BlogPostComponent())
         .component('binBlogPostCoverImage', new BlogPostAttributeComponent('coverImageURI', BlogPostCoverImageComponent))
+        .component('binBlogPostBreadcrumb', new BlogPostAttributeComponent('title', BlogPostBreadcrumbComponent))
         .component('binBlogPostTitle', new BlogPostAttributeComponent('title', BlogPostTitleComponent))
         .component('binBlogPostPublicationTime', new BlogPostAttributeComponent('publicationTime', BlogPostPublicationTimeComponent))
         .component('binBlogPostRawPublicationTime', new BlogPostRawPublicationTimeComponent())
@@ -20,6 +21,7 @@
         .component('binAddBlogPost', new AddBlogPostComponent())
         .component('binDisplayBlogPost', new DisplayBlogPostComponent())
         .directive('binDisplayBlogPostResult', displayBlogPostResult)
+        .component('binDisplayBlogTitle', new DisplayBlogAttributeComponent('title'))
         .component('binDisplayBlogTitle', new DisplayBlogAttributeComponent('title'))
         .component('binDisplayBlogLead', new DisplayBlogAttributeComponent('lead'))
         .component('binDisplayBlogBody', new DisplayBlogAttributeComponent('body'))
@@ -202,6 +204,10 @@
 
     function BlogPostCoverImageComponent() {
         this.templateUrl = 'bin-publisher-blog-post-cover-image.html';
+    }
+
+    function BlogPostBreadcrumbComponent() {
+        this.templateUrl = 'bin-publisher-blog-post-breadcrumb.html';
     }
 
     function BlogPostTitleComponent() {
