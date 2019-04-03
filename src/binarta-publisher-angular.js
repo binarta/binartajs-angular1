@@ -168,14 +168,16 @@
     function BlogPostComponent() {
         this.bindings = {
             post: '<',
-            template: '@'
+            template: '@',
+            linkMode: '@'
         };
         this.templateUrl = 'bin-publisher-blog-post.html';
         this.controller = binComponentController(function () {
-            $ctrl = this;
+            var $ctrl = this;
 
             $ctrl.addInitHandler(function () {
                 $ctrl.postTemplate = $ctrl.template || 'bin-publisher-blog-post-default.html';
+                $ctrl.linkMode = $ctrl.linkMode || 'to-details';
             });
         })
     }
@@ -231,6 +233,9 @@
 
             $ctrl.addInitHandler(function () {
                 $ctrl.labelTemplateUrl = $ctrl.labelTemplateUrl || 'bin-publisher-blog-post-link-label.html';
+                $ctrl.linkMode = $ctrl.$parent.linkMode;
+                if($ctrl.linkMode == 'from-details')
+                    $ctrl.value = '/blog';
             });
         };
     }

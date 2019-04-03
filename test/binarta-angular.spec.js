@@ -2001,10 +2001,20 @@
                     });
                 }));
 
-                it('bindings', function () {
+                it('default bindings', function () {
+                    $ctrl.$onInit();
                     expect($ctrl.post).toEqual(post);
                     expect($ctrl.templateUrl).toEqual('template-url');
+                    expect($ctrl.linkMode).toEqual('to-details');
                 });
+
+                it('overriden bindings', inject(function ($componentController) {
+                    $ctrl = $componentController('binBlogPost', null, {
+                        linkMode: 'm'
+                    });
+                    $ctrl.$onInit();
+                    expect($ctrl.linkMode).toEqual('m');
+                }));
 
                 describe('<bin-blog-post-cover-image/>', function () {
                     beforeEach(inject(function ($componentController) {
@@ -2090,6 +2100,7 @@
                 describe('<bin-blog-post-link/>', function () {
                     describe('with defaults', function () {
                         beforeEach(inject(function ($componentController) {
+                            $ctrl.$onInit();
                             $ctrl = $componentController('binBlogPostLink', null, {
                                 $parent: $ctrl
                             });
@@ -2107,10 +2118,16 @@
                         it('exposes label template url', function () {
                             expect($ctrl.labelTemplateUrl).toEqual('bin-publisher-blog-post-link-label.html');
                         });
+
+                        it('resolves link mode from parent', function() {
+                            expect($ctrl.linkMode).toEqual('to-details');
+                        });
                     });
 
                     describe('with optionals', function () {
                         beforeEach(inject(function ($componentController) {
+                            $ctrl.linkMode = 'from-details';
+                            $ctrl.$onInit();
                             $ctrl = $componentController('binBlogPostLink', null, {
                                 $parent: $ctrl,
                                 labelTemplateUrl: 'label-template-url'
@@ -2124,6 +2141,14 @@
 
                         it('exposes label template url', function () {
                             expect($ctrl.labelTemplateUrl).toEqual('label-template-url');
+                        });
+
+                        it('resolves link mode from parent', function() {
+                            expect($ctrl.linkMode).toEqual('from-details');
+                        });
+
+                        it('exposes link', function () {
+                            expect($ctrl.value).toEqual('/blog');
                         });
                     });
                 });
@@ -2502,25 +2527,25 @@
                 });
             });
 
-            describe('<bin-blog-search-widget/>', function() {
-                describe('with defaults', function() {
-                    beforeEach(inject(function($componentController) {
+            describe('<bin-blog-search-widget/>', function () {
+                describe('with defaults', function () {
+                    beforeEach(inject(function ($componentController) {
                         $ctrl = $componentController('binBlogFeedWidget', null, {});
                     }));
 
-                    it('exposes default attributes', function() {
+                    it('exposes default attributes', function () {
                         expect($ctrl.postTemplateUrl).toBeUndefined();
                     });
                 });
 
-                describe('with optionals', function() {
-                    beforeEach(inject(function($componentController) {
+                describe('with optionals', function () {
+                    beforeEach(inject(function ($componentController) {
                         $ctrl = $componentController('binBlogFeedWidget', null, {
-                            postTemplateUrl:'post-template-url'
+                            postTemplateUrl: 'post-template-url'
                         });
                     }));
 
-                    it('exposes default attributes', function() {
+                    it('exposes default attributes', function () {
                         expect($ctrl.postTemplateUrl).toEqual('post-template-url');
                     });
                 });
@@ -2600,7 +2625,7 @@
                     config = _config_;
                 }]));
 
-                describe('in legacy mode', function() {
+                describe('in legacy mode', function () {
                     it('exposes id', function () {
                         expect($ctrl.id).toEqual('/blog/id');
                     });
@@ -2634,7 +2659,7 @@
                     }));
                 });
 
-                describe('when legacy mode disabled', function() {
+                describe('when legacy mode disabled', function () {
                     beforeEach(function () {
                         binarta.pages.BlogPost = {useLibraryTemplate: true};
                     });
