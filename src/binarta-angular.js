@@ -1,5 +1,5 @@
 (function () {
-    angular.module('binartajs-angular1', ['web.storage'])
+    angular.module('binartajs-angular1', ['web.storage', 'binarta-alljs-tpls-angular1'])
         .provider('binarta', [BinartaProvider])
         .factory('binartaGatewaysAreInitialised', ['$q', GatewaysAreInitialisedFactory])
         .factory('binartaConfigIsInitialised', ['$q', 'binartaGatewaysAreInitialised', ConfigIsInitialisedFactory])
@@ -11,7 +11,11 @@
         .component('binContactAddress', new BinContactAddressComponent())
         .component('binContactPhone', new BinContactPhoneComponent())
         .component('binContactPhoneInfo', new BinContactPhoneInfoComponent())
-        .component('binContactEmail', new BinContactEmailComponent());
+        .component('binContactEmail', new BinContactEmailComponent())
+        .component('binSearchMore', new SearchMoreComponent())
+        .component('binNoItems', new NoItemsComponent())
+        .directive('binAffix', ['binAffix', binAffixDirective])
+        .service('binAffix', ['$window', '$document', BinAffixService]);
 
     function BinartaProvider() {
         this.ui = new UI();
@@ -24,6 +28,7 @@
             var binartajs = factory.create();
             binartajs.localStorage = localStorage;
             binartajs.sessionStorage = sessionStorage;
+            binartajs.pages = {};
             return binartajs;
         }]
     }
@@ -128,27 +133,116 @@
     }
 
     function BinContactAddressComponent() {
-        this.template = '<span i18n code="contact.address" editor="input">' +
-            '<a ng-href="//maps.google.com/maps?q={{var|binEncodeUriComponent}}" target="_blank" ng-bind="var"></a>' +
+        this.template =
+            '<span class="bin-contact" i18n code="contact.address" editor="input" ng-show="var">' +
+            '<span ng-if="::$ctrl.icon"><i class="bin-contact-icon fa fa-fw" ng-class="::$ctrl.icon"></i></span>' +
+            '<a class="bin-contact-value" ng-href="//maps.google.com/maps?q={{var|binEncodeUriComponent}}" target="_blank" ng-bind="var"></a>' +
             '</span>';
+        this.bindings = {
+            icon: '@'
+        };
     }
 
     function BinContactPhoneComponent() {
-        this.template = '<span i18n code="contact.phone" editor="input"><a ng-href="tel:{{var}}" ng-bind="var"></a></span>';
+        this.template =
+            '<span class="bin-contact" i18n code="contact.phone" editor="input" ng-show="var">' +
+            '<span ng-if="::$ctrl.icon"><i class="bin-contact-icon fa fa-fw" ng-class="::$ctrl.icon"></i></span>' +
+            '<a class="bin-contact-value" ng-href="tel:{{var}}" ng-bind="var"></a>' +
+            '</span>';
+        this.bindings = {
+            icon: '@'
+        };
     }
 
     function BinContactPhoneInfoComponent() {
-        this.template = '<span i18n code="contact.phone.info" editor="input" ng-bind="var"></span>';
+        this.template =
+            '<span class="bin-contact" i18n code="contact.phone.info" editor="input" ng-show="var">' +
+            '<span ng-if="::$ctrl.icon"><i class="bin-contact-icon fa fa-fw" ng-class="::$ctrl.icon"></i></span>' +
+            '<span class="bin-contact-value" ng-bind="var"></span>' +
+            '</span>';
+        this.bindings = {
+            icon: '@'
+        };
     }
 
     function BinContactEmailComponent() {
-        this.template = '<span bin-config key="application.email" scope="public" input-type="email">' +
-            '<a ng-href="mailto:{{config.value}}" ng-bind="config.value"></a>' +
+        this.template =
+            '<span class="bin-contact" bin-config key="application.email" scope="public" input-type="email" ng-show="config.value">' +
+            '<span ng-if="::$ctrl.icon"><i class="bin-contact-icon fa fa-fw" ng-class="::$ctrl.icon"></i></span>' +
+            '<a class="bin-contact-value" ng-href="mailto:{{config.value}}" ng-bind="config.value"></a>' +
             '</span>';
+        this.bindings = {
+            icon: '@'
+        };
+    }
+
+    function SearchMoreComponent() {
+        this.bindings = {
+            mode: '@',
+            searchMore: '<',
+            status: '<'
+        };
+
+        this.templateUrl = ['$attrs', function ($attrs) {
+            return $attrs.templateUrl || 'bin-all-search-more.html';
+        }];
+    }
+
+    function NoItemsComponent() {
+        this.templateUrl = ['$attrs', function ($attrs) {
+            return $attrs.templateUrl || 'bin-all-no-items.html';
+        }];
+    }
+
+    function binAffixDirective(affix) {
+        return {
+            restrict: 'C',
+            scope: {},
+            link: function ($scope, els) {
+                var handle = affix.new(els[0]);
+                $scope.$on('destroy', handle.disconnect);
+            }
+        }
+    }
+
+    function BinAffixService($window, $document) {
+        var self = this;
+
+        self.new = function (el) {
+            return new Handle(el);
+        };
+
+        function Handle(el) {
+            var handle = this;
+
+            handle.connect = function () {
+                $document.on('scroll', handle.withAnimationFrame);
+            };
+
+            handle.disconnect = function () {
+                $document.off('scroll', handle.withAnimationFrame);
+            };
+
+            handle.withAnimationFrame = function () {
+                if ($window.requestAnimationFrame) $window.requestAnimationFrame(handle.withScrollIndex);
+                else handle.withScrollIndex();
+            };
+
+            handle.withScrollIndex = function () {
+                handle.on(el.parentElement.getBoundingClientRect().top);
+            };
+
+            handle.on = function (idx) {
+                idx < 0 ? el.classList.add('affix') : el.classList.remove('affix');
+            }
+
+            handle.connect();
+        }
     }
 })();
 
 var binComponentControllerExtenders = [];
+
 function binComponentController(ConcreteController) {
     function Handlers() {
         var handlers = [];
@@ -161,7 +255,8 @@ function binComponentController(ConcreteController) {
         this.release = function () {
             released = true;
             handlers.forEach(function (h) {
-                h();
+                if (typeof h == 'function')
+                    h();
             });
         }
     }
@@ -175,6 +270,14 @@ function binComponentController(ConcreteController) {
         $ctrl.addInitHandler = function (h) {
             onInitHandlers.add(h);
         };
+        $ctrl.addInitHandler(function() {
+            if($ctrl.observables)
+                $ctrl.observables.map(function(it) {
+                    return it.toObserver();
+                }).forEach(function(it) {
+                    $ctrl.addDestroyHandler(it.disconnect);
+                });
+        });
 
         $ctrl.$onInit = function () {
             onInitHandlers.release();

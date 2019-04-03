@@ -1,5 +1,6 @@
 <div ng-init="$ctrl.$onInit()">
-    <bin-checkout-header sub-title-key="shop.summary.title"></bin-checkout-header>
+    <bin-checkout-header></bin-checkout-header>
+    <!-- <bin-checkout-roadmap></bin-checkout-roadmap> -->
     <div class="container bin-checkout-body">
         <div class="row">
             <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
@@ -32,6 +33,23 @@
                    i18n code="shop.order.coupon.{{::v}}" read-only>
                     {{::var}}
                 </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2" >
+                <div class="panel panel-default">
+                    <div class="panel-heading" i18n code="shop.comment.panel.title" read-only>
+                        <i class="fa fa-comments fa-fw"></i> {{::var}}
+                    </div>
+                    <div class="panel-body">
+                        <form>
+                            <div class="form-group">
+                                <label i18n code="shop.comment.panel.label" ng-bind="var"></label>
+                                <textarea class="form-control" ng-model="$ctrl.comment"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="row">

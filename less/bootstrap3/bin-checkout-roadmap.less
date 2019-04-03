@@ -1,0 +1,46 @@
+bin-checkout-roadmap {
+  ul {
+    display: flex;
+    justify-content: space-evenly;
+    list-style: none;
+    margin: 75px;
+  }
+  li {
+    a {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      opacity: 0.45;
+      &:hover, &:active, &:focus {
+        text-decoration: none;
+      }
+    }
+    .step-number {
+      align-items: center;
+      background: #aaaaaa;
+      border-radius: 50%;
+      color: white;
+      display: flex;
+      font-family: @font-family-sans-serif;
+      font-weight: bold;
+      height: 40px;
+      justify-content: center;
+      width: 40px;
+    }
+    .step-name {
+      color: #aaaaaa;
+      margin: 5px 0;
+    }
+    &.active {
+      a {
+        opacity: 1;
+      }
+      .step-number {
+        background: @brand-primary;
+      }
+      .step-name {
+        color: @brand-primary;
+      }
+    }
+  }
+}

@@ -1,0 +1,136 @@
+bin-blog-feed-widget {
+  display: flex;
+  flex-flow: column;
+
+  bin-blog-draft-feed {
+    order: 1;
+
+    .panel-body {
+      display: flex;
+      flex-flow: column;
+    }
+  }
+
+  bin-add-blog-post {
+    order: 2;
+    margin-bottom: 30px;
+
+    * {
+      text-align: center;
+    }
+  }
+
+  bin-blog-feed {
+    display: flex;
+    flex-flow: row wrap;
+    order: 3;
+
+    bin-search-more {
+      width: 100%;
+
+      * {
+        text-align: center;
+      }
+    }
+  }
+}
+
+bin-blog-feed {
+  &.grid {
+    display: flex;
+    flex-wrap: wrap;
+    bin-blog-post {
+      flex-grow: 1;
+      margin: 30px 0 30px 30px;
+      width: 22%;
+      max-width: 22%;
+    }
+  }
+}
+
+bin-blog-more {
+  display: block;
+  text-align: center;
+}
+
+bin-blog-post {
+  bin-blog-post-cover-image, bin-blog-post-title {
+    display: block;
+  }
+}
+
+bin-display-blog-post {
+  bin-blog-post {
+    display: block;
+    margin: 15px;
+
+    bin-blog-post-title {
+      &:extend(h1);
+    }
+
+    bin-blog-post-publication-time {
+      display: block;
+      margin-bottom: 28px;
+    }
+
+    bin-display-blog-lead {
+      display: block;
+      bottom: 15px;
+    }
+
+    bin-display-blog-body {
+      display: block;
+      margin-bottom: 15px;
+    }
+
+    bin-blog-post-link {
+      display: block;
+    }
+  }
+}
+
+.bin-blog-content {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: @screen-sm-min) {
+    max-width: 720px;
+  }
+
+  @media (min-width: @screen-md-min) {
+    flex-direction: row;
+    max-width: 820px;
+  }
+
+  @media (min-width: @screen-lg-min) {
+    max-width: 985px;
+  }
+
+  .bin-blog-post {
+    @media (min-width: @screen-md-min) {
+      flex-grow: 1;
+    }
+
+    @media (min-width: @screen-lg-min) {
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
+  .bin-blog-sidebar {
+    @media (min-width: @screen-sm-min) {
+      width: 50%;
+    }
+
+    @media (min-width: @screen-md-min) {
+      margin-left: 20px;
+      flex-shrink: 0;
+      width: 235px;
+    }
+
+    @media (min-width: @screen-lg-min) {
+      width: 285px;
+    }
+  }
+}

@@ -1,0 +1,77 @@
+<div class="row">
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <td>Type</td>
+            <td>Name</td>
+            <td>Values</td>
+            <td></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="record in $ctrl.records" ng-class="{'has-error': $ctrl.violationReport.records[record.id].type}">
+            <td ng-bind="record.type"></td>
+            <td ng-bind="record.name"></td>
+            <td>
+                <div ng-repeat="it in record.values">
+                    <label ng-click="$ctrl.modify(record)">{{it}}</label>
+                </div>
+                <p class="help-block" ng-repeat="v in $ctrl.violationReport.records[record.id].type"
+                   i18n code="bin.dns.record.{{::record.type}}.{{::v}}" default="{{::v}}"
+                   read-only>
+                    {{::var}}
+                </p>
+            </td>
+            <td>
+                <button class="btn btn-danger pull-right" ng-click="$ctrl.remove(record)">
+                    <i class="fa fa-remove"></i>
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="row">
+    <form>
+        <div class="form-group">
+            <button ng-click="$ctrl.save()" ng-disabled="$ctrl.working" type="button"
+                    class="btn btn-primary pull-right">
+                <i ng-hide="$ctrl.working" class="fa fa-floppy-o"></i>
+                <i ng-show="$ctrl.working" class="fa fa-spinner fa-spin"></i>
+            </button>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <hr>
+</div>
+<div class="row">
+    <form ng-submit="$ctrl.submit()">
+        <div class="form-group">
+            <label>Type:</label>
+            <select class="form-control" ng-model="$ctrl.draft.type">
+                <option value="A">A</option>
+                <option value="CNAME">CNAME</option>
+                <option value="MX">MX</option>
+                <option value="TXT">TXT</option>
+                <option value="SRV">SRV</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Name:</label>
+            <input type="text" class="form-control" ng-model="$ctrl.draft.name">
+        </div>
+        <div class="form-group">
+            <label>Values:</label>
+            <textarea class="form-control" ng-model="$ctrl.draft.values"></textarea>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary pull-right"><i class="fa fa-plus"></i></button>
+            <button ng-if="$ctrl.status == 'update'"
+                    ng-click="$ctrl.clear()"
+                    type="button"
+                    class="btn btn-default"
+            ><i class="fa fa-angle-left"></i></button>
+        </div>
+    </form>
+</div>

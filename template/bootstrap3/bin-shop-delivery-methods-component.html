@@ -1,0 +1,22 @@
+<form ng-if="$ctrl.supportedMethods && $ctrl.status != 'working'" ng-submit="$ctrl.activate()">
+    <div class="form-group" ng-class="{'has-error': $ctrl.violationReport.id}">
+        <label ng-show="$ctrl.activeMethod == 'shipping'"
+               i18n code="shop.delivery.method.shipping.label" read-only ng-bind="::var"></label>
+        <label ng-show="$ctrl.activeMethod == 'collect'"
+               i18n code="shop.delivery.method.collect.label" read-only ng-bind="::var"></label>
+        <select class="form-control" ng-model="$ctrl.activeMethod"
+                ng-options="method for method in $ctrl.supportedMethods track by method"></select>
+        <p class="help-block" ng-repeat="v in $ctrl.violationReport.id"
+           i18n code="shop.delivery.method.id.{{::v}}" default="{{::v}}"
+           read-only>
+            {{::var}}
+        </p>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-success" i18n code="shop.delivery.method.activate.button" read-only
+                ng-bind="::var"></button>
+    </div>
+</form>
+<div ng-if="$ctrl.supportedMethods && $ctrl.status == 'working'" class="form-group">
+    <i class="fa fa-spinner fa-spin fa-fw"></i>
+</div>

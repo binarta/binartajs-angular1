@@ -61,10 +61,11 @@
 
         this.fetchAddresses = function (response) {
             self.$http({
-                method: 'GET',
+                method: 'POST',
                 url: self.config.baseUri + 'api/query/customer-address/listByPrincipal',
                 withCredentials: true,
-                headers: {'Accept-Language': self.binarta.application.locale()}
+                headers: {'Accept-Language': self.binarta.application.locale()},
+                data: {"args": {"dummy": "dummy"}}
             }).then(function (it) {
                 response.success(it.data);
             }, toErrorResponse(response));
@@ -199,10 +200,161 @@
                     headers: {usecase: 'market.shop.coupon.dictionary.contains'},
                     payload: {id: request.id}
                 }
-            }).then(function(it) {
+            }).then(function (it) {
                 it.data.contains ? response.success() : response.notFound()
             }, toErrorResponse(response));
-        }
+        };
+
+        this.stripeConnect = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/stripe/initiate',
+                withCredentials: true,
+                data: {
+                    headers: {locale: request.locale}
+                }
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.stripeConnected = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/stripe/account',
+                withCredentials: true,
+                data: {}
+            }).then(function (it) {
+                response.success(it.data.id);
+            }, toErrorResponse(response));
+        };
+
+        this.stripeDisconnect = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/stripe/disconnect',
+                withCredentials: true,
+                data: {}
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
+        };
+
+        this.configurePaymentOnReceipt = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/payment-on-receipt/configure',
+                withCredentials: true,
+                data: {}
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
+        };
+
+        this.configureCC = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/cc/configure',
+                withCredentials: true,
+                data: {
+                    payload: {
+                        bankId: request.bankId
+                    }
+                }
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
+        };
+
+        this.configureBancontact = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/bancontact/configure',
+                withCredentials: true,
+                data: {
+                    payload: {
+                        ownerName: request.owner,
+                        bankId: request.bankId
+                    }
+                }
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
+        };
+
+        this.getPaymentOnReceiptParams = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/payment-on-receipt/params',
+                withCredentials: true,
+                data: {}
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.getCCParams = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/cc/params',
+                withCredentials: true,
+                data: {}
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.getBancontactParams = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/bancontact/params',
+                withCredentials: true,
+                data: {}
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.disablePaymentMethod = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/payment/method/disable',
+                withCredentials: true,
+                data: {
+                    payload: {
+                        id: request.id
+                    }
+                }
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
+        };
+
+        this.getDeliveryMethodParams = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/get-delivery-method-params',
+                withCredentials: true,
+                data: {}
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.activateDeliveryMethod = function (request, response) {
+            self.$http({
+                method: 'POST',
+                url: self.config.baseUri + 'api/activate-delivery-method',
+                withCredentials: true,
+                data: {
+                    payload: {
+                        id: request.id
+                    }
+                }
+            }).then(function () {
+                response.success();
+            }, toErrorResponse(response));
+        };
     }
 
     function GatewayIsInitialisedFactory($q) {

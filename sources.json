@@ -6,8 +6,20 @@
     "binarta-checkpointjs-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-angular.js",
     "binarta-checkpointjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-rest-angular.js",
     "binarta-checkpointjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-tpls-bootstrap3-angular1.js",
+    "binarta-edit-modejs-angular1": "bower_components/binartajs-angular1/src/edit-mode/**/*.js",
     "binarta-mediajs-angular1": "bower_components/binartajs-angular1/src/binarta-media-angular.js",
-    "binarta-alljs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-all-tpls-bootstrap3-angular1.js"
+    "binarta-catalogjs-angular1": "bower_components/binartajs-angular1/src/binarta-catalog-angular.js",
+    "binarta-alljs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-all-tpls-bootstrap3-angular1.js",
+    "binarta-publisherjs-angular1": "bower_components/binartajs-angular1/src/binarta-publisher-angular.js",
+    "binarta-publisherjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-publisher-rest-angular.js",
+    "binarta-publisherjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-publisher-tpls-bootstrap3-angular1.js"
+  },
+  "blog": {
+  },
+  "calendar": {
+    "binarta-calendarjs-angular1":"bower_components/binartajs-angular1/src/binarta-calendar-angular.js",
+    "binarta-calendarjs-gateway-angular1":"bower_components/binartajs-angular1/src/binarta-calendar-rest-angular.js",
+    "binarta-calendarjs-tpls-angular1":"bower_components/binartajs-angular1/src/binarta-calendar-tpls-bootstrap3-angular1.js"
   },
   "shop": {
     "binarta-checkpointjs-tpls-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-shop-tpls-bootstrap3-angular1.js",
@@ -18,9 +30,10 @@
     "binarta-humanresourcesjs-angular1": "bower_components/binartajs-angular1/src/binarta-humanresources-angular.js",
     "binarta-humanresourcesjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-humanresources-rest-angular.js"
   },
-  "e2e":{
+  "e2e": {
     "binarta-applicationjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-application-inmem-angular.js",
     "binarta-checkpointjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-checkpoint-inmem-angular.js",
+    "binarta-publisherjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-publisher-inmem-angular.js",
     "binarta-shopjs-gateway-angular1": "bower_components/binartajs-angular1/src/binarta-shop-inmem-angular.js"
   }
 }

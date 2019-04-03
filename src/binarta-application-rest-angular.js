@@ -113,6 +113,72 @@
                 url: gateway.config.baseUri + 'api/contact/us',
                 data: request
             }).then(response.success, toErrorResponse(response));
+        };
+
+        this.getWidgetAttributes = function (request, response) {
+            gateway.$http({
+                method: 'POST',
+                url: gateway.config.baseUri + 'api/get-widget-attributes',
+                data: {
+                    headers: {
+                        namespace: gateway.config.namespace
+                    },
+                    payload: {
+                        platform: 'web',
+                        component: request.component,
+                        widget: request.widget
+                    }
+                },
+                withCredentials: true
+            }).then(function (it) {
+                response.success(it.data || {aspectRatio: {}});
+            }, toErrorResponse(response));
+        };
+
+        this.saveWidgetAttributes = function (request, response) {
+            gateway.$http({
+                method: 'POST',
+                url: gateway.config.baseUri + 'api/save-widget-attributes',
+                data: {
+                    headers: {
+                        namespace: gateway.config.namespace
+                    },
+                    payload: {
+                        platform: 'web',
+                        component: request.component,
+                        widget: request.widget,
+                        attributes: request.attributes
+                    }
+                },
+                withCredentials: true
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.getCustomDomainRecords = function (response) {
+            gateway.$http({
+                method: 'POST',
+                url: gateway.config.baseUri + 'api/get-custom-domain-records',
+                data: {
+                    headers: {namespace: gateway.config.namespace}
+                },
+                withCredentials: true
+            }).then(function (it) {
+                response.success(it.data);
+            }, toErrorResponse(response));
+        };
+
+        this.saveCustomDomainRecords = function (request, response) {
+            gateway.$http({
+                method: 'POST',
+                url: gateway.config.baseUri + 'api/save-custom-domain-records',
+                data: {
+                    headers: {namespace: gateway.config.namespace},
+                    payload: {records: request}
+                },
+                withCredentials: true
+            }).then(response.success, toErrorResponse(response));
         }
     }
 

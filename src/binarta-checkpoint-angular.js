@@ -1,4 +1,6 @@
 (function () {
+    var binarta;
+
     angular.module('binarta-checkpointjs-angular1', [
         'ngRoute',
         'binartajs-angular1',
@@ -9,9 +11,11 @@
         .component('binCheckpoint', new CheckpointComponent())
         .controller('CheckpointController', ['binarta', 'config', CheckpointController])
         .component('binUserProfile', new UserProfileComponent())
+        .component('binDeleteUserProfile', new DeleteUserProfileComponent())
         .component('binSignin', new SigninComponent())
         .service('UserProfileController.decorator', UserProfileControllerDecorator)
         .controller('UserProfileController', ['binarta', 'UserProfileController.decorator', UserProfileController])
+        .controller('DeleteUserProfileController', ['binarta', 'i18nLocation', DeleteUserProfileController])
         .config(['binartaProvider', 'checkpointProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['checkpoint', WireAngularDependencies]);
@@ -107,6 +111,26 @@
         this.violationReport = emptyViolationReport;
     }
 
+    function DeleteUserProfileComponent() {
+        this.controller = 'DeleteUserProfileController';
+        this.templateUrl = 'bin-checkpoint-delete-profile-component.html';
+    }
+
+    function DeleteUserProfileController(binarta, $location) {
+        var self = this;
+        self.working = false;
+
+        this.submit = function () {
+            self.working = true;
+            binarta.checkpoint.profile.delete({
+                success: function () {
+                    self.working = false;
+                    $location.path('/');
+                }
+            });
+        }
+    }
+
     function UserProfileComponent() {
         this.controller = 'UserProfileController';
         this.templateUrl = 'bin-checkpoint-profile-component.html';
@@ -133,18 +157,18 @@
         this.status = binarta.checkpoint.profile.status;
         this.email = binarta.checkpoint.profile.email;
 
-        this.edit = function() {
+        this.edit = function () {
             binarta.checkpoint.profile.edit();
             self.form = binarta.checkpoint.profile.updateRequest();
         };
 
-        this.update = function() {
+        this.update = function () {
             binarta.checkpoint.profile.update();
         };
 
-        this.cancel = function() {
+        this.cancel = function () {
             binarta.checkpoint.profile.cancel();
-        }
+        };
     }
 
     function SigninComponent() {
@@ -184,7 +208,8 @@
         binarta.addSubSystems({checkpoint: checkpointProvider.checkpoint});
     }
 
-    function WireAngularDependencies() {
+    function WireAngularDependencies(checkpoint) {
+        binarta = checkpoint.binarta;
     }
 
     function InstallRoutes($routeProvider) {
@@ -205,5 +230,29 @@
                 templateUrl: 'bin-checkpoint-cancel-billing-agreement.html',
                 controller: 'CancelBillingAgreementController as ctrl'
             });
+    }
+
+    binComponentControllerExtenders.push(function ($ctrl) {
+        $ctrl.profile = new ComponentControllerProfile($ctrl);
+    });
+
+    function ComponentControllerProfile($ctrl) {
+        var self = this;
+
+        self.addWithPermissionHandler = function (permission, it) {
+            function testForPermissionAndCallHandler() {
+                if (binarta.checkpoint.profile.hasPermission(permission))
+                    it.gained();
+            }
+
+            testForPermissionAndCallHandler();
+            var profileObserver = binarta.checkpoint.profile.eventRegistry.observe({
+                signedin: testForPermissionAndCallHandler,
+                signedout: it.lost
+            });
+            $ctrl.addDestroyHandler(function () {
+                profileObserver.disconnect();
+            });
+        }
     }
 })();

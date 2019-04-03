@@ -6,12 +6,11 @@
         'binarta-checkpointjs-angular1',
         'binarta-applicationjs-angular1',
         'binarta-checkpointjs-recaptcha-angular1',
+        'binarta-shopjs-tpls-angular1'
     ])
         .provider('shop', ['binartaShopGatewayProvider', 'checkpointProvider', 'applicationProvider', ShopProvider])
         .component('binBasket', new BasketComponent())
-        .controller('BinartaBasketController', ['binarta', 'viewport', 'i18nLocation', '$timeout', BinartaBasketController])
         .component('binAddress', new AddressComponent())
-        .controller('BinartaAddressController', ['binarta', BinartaAddressController])
         .component('binPaymentMethods', new PaymentMethodsComponent())
         .controller('BinartaPaymentMethodsController', ['binarta', PaymentMethodsController])
         .service('CheckoutController.decorator', CheckoutControllerDecorator)
@@ -20,13 +19,18 @@
         .component('binCheckoutRoadmap', new CheckoutRoadmapComponent())
         .controller('CheckoutRoadmapController', ['binarta', CheckoutRoadmapController])
         .component('binPay', new PaymentComponent())
-        .controller('BinartaPaymentController', ['$window', '$routeParams', '$timeout', 'sessionStorage', PaymentController])
+        .controller('BinartaPaymentController', ['binarta', '$window', '$routeParams', '$timeout', 'sessionStorage', 'resourceLoader', 'applicationBrand', PaymentController])
         .component('binSetupPaymentProvider', new SetupPaymentProviderComponent())
         .controller('SetupPaymentProviderController', ['binarta', '$location', 'sessionStorage', SetupPaymentProviderController])
         .controller('SetupBillingAgreementController', ['binarta', SetupBillingAgreementController])
         .controller('CancelBillingAgreementController', ['binarta', CancelBillingAgreementController])
         .controller('ConfirmBillingAgreementController', ['binarta', '$location', ConfirmBillingAgreementController])
         .component('binCoupon', new CouponComponent())
+        .component('binStripeConnect', new StripeConnectComponent())
+        .component('binPaymentOnReceiptConfig', new PaymentOnReceiptConfigComponent())
+        .component('binCcConfig', new CreditCardConfigComponent())
+        .component('binBancontactConfig', new BancontactConfigComponent())
+        .component('binDeliveryMethods', new DeliveryMethodsComponent())
         .config(['binartaProvider', 'shopProvider', ExtendBinarta])
         .config(['$routeProvider', InstallRoutes])
         .run(['shop', WireAngularDependencies])
@@ -58,92 +62,103 @@
             item: '<',
             mode: '@'
         };
-        this.controller = 'BinartaBasketController';
         this.templateUrl = 'bin-shop-basket.html';
-    }
+        this.controller = ['binarta', 'viewport', 'i18nLocation', '$timeout', '$scope', function BinartaBasketController(binarta, viewport, $location, $timeout, $scope) {
+            var profileEventListener = new ProfileEventListener();
+            var basketEventListener = new BasketEventListener();
+            var self = this, status = 'idle';
 
-    function BinartaBasketController(binarta, viewport, $location, $timeout) {
-        var profileEventListener = new ProfileEventListener();
-        var basketEventListener = new BasketEventListener();
-        var self = this;
+            this.viewport = viewport;
+            this.quantity = 1;
 
-        this.viewport = viewport;
-        this.quantity = 1;
-
-        this.$onInit = function () {
-            if (['summary', 'detailed', 'link', 'minimal-link', 'add-to-basket-button'].indexOf(self.mode) > -1) {
-                if (self.mode == 'summary') {
-                    binarta.checkpoint.profile.eventRegistry.add(profileEventListener);
-                    refreshFromPreview();
+            this.$onInit = function () {
+                if (['summary', 'detailed', 'link', 'minimal-link', 'add-to-basket-button', 'dropdown-link'].indexOf(self.mode) > -1) {
+                    if (self.mode == 'summary') {
+                        binarta.checkpoint.profile.eventRegistry.add(profileEventListener);
+                        refreshFromPreview();
+                    }
+                    if (['detailed', 'link', 'minimal-link', 'add-to-basket-button', 'dropdown-link'].indexOf(self.mode) > -1) {
+                        binarta.shop.basket.eventRegistry.add(basketEventListener);
+                        refreshFromBasket();
+                    }
+                    if (this.mode === 'dropdown-link') {
+                        this.onDropdownClick = function () {
+                            this.isDropdownActive = !this.isDropdownActive;
+                        };
+                        this.onCloseDropdownClick = function () {
+                            this.isDropdownActive = false;
+                        };
+                        $scope.$on("$routeChangeStart", function () {
+                            self.isDropdownActive = false;
+                        });
+                    }
                 }
-                if (['detailed', 'link', 'minimal-link', 'add-to-basket-button'].indexOf(self.mode) > -1) {
-                    binarta.shop.basket.eventRegistry.add(basketEventListener);
-                    refreshFromBasket();
-                }
-            }
-        };
-
-        this.$onChanges = function() {
-            if(self.mode == 'summary')
-                refreshFromPreview();
-        };
-
-        this.$onDestroy = function () {
-            binarta.checkpoint.profile.eventRegistry.remove(profileEventListener);
-            binarta.shop.basket.eventRegistry.remove(basketEventListener);
-        };
-
-        this.isDiscounted = function() {
-            return self.preview && self.preview.coupon;
-        };
-
-        this.addToBasket = function () {
-            binarta.shop.basket.add({item: {id: self.item.id, price: self.item.price, quantity: self.quantity}});
-        };
-
-        this.checkout = function () {
-            binarta.shop.checkout.cancel();
-            var order = binarta.shop.basket.toOrder();
-            order.clearBasketOnComplete = true;
-            binarta.shop.checkout.start(order, [
-                'authentication-required',
-                'address-selection',
-                'summary',
-                'setup-payment-provider',
-                'payment',
-                'completed'
-            ]);
-            $location.path('/checkout/start');
-        };
-
-        function BasketEventListener() {
-            this.itemAdded = function () {
-                if (self.mode == 'add-to-basket-button') {
-                    self.itemAdded = true;
-                    $timeout(function () {
-                        self.itemAdded = false
-                    }, 1000);
-                }
-                refreshFromBasket();
             };
-            this.itemUpdated = refreshFromBasket;
-            this.itemRemoved = refreshFromBasket;
-            this.cleared = refreshFromBasket;
-        }
 
-        function ProfileEventListener() {
-            this.updated = refreshFromPreview;
-        }
+            this.$onChanges = function () {
+                if (self.mode == 'summary')
+                    refreshFromPreview();
+            };
 
-        function refreshFromBasket() {
-            self.preview = binarta.shop.basket.toOrder();
-        }
+            this.$onDestroy = function () {
+                binarta.checkpoint.profile.eventRegistry.remove(profileEventListener);
+                binarta.shop.basket.eventRegistry.remove(basketEventListener);
+            };
 
-        function refreshFromPreview() {
-            binarta.shop.previewOrder(self.order, function (order) {
-                self.preview = order;
-            });
-        }
+            this.isDiscounted = function () {
+                return self.preview && self.preview.coupon;
+            };
+
+            this.addToBasket = function () {
+                status = 'adding';
+                binarta.shop.basket.add({item: {id: self.item.id, price: self.item.price, quantity: self.quantity}});
+            };
+
+            this.checkout = function () {
+                binarta.shop.checkout.cancel();
+                var order = binarta.shop.basket.toOrder();
+                order.clearBasketOnComplete = true;
+                binarta.shop.checkout.start(order, [
+                    'authentication-required',
+                    'address-selection',
+                    'summary',
+                    'setup-payment-provider',
+                    'payment',
+                    'completed'
+                ]);
+                $location.path('/checkout/start');
+            };
+
+            function BasketEventListener() {
+                this.itemAdded = function () {
+                    if (self.mode == 'add-to-basket-button' && status == 'adding') {
+                        status = 'idle';
+                        self.itemAdded = true;
+                        $timeout(function () {
+                            self.itemAdded = false
+                        }, 1000);
+                    }
+                    refreshFromBasket();
+                };
+                this.itemUpdated = refreshFromBasket;
+                this.itemRemoved = refreshFromBasket;
+                this.cleared = refreshFromBasket;
+            }
+
+            function ProfileEventListener() {
+                this.updated = refreshFromPreview;
+            }
+
+            function refreshFromBasket() {
+                self.preview = binarta.shop.basket.toOrder();
+            }
+
+            function refreshFromPreview() {
+                binarta.shop.previewOrder(self.order, function (order) {
+                    self.preview = order;
+                });
+            }
+        }];
     }
 
     function AddressComponent() {
@@ -156,156 +171,154 @@
             generateLabel: '@',
             initialAddress: '<'
         };
-        this.controller = 'BinartaAddressController';
         this.templateUrl = 'bin-shop-address.html';
-    }
+        this.controller = ['binarta', binComponentController(function (binarta) {
+            var $ctrl = this;
 
-    function BinartaAddressController(binarta) {
-        var profileEventListener = new ProfileEventListener(this);
-        var $ctrl = this;
+            this.mode = 'display';
 
-        this.mode = 'display';
+            $ctrl.addInitHandler(function () {
+                $ctrl.addDestroyHandler(binarta.checkpoint.profile.eventRegistry.observe(new ProfileEventListener($ctrl)).disconnect);
+                $ctrl.addDestroyHandler(binarta.shop.deliveryMethods.observe({
+                    activeDeliveryMethod: function (it) {
+                        $ctrl.status = $ctrl.purpose == 'shipping' && it == 'collect' ? 'disabled' : 'enabled';
+                    }
+                }));
 
-        this.$onInit = function () {
-            binarta.checkpoint.profile.eventRegistry.add(profileEventListener);
-
-            if ($ctrl.default && $ctrl.default.label)
-                $ctrl.select($ctrl.default.label);
-            if ($ctrl.initialAddress)
-                $ctrl.select($ctrl.initialAddress.label);
-        };
-
-        this.$onDestroy = function () {
-            binarta.checkpoint.profile.eventRegistry.remove(profileEventListener);
-        };
-
-        this.$onChanges = function (args) {
-            if (!$ctrl.divergedFromDefault && args.default && args.default.currentValue)
-                $ctrl.select(args.default.currentValue.label);
-        };
-
-        this.select = function (label) {
-            if ($ctrl.default && $ctrl.default.label != label)
-                $ctrl.divergedFromDefault = true;
-            $ctrl.label = label || $ctrl.default.label;
-            if ($ctrl.onSelect)
-                $ctrl.onSelect(address());
-        };
-
-        this.profileStatus = function () {
-            return binarta.checkpoint.profile.status();
-        };
-
-        this.addressStatus = function () {
-            return $ctrl.label ? address().status() : 'awaiting-selection';
-        };
-
-        this.new = function () {
-            binarta.checkpoint.profile.edit();
-            $ctrl.form = binarta.checkpoint.profile.updateRequest().address;
-            $ctrl.creatingAddress = true;
-        };
-
-        this.isCreatingAddress = function () {
-            return $ctrl.creatingAddress && ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection') && ($ctrl.profileStatus() == 'editing' || $ctrl.profileStatus() == 'working');
-        };
-
-        this.create = function () {
-            $ctrl.awaitingAddressCreation = true;
-            binarta.checkpoint.profile.update();
-        };
-
-        this.cancelNewAddress = function () {
-            if ($ctrl.creatingAddress) {
-                binarta.checkpoint.profile.cancel();
-                $ctrl.creatingAddress = false;
-            }
-        };
-
-        this.violationReport = function () {
-            return binarta.checkpoint.profile.violationReport().address;
-        };
-
-        this.edit = function () {
-            address().edit();
-            $ctrl.form = address().updateRequest();
-            $ctrl.editingAddress = true;
-        };
-
-        this.isSelectingAddress = function () {
-            return ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection' || !$ctrl.editingAddress) && ($ctrl.profileStatus() == 'idle' || !$ctrl.creatingAddress);
-        };
-
-        this.isEditingAddress = function () {
-            return $ctrl.editingAddress && ($ctrl.addressStatus() == 'editing' || $ctrl.addressStatus() == 'working');
-        };
-
-        this.update = function () {
-            if ($ctrl.generateLabel)
-                $ctrl.form.generateLabel = true;
-            address().update(function () {
-                $ctrl.editingAddress = false;
-                $ctrl.select($ctrl.form.label);
+                if ($ctrl.default && $ctrl.default.label)
+                    $ctrl.select($ctrl.default.label);
+                if ($ctrl.initialAddress)
+                    $ctrl.select($ctrl.initialAddress.label);
             });
-        };
 
-        this.cancel = function () {
-            address().cancel();
-        };
+            this.$onChanges = function (args) {
+                if (!$ctrl.divergedFromDefault && args.default && args.default.currentValue)
+                    $ctrl.select(args.default.currentValue.label);
+            };
 
-        this.addresses = function () {
-            return binarta.checkpoint.profile.addresses();
-        };
+            this.select = function (label) {
+                if ($ctrl.default && $ctrl.default.label != label)
+                    $ctrl.divergedFromDefault = true;
+                $ctrl.label = label || $ctrl.default.label;
+                if ($ctrl.onSelect)
+                    $ctrl.onSelect(address());
+            };
 
-        this.countries = function () {
-            return binarta.checkpoint.profile.supportedCountries();
-        };
+            this.profileStatus = function () {
+                return binarta.checkpoint.profile.status();
+            };
 
-        this.addressee = function () {
-            return address().addressee;
-        };
+            this.addressStatus = function () {
+                return $ctrl.label ? address().status() : 'awaiting-selection';
+            };
 
-        this.street = function () {
-            return address().street;
-        };
+            this.new = function () {
+                binarta.checkpoint.profile.edit();
+                $ctrl.form = binarta.checkpoint.profile.updateRequest().address;
+                $ctrl.creatingAddress = true;
+            };
 
-        this.number = function () {
-            return address().number;
-        };
+            this.isCreatingAddress = function () {
+                return $ctrl.creatingAddress && ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection') && ($ctrl.profileStatus() == 'editing' || $ctrl.profileStatus() == 'working');
+            };
 
-        this.zip = function () {
-            return address().zip;
-        };
+            this.create = function () {
+                $ctrl.awaitingAddressCreation = true;
+                binarta.checkpoint.profile.update();
+            };
 
-        this.city = function () {
-            return address().city;
-        };
-
-        this.country = function () {
-            return address().country;
-        };
-
-        function address() {
-            return binarta.checkpoint.profile.addresses().reduce(function (p, c) {
-                if (c.label == $ctrl.label)
-                    return c;
-                return p;
-            }, {
-                status: function () {
-                    return 'awaiting-selection';
-                }
-            });
-        }
-
-        function ProfileEventListener($ctrl) {
-            this.updated = function () {
-                if ($ctrl.awaitingAddressCreation) {
-                    $ctrl.select($ctrl.form.label);
+            this.cancelNewAddress = function () {
+                if ($ctrl.creatingAddress) {
+                    binarta.checkpoint.profile.cancel();
                     $ctrl.creatingAddress = false;
-                    $ctrl.awaitingAddressCreation = false;
+                }
+            };
+
+            this.violationReport = function () {
+                return binarta.checkpoint.profile.violationReport().address;
+            };
+
+            this.edit = function () {
+                address().edit();
+                $ctrl.form = address().updateRequest();
+                $ctrl.editingAddress = true;
+            };
+
+            this.isSelectingAddress = function () {
+                return ($ctrl.addressStatus() == 'idle' || $ctrl.addressStatus() == 'awaiting-selection' || !$ctrl.editingAddress) && ($ctrl.profileStatus() == 'idle' || !$ctrl.creatingAddress);
+            };
+
+            this.isEditingAddress = function () {
+                return $ctrl.editingAddress && ($ctrl.addressStatus() == 'editing' || $ctrl.addressStatus() == 'working');
+            };
+
+            this.update = function () {
+                if ($ctrl.generateLabel)
+                    $ctrl.form.generateLabel = true;
+                address().update(function () {
+                    $ctrl.editingAddress = false;
+                    $ctrl.select($ctrl.form.label);
+                });
+            };
+
+            this.cancel = function () {
+                address().cancel();
+            };
+
+            this.addresses = function () {
+                return binarta.checkpoint.profile.addresses();
+            };
+
+            this.countries = function () {
+                return binarta.checkpoint.profile.supportedCountries();
+            };
+
+            this.addressee = function () {
+                return address().addressee;
+            };
+
+            this.street = function () {
+                return address().street;
+            };
+
+            this.number = function () {
+                return address().number;
+            };
+
+            this.zip = function () {
+                return address().zip;
+            };
+
+            this.city = function () {
+                return address().city;
+            };
+
+            this.country = function () {
+                return address().country;
+            };
+
+            function address() {
+                return binarta.checkpoint.profile.addresses().reduce(function (p, c) {
+                    if (c.label == $ctrl.label)
+                        return c;
+                    return p;
+                }, {
+                    status: function () {
+                        return 'awaiting-selection';
+                    }
+                });
+            }
+
+            function ProfileEventListener($ctrl) {
+                this.updated = function () {
+                    if ($ctrl.awaitingAddressCreation) {
+                        $ctrl.select($ctrl.form.label);
+                        $ctrl.creatingAddress = false;
+                        $ctrl.awaitingAddressCreation = false;
+                    }
                 }
             }
-        }
+        })];
     }
 
     function PaymentMethodsComponent() {
@@ -432,20 +445,79 @@
         this.templateUrl = 'bin-shop-payment.html';
     }
 
-    function PaymentController($window, $routeParams, $timeout, sessionStorage) {
+    function PaymentController(binarta, $window, $routeParams, $timeout, sessionStorage, resourceLoader, brand) {
         var $ctrl = this;
+        var dialog, observer, brandName;
 
         $ctrl.$onInit = function () {
-            if ($routeParams.token)
-                $ctrl.onConfirmed($routeParams);
-            else if (sessionStorage.binartaJSAwaitingConfirmationWithPaymentProvider) {
+            $ctrl.providerTemplate = 'bin-shop-payment-' + $ctrl.provider + '.html';
+            if ($routeParams.token || $routeParams.id) {
                 sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
-                $ctrl.onCanceled();
-            } else
-                $timeout(function () {
-                    sessionStorage.setItem('binartaJSAwaitingConfirmationWithPaymentProvider', 'yes');
-                    $window.location = $ctrl.order.approvalUrl;
-                }, 3000);
+                $ctrl.onConfirmed($routeParams);
+            }
+            else if ($ctrl.order) {
+                var approvalUrl = $ctrl.order.approvalUrl || ($ctrl.order.signingContext ? $ctrl.order.signingContext.approvalUrl : undefined);
+                if (approvalUrl) {
+                    if (sessionStorage.binartaJSAwaitingConfirmationWithPaymentProvider) {
+                        sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
+                        $ctrl.onCanceled();
+                    } else
+                        $timeout(function () {
+                            sessionStorage.setItem('binartaJSAwaitingConfirmationWithPaymentProvider', 'yes');
+                            $window.location = approvalUrl;
+                        }, 3000);
+                }
+            }
+        };
+
+        $ctrl.$onDestroy = function () {
+            if (dialog)
+                dialog.close();
+            if (observer)
+                observer.disconnect()
+            if (brandName)
+                brandName.disconnect()
+        };
+
+        $ctrl.open = function () {
+            function doOpen() {
+                resourceLoader.getScript('https://checkout.stripe.com/checkout.js').then(function () {
+                    brandName = brand.observeBrandName(function (brandName) {
+                        var canceled = true;
+                        dialog = StripeCheckout.configure({
+                            key: $ctrl.order.signingContext.apiKey,
+                            image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+                            locale: $ctrl.order.signingContext.locale,
+                            token: function (it) {
+                                canceled = false;
+                                it.token = it.id;
+                                it.id = $ctrl.order.signingContext.payment;
+                                $ctrl.onConfirmed(it);
+                            },
+                            closed: function () {
+                                sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
+                                if (canceled) {
+                                    $ctrl.onCanceled();
+                                }
+                            }
+                        });
+                        dialog.open({
+                            name: brandName,
+                            email: binarta.checkpoint.profile.email(),
+                            amount: $ctrl.order.signingContext.amount,
+                            locale: $ctrl.order.signingContext.locale,
+                            currency: $ctrl.order.signingContext.currency,
+                            allowRememberMe: true,
+                            zipCode: true
+                        });
+                    })
+                });
+            }
+
+            if (binarta.checkpoint.profile.isAuthenticated())
+                doOpen();
+            else
+                observer = binarta.checkpoint.profile.eventRegistry.observe({signedin: doOpen});
         }
     }
 
@@ -494,6 +566,156 @@
                 confirmationToken: $location.search().token
             });
         }
+    }
+
+    function StripeConnectComponent() {
+        this.templateUrl = 'bin-shop-stripe-connect-component.html';
+        this.controller = ['binarta', '$window', function (binarta, $window) {
+            var $ctrl = this;
+            var observer;
+
+            $ctrl.$onInit = function () {
+                observer = binarta.shop.stripe.observe({
+                    status: function (it) {
+                        $ctrl.status = it;
+                    },
+                    goto: function (it) {
+                        $window.location = it;
+                    },
+                    connected: function (it) {
+                        $ctrl.id = it;
+                    }
+                });
+            };
+
+            $ctrl.$onDestroy = function () {
+                observer.disconnect();
+            };
+
+            $ctrl.connect = binarta.shop.stripe.connect;
+            $ctrl.disconnect = binarta.shop.stripe.disconnect;
+        }];
+    }
+
+    function PaymentOnReceiptConfigComponent() {
+        this.templateUrl = 'bin-shop-payment-on-receipt-config-component.html';
+        this.controller = ['binarta', binComponentController(function (binarta) {
+            var $ctrl = this;
+
+            $ctrl.addInitHandler(function () {
+                $ctrl.addDestroyHandler(binarta.shop.paymentOnReceipt.observe({
+                    status: function (it) {
+                        $ctrl.status = it;
+                    },
+                    params: function (it) {
+                        $ctrl.params = it;
+                    }
+                }).disconnect);
+            });
+
+            $ctrl.configure = function () {
+                binarta.shop.paymentOnReceipt.configure($ctrl.params);
+            };
+
+            $ctrl.disable = function () {
+                binarta.shop.paymentOnReceipt.disable();
+            }
+        })];
+    }
+
+    function CreditCardConfigComponent() {
+        this.templateUrl = 'bin-shop-cc-config-component.html';
+        this.controller = ['binarta', function (binarta) {
+            var $ctrl = this;
+
+            $ctrl.$onInit = function () {
+                observer = binarta.shop.cc.observe({
+                    status: function (it) {
+                        $ctrl.status = it;
+                    },
+                    params: function (it) {
+                        $ctrl.params = it;
+                    },
+                    rejected: function (it) {
+                        $ctrl.violationReport = it;
+                    }
+                });
+            };
+
+            $ctrl.$onDestroy = function () {
+                observer.disconnect();
+            };
+
+            $ctrl.configure = function () {
+                $ctrl.violationReport = undefined;
+                binarta.shop.cc.configure($ctrl.params);
+            };
+
+            $ctrl.disable = function () {
+                $ctrl.violationReport = undefined;
+                binarta.shop.cc.disable();
+            }
+        }];
+    }
+
+    function BancontactConfigComponent() {
+        this.templateUrl = 'bin-shop-bancontact-config-component.html';
+        this.controller = ['binarta', function (binarta) {
+            var $ctrl = this;
+
+            $ctrl.$onInit = function () {
+                observer = binarta.shop.bancontact.observe({
+                    status: function (it) {
+                        $ctrl.status = it;
+                    },
+                    params: function (it) {
+                        $ctrl.params = it;
+                    },
+                    rejected: function (it) {
+                        $ctrl.violationReport = it;
+                    }
+                });
+            };
+
+            $ctrl.$onDestroy = function () {
+                observer.disconnect();
+            };
+
+            $ctrl.configure = function () {
+                $ctrl.violationReport = undefined;
+                binarta.shop.bancontact.configure($ctrl.params);
+            };
+
+            $ctrl.disable = function () {
+                $ctrl.violationReport = undefined;
+                binarta.shop.bancontact.disable();
+            }
+        }];
+    }
+
+    function DeliveryMethodsComponent() {
+        this.templateUrl = 'bin-shop-delivery-methods-component.html';
+        this.controller = ['binarta', binComponentController(function (binarta) {
+            var $ctrl = this;
+
+            $ctrl.addInitHandler(function () {
+                $ctrl.addDestroyHandler(binarta.shop.deliveryMethods.observe({
+                    status: function (it) {
+                        $ctrl.status = it;
+                    },
+                    supportedDeliveryMethods: function (it) {
+                        $ctrl.supportedMethods = it;
+                    },
+                    activeDeliveryMethod: function (it) {
+                        $ctrl.activeMethod = it;
+                    }
+                }).disconnect);
+            });
+
+            $ctrl.activate = function () {
+                binarta.shop.deliveryMethods.activate($ctrl.activeMethod);
+            };
+        })];
     }
 
     function CouponComponent() {
@@ -607,7 +829,13 @@
     function InstallSummarySupport(binarta, decorator) {
         decorator.add(function (ctrl) {
             ctrl.confirm = function () {
+                if(ctrl.comment) {
+                    var ctx = binarta.shop.checkout.context();
+                    ctx.order.comment = ctrl.comment;
+                    binarta.shop.checkout.persist(ctx);
+                }
                 binarta.shop.checkout.confirm(function () {
+                    sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
                     ctrl.start();
                 });
             };
@@ -642,8 +870,9 @@
 
     function InstallPaymentSupport(binarta, decorator, $location) {
         decorator.add(function ($ctrl) {
-            $ctrl.confirmPayment = function () {
-                binarta.shop.checkout.confirm($location.search(), function () {
+            $ctrl.confirmPayment = function (it) {
+                var request = it && it.id ? it : $location.search();
+                binarta.shop.checkout.confirm(request, function () {
                     $ctrl.start();
                     $location.search({});
                     $location.replace();

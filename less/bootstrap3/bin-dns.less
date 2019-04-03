@@ -1,0 +1,16 @@
+bin-dns {
+  table {
+    tr.has-error {
+      td {
+        &:first-child {
+          border-left: 1px solid @state-danger-text;
+        }
+        border-top: 1px solid @state-danger-text;
+        border-bottom: 1px solid @state-danger-text;
+        &:last-child {
+          border-right: 1px solid @state-danger-text;
+        }
+      }
+    }
+  }
+}

@@ -20,6 +20,9 @@
         .factory('binartaApplicationIsInitialised', ['binartaApplicationIsInitialised.deferred', IsApplicationInitialisedFactory])
         .directive('binHref', ['$location', 'application', BinHrefDirectiveFactory])
         .directive('binDhref', ['$location', 'application', BinDhrefDirectiveFactory])
+        .directive('binApplicationLock', ['binarta', 'application', ApplicationLockDirective])
+        .component('cookiePermissionGranted', new CookiePermissionGrantedComponent())
+        .component('binDns', new DNSComponent())
         .run(['application', WireAngularDependencies])
         .run(['$rootScope', 'application', '$location', InstallRouteChangeListeners])
         .run([
@@ -39,15 +42,18 @@
         ]);
 
     function ApplicationProvider(provider) {
+        this.speak = 'Moooooo!';
         this.application = new BinartaApplicationjs();
         this.application.gateway = provider.gateway;
         this.ui = new UI();
         this.$get = ['$window', '$location', 'extendBinartaApplication', 'localStorage', 'sessionStorage', function ($window, $location, extend, localStorage, sessionStorage) {
+            this.application.window = $window;
             this.application.localStorage = localStorage;
             this.application.sessionStorage = sessionStorage;
             this.ui.window = $window;
             this.ui.location = $location;
             extend(this.application);
+            this.application.cookies.permission.evaluate();
             return this.application;
         }]
     }
@@ -168,6 +174,155 @@
         return directive;
     }
 
+    function ApplicationLockDirective(binarta, app) {
+        return {
+            restrict: 'E',
+            scope: true,
+            link: function (scope) {
+                scope.$lock = {status: app.lock.status};
+
+                function applyLockStatus() {
+                    scope.$lock.status = app.lock.status;
+                }
+
+                applyLockStatus();
+
+                scope.$on('$destroy', app.eventRegistry.observe({
+                    viewing: applyLockStatus,
+                    editing: applyLockStatus
+                }).disconnect);
+            }
+        }
+    }
+
+    function CookiePermissionGrantedComponent() {
+        this.templateUrl = 'bin-all-cookie-notice.html';
+        this.controller = ['binarta', binComponentController(function (binarta) {
+            var $ctrl = this;
+
+            function updateStatus() {
+                $ctrl.status = binarta.application.cookies.permission.status;
+            }
+
+            $ctrl.addInitHandler(updateStatus);
+
+            $ctrl.grant = function () {
+                binarta.application.cookies.permission.grant();
+                updateStatus();
+            };
+
+            $ctrl.revoke = function () {
+                binarta.application.cookies.permission.revoke();
+                updateStatus();
+            }
+        })];
+    }
+
+    function DNSComponent() {
+        this.templateUrl = 'bin-all-dns-component.html';
+        this.bindings = {
+            containerTemplate: '@'
+        };
+        this.controller = ['binarta', binComponentController(function () {
+            var $ctrl = this;
+
+            $ctrl.templateUrl = 'bin-all-dns-component-widget.html';
+            $ctrl.i18n = {
+                title: 'bin.dns.component.title'
+            };
+
+            $ctrl.observables = [{
+                toObserver: function () {
+                    return binarta.application.dns.observe({
+                        status: function (it) {
+                            $ctrl.working = it == 'working';
+                            $ctrl.violationReport = undefined;
+                        },
+                        disabled: function () {
+                            $ctrl.disabled = true;
+                        },
+                        records: function (it) {
+                            $ctrl.records = it;
+                        },
+                        rejected: function (it) {
+                            $ctrl.violationReport = it;
+                        }
+                    });
+                }
+            }];
+            $ctrl.addInitHandler(function () {
+                $ctrl.containerTemplate = $ctrl.containerTemplate || 'bin-all-dns-component-container-default.html';
+                reset();
+            });
+
+            $ctrl.submit = function () {
+                $ctrl[$ctrl.status]();
+            };
+
+            $ctrl.add = function () {
+                $ctrl.records.push({
+                    id: toNextIdx(),
+                    type: $ctrl.draft.type,
+                    name: $ctrl.draft.name,
+                    values: toArray($ctrl.draft.values)
+                });
+                reset();
+            };
+
+            function toNextIdx() {
+                return $ctrl.records.reduce(function(p, c) {
+                    return c.id > p ? c.id : p;
+                }, -1) + 1;
+            }
+
+            function reset() {
+                $ctrl.draft = {};
+                $ctrl.status = 'add';
+            }
+
+            function toArray(it) {
+                return it.split(/[\r\n]+/);
+            }
+
+            $ctrl.remove = function (record) {
+                $ctrl.records = $ctrl.records.filter(not(byTypeAndName(record)));
+            };
+
+            function byTypeAndName(x) {
+                return function (y) {
+                    return x.type == y.type && x.name == y.name
+                }
+            }
+
+            function not(predicate) {
+                return function (it) {
+                    return !predicate(it);
+                }
+            }
+
+            $ctrl.modify = function (record) {
+                $ctrl.status = 'update';
+                $ctrl.draft = {
+                    type: record.type,
+                    name: record.name,
+                    values: record.values.join('\n')
+                };
+            };
+
+            $ctrl.update = function () {
+                var it = $ctrl.records.filter(byTypeAndName($ctrl.draft))[0];
+                it.values = toArray($ctrl.draft.values);
+                reset();
+            };
+
+            $ctrl.save = function () {
+                binarta.application.dns.save($ctrl.records);
+            };
+
+            $ctrl.clear = reset;
+        })];
+    }
+
     function WireAngularDependencies(application) {
         binarta = application.binarta;
     }
@@ -229,7 +384,23 @@
 
     binComponentControllerExtenders.push(function ($ctrl) {
         $ctrl.config = new ComponentControllerConfig($ctrl);
+        $ctrl.lock = new ComponentControllerLock($ctrl);
     });
+
+    function ComponentControllerLock($ctrl) {
+        var self = this;
+
+        self.addHandler = function (it) {
+            if (binarta.application.lock.status == 'open')
+                it.viewing();
+            else if (binarta.application.lock.status == 'closed')
+                it.editing();
+            var l = binarta.application.eventRegistry.observe(it);
+            $ctrl.addDestroyHandler(function () {
+                l.disconnect();
+            });
+        }
+    }
 
     function ComponentControllerPublicConfig($ctrl) {
         var self = this;

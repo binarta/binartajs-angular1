@@ -1,0 +1,34 @@
+<form ng-if="$ctrl.status != 'working'" ng-submit="$ctrl.configure()">
+    <div class="form-group" ng-class="{'has-error': $ctrl.violationReport.bankId}">
+        <label i18n code="shop.financial.institution.id.label" read-only ng-bind="::var"></label>:
+        <select class="form-control" ng-model="$ctrl.params.bankId"
+                ng-options="id for id in $ctrl.params.supportedBy track by id"></select>
+        <p class="help-block" ng-repeat="v in $ctrl.violationReport.bankId"
+           i18n code="shop.financial.institution.id.{{::v}}" default="{{::v}}"
+           read-only>
+            {{::var}}
+        </p>
+    </div>
+    <div class="form-group" ng-class="{'has-error': $ctrl.violationReport.owner}">
+        <label i18n code="shop.bancontact.owner.label" read-only ng-bind="::var"></label>:
+        <input type="text" class="form-control"
+               i18n code="shop.bancontact.owner.placeholder" read-only
+               placeholder="{{::var}}"
+               name="bancontact-owner"
+               ng-model="$ctrl.params.owner">
+        <p class="help-block" ng-repeat="v in $ctrl.violationReport.owner"
+           i18n code="shop.bancontact.owner.{{::v}}" default="{{::v}}"
+           read-only>
+            {{::var}}
+        </p>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-success" i18n code="shop.bancontact.configure.button" read-only
+                ng-bind="::var"></button>
+        <button type="button" ng-if="$ctrl.status == 'configured'" class="btn btn-warning" ng-click="$ctrl.disable()" i18n
+                code="shop.bancontact.disable.button" read-only ng-bind="::var"></button>
+    </div>
+</form>
+<div ng-if="$ctrl.status == 'working'" class="form-group">
+    <i class="fa fa-spinner fa-spin fa-fw"></i>
+</div>

@@ -8,7 +8,7 @@
 
     function RegistrationEventListener(vcRecaptchaService) {
         this.rejected = function () {
-            vcRecaptchaService.reload(false);
+            vcRecaptchaService.reload();
         };
     }
 })();

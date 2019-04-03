@@ -54,7 +54,7 @@
             }
         }
 
-        describe('application gateway', function () {
+        describe('application db', function () {
             var gateway;
 
             beforeEach(inject(function (restBinartaApplicationGateway) {
@@ -254,6 +254,185 @@
                     });
                 });
             });
+
+            describe('get widget attributes', function () {
+                beforeEach(function () {
+                    request = {component: 'c', widget: 'w'};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/get-widget-attributes', {
+                        headers: {
+                            namespace: 'n'
+                        },
+                        payload: {
+                            platform: 'web',
+                            component: 'c',
+                            widget: 'w'
+                        }
+                    });
+                });
+
+                it('unauthorized', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.getWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('forbidden', function () {
+                    expectedHttpRequest.respond(403);
+                    gateway.getWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.forbidden).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violations');
+                    gateway.getWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violations', 412);
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, {aspectRatio: {width: 3, height: 2}, fittingRule: 'contain'});
+                    gateway.getWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith({
+                        aspectRatio: {width: 3, height: 2},
+                        fittingRule: 'contain'
+                    });
+                });
+
+                it('success handles null responses from server', function () {
+                    expectedHttpRequest.respond(200, null);
+                    gateway.getWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith({
+                        aspectRatio: {}
+                    });
+                });
+            });
+
+            describe('save widget attributes', function () {
+                beforeEach(function () {
+                    request = {component: 'c', widget: 'w', attributes: 'a'};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/save-widget-attributes', {
+                        headers: {
+                            namespace: 'n'
+                        },
+                        payload: {
+                            platform: 'web',
+                            component: 'c',
+                            widget: 'w',
+                            attributes: 'a'
+                        }
+                    });
+                });
+
+                it('unauthorized', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.saveWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('forbidden', function () {
+                    expectedHttpRequest.respond(403);
+                    gateway.saveWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.forbidden).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violations');
+                    gateway.saveWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violations', 412);
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.saveWidgetAttributes(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('save custom domain records', function () {
+                beforeEach(function () {
+                    request = 'records';
+                    expectedHttpRequest = $http.expectPOST('http://host/api/save-custom-domain-records', {
+                        headers: {
+                            namespace: 'n'
+                        },
+                        payload: {
+                            records: 'records'
+                        }
+                    });
+                });
+
+                it('unauthorized', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.saveCustomDomainRecords(request, response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('forbidden', function () {
+                    expectedHttpRequest.respond(403);
+                    gateway.saveCustomDomainRecords(request, response);
+                    $http.flush();
+                    expect(response.forbidden).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violations');
+                    gateway.saveCustomDomainRecords(request, response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violations', 412);
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.saveCustomDomainRecords(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('get custom domain records', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectPOST('http://host/api/get-custom-domain-records', {
+                        headers: {namespace: 'n'}
+                    });
+                });
+
+                it('unauthorized', function () {
+                    expectedHttpRequest.respond(401);
+                    gateway.getCustomDomainRecords(response);
+                    $http.flush();
+                    expect(response.unauthenticated).toHaveBeenCalled();
+                });
+
+                it('forbidden', function () {
+                    expectedHttpRequest.respond(403);
+                    gateway.getCustomDomainRecords(response);
+                    $http.flush();
+                    expect(response.forbidden).toHaveBeenCalled();
+                });
+
+                it('rejected', function () {
+                    expectedHttpRequest.respond(412, 'violations');
+                    gateway.getCustomDomainRecords(response);
+                    $http.flush();
+                    expect(response.rejected).toHaveBeenCalledWith('violations', 412);
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.getCustomDomainRecords(response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
         });
 
         describe('checkpoint gateway', function () {
@@ -305,6 +484,21 @@
                     gateway.signout(response);
                     $http.flush();
                     expect(response.unauthenticated).toHaveBeenCalled();
+                });
+            });
+
+            describe('delete', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectPOST('http://host/api/usecase', {
+                        headers: {usecase: 'user.profile.remove'}
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.delete(response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
                 });
             });
 
@@ -382,6 +576,220 @@
             })
         });
 
+        describe('publisher gateway', function () {
+            var db;
+
+            beforeEach(inject(function (restBinartaPublisherGateway) {
+                db = restBinartaPublisherGateway;
+                response = jasmine.createSpyObj('response', ['success']);
+            }));
+
+            describe('findAllPublishedBlogsForLocale', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'find.all.published.blogs.for.locale',
+                            namespace: 'n',
+                            locale: 'en'
+                        },
+                        payload: {
+                            type: 'type',
+                            content: 'content',
+                            subset: {offset: 0, max: 5}
+                        }
+                    });
+                    request = {locale: 'en', type: 'type', content: 'content', subset: {offset: 0, max: 5}}
+                });
+
+                it('returns blog posts', function () {
+                    expectedHttpRequest.respond(200, 'posts');
+                    db.findAllPublishedBlogsForLocale(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('posts')
+                });
+            });
+
+            describe('findAllBlogsInDraftForLocale', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'find.all.blogs.in.draft.for.locale',
+                            namespace: 'n',
+                            locale: 'en'
+                        },
+                        payload: {
+                            type: 'type',
+                            subset: {offset: 0, max: 5}
+                        }
+                    });
+                    request = {locale: 'en', type: 'type', subset: {offset: 0, max: 5}}
+                });
+
+                it('returns blog posts', function () {
+                    expectedHttpRequest.respond(200, 'posts');
+                    db.findAllBlogsInDraftForLocale(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('posts')
+                });
+            });
+
+            describe('add', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'new.blog.post',
+                            namespace: 'n',
+                            locale: 'en'
+                        },
+                        payload: {
+                            type: 'type'
+                        }
+                    });
+                    this.request = {locale: 'en', type: 'type'};
+                });
+
+                it('returns newly created id', function () {
+                    expectedHttpRequest.respond(200, 'id');
+                    db.add(this.request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('id')
+                });
+            });
+
+            describe('delete', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'delete.blog.post',
+                            namespace: 'n'
+                        },
+                        payload: {
+                            id: 'b'
+                        }
+                    });
+                });
+
+                it('executes', function () {
+                    expectedHttpRequest.respond(200);
+                    db.delete({id: 'b'}, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled()
+                });
+            });
+
+            describe('get', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'display.blog.post',
+                            namespace: 'n',
+                            locale: 'en'
+                        },
+                        payload: {
+                            id: 'b'
+                        }
+                    });
+                });
+
+                it('returns blog post', function () {
+                    expectedHttpRequest.respond(200, 'p');
+                    db.get({locale: 'en', id: 'b'}, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('p');
+                });
+            });
+
+            describe('publish', function () {
+                var now;
+
+                beforeEach(function () {
+                    now = moment();
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'publish.blog.post',
+                            namespace: 'n',
+                            locale: 'en'
+                        },
+                        payload: {
+                            id: 'b',
+                            timestamp: moment(now, 'lll').format()
+                        }
+                    });
+                });
+
+                it('completes sucessfully', function () {
+                    expectedHttpRequest.respond(200);
+                    db.publish({locale: 'en', id: 'b', timestamp: now}, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith();
+                });
+            });
+
+            describe('withdraw', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'withdraw.blog.post',
+                            namespace: 'n',
+                            locale: 'en'
+                        },
+                        payload: {
+                            id: 'b'
+                        }
+                    });
+                });
+
+                it('completes sucessfully', function () {
+                    expectedHttpRequest.respond(200);
+                    db.withdraw({locale: 'en', id: 'b'}, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('draft in another language', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'draft.blog.post.in.another.language',
+                            namespace: 'n'
+                        },
+                        payload: {
+                            id: 'b',
+                            locale: 'en'
+                        }
+                    });
+                });
+
+                it('completes sucessfully', function () {
+                    expectedHttpRequest.respond(200);
+                    db.draftInAnotherLanguage({locale: 'en', id: 'b'}, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('setType', function () {
+                it('completes successfullyl', function () {
+                    $http.expect('POST', 'http://host/api/usecase', {
+                        headers: {
+                            usecase: 'update.type.for.blog',
+                            namespace: 'n'
+                        },
+                        payload: {
+                            id: 'b',
+                            type: 'type'
+                        }
+                    }).respond(200);
+
+                    db.setType({id: 'b', type: 'type'}, response);
+                    $http.flush();
+
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+        });
+
         describe('shop gateway', function () {
             var gateway;
 
@@ -436,7 +844,7 @@
 
             describe('fetch addresses', function () {
                 beforeEach(function () {
-                    expectedHttpRequest = $http.expectGET('http://host/api/query/customer-address/listByPrincipal', expectHeaders([
+                    expectedHttpRequest = $http.expectPOST('http://host/api/query/customer-address/listByPrincipal', {"args": {"dummy": "dummy"}}, expectHeaders([
                         expectHeader('Accept-Language', binarta.application.locale())
                     ]));
                 });
@@ -745,13 +1153,317 @@
                     expect(response.notFound).toHaveBeenCalled();
                 });
             });
+
+            describe('stripe connect', function () {
+                beforeEach(function () {
+                    request = {
+                        locale: 'en'
+                    };
+                    expectedHttpRequest = $http.expectPOST('http://host/api/stripe/initiate', {
+                        headers: {
+                            locale: 'en'
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, {uri: 'stripe-connect-uri'});
+                    gateway.stripeConnect(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith({uri: 'stripe-connect-uri'});
+                });
+            });
+
+            describe('stripe connected', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/stripe/account', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, {id: 'stripe-account-id'});
+                    gateway.stripeConnected(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('stripe-account-id');
+                });
+
+                it('not found', function () {
+                    expectedHttpRequest.respond(404);
+                    gateway.stripeConnected(request, response);
+                    $http.flush();
+                    expect(response.notFound).toHaveBeenCalled();
+                });
+            });
+
+            describe('stripe disconnect', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/stripe/disconnect', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.stripeDisconnect(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('configure payment on receipt', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/payment-on-receipt/configure', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.configurePaymentOnReceipt(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('configure cc', function () {
+                beforeEach(function () {
+                    request = {
+                        bankId: 'piggybank'
+                    };
+                    expectedHttpRequest = $http.expectPOST('http://host/api/cc/configure', {
+                        payload: {
+                            bankId: 'piggybank'
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.configureCC(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('configure bancontact', function () {
+                beforeEach(function () {
+                    request = {
+                        owner: 'John Doe',
+                        bankId: 'piggybank'
+                    };
+                    expectedHttpRequest = $http.expectPOST('http://host/api/bancontact/configure', {
+                        payload: {
+                            ownerName: 'John Doe',
+                            bankId: 'piggybank'
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.configureBancontact(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('get payment on receipt params', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/payment-on-receipt/params', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'params');
+                    gateway.getPaymentOnReceiptParams(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('params');
+                });
+            });
+
+            describe('get cc params', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/cc/params', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'params');
+                    gateway.getCCParams(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('params');
+                });
+            });
+
+            describe('get bancontact params', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/bancontact/params', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'params');
+                    gateway.getBancontactParams(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('params');
+                });
+            });
+
+            describe('disable payment method', function () {
+                beforeEach(function () {
+                    request = {id: 'piggybank'};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/payment/method/disable', {
+                        payload: {
+                            id: 'piggybank'
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.disablePaymentMethod(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+
+            describe('get delivery method params', function () {
+                beforeEach(function () {
+                    request = {};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/get-delivery-method-params', {});
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'params');
+                    gateway.getDeliveryMethodParams(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('params');
+                });
+            });
+
+            describe('activate delivery method', function () {
+                beforeEach(function () {
+                    request = {id: 'method'};
+                    expectedHttpRequest = $http.expectPOST('http://host/api/activate-delivery-method', {
+                        payload: {
+                            id: 'method'
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200);
+                    gateway.activateDeliveryMethod(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalled();
+                });
+            });
+        });
+
+        describe('human resources db', function () {
+            var db;
+
+            beforeEach(inject(function (restBinartaHumanResourcesGateway) {
+                db = restBinartaHumanResourcesGateway;
+            }));
+
+            describe('search', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectGET('http://host/api/vacancies/n/l');
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'search-results');
+                    request.locale = 'l';
+                    db.search(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('search-results');
+                });
+            });
+
+            describe('get', function () {
+                beforeEach(function () {
+                    expectedHttpRequest = $http.expectGET('http://host/api/vacancies/n/i/l');
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'position');
+                    request.id = 'i';
+                    request.locale = 'l';
+                    db.get(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('position');
+                });
+            });
+        });
+
+        describe('calendar db', function () {
+            var db;
+
+            beforeEach(inject(function (restBinartaCalendarGateway) {
+                db = restBinartaCalendarGateway;
+            }));
+
+            describe('find upcoming events', function () {
+                var now;
+
+                beforeEach(function () {
+                    now = moment();
+                    request.startDate = now;
+                    expectedHttpRequest = $http.expectPOST('http://host/api/usecase', {
+                        "headers": {
+                            "namespace": "n",
+                            "usecase": "find.upcoming.events"
+                        },
+                        "payload": {
+                            "type": "shows",
+                            "startDate": now.format('YYYY-MM-DD'),
+                            "max": 5
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'results');
+                    db.findUpcomingEvents(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('results');
+                });
+            });
+
+            describe('find upcoming events with metadata', function () {
+                var now;
+
+                beforeEach(function () {
+                    now = moment();
+                    request.startDate = now;
+                    request.metadata = 'd';
+                    expectedHttpRequest = $http.expectPOST('http://host/api/usecase', {
+                        "headers": {
+                            "namespace": "n",
+                            "usecase": "find.upcoming.events"
+                        },
+                        "payload": {
+                            "type": "shows",
+                            "startDate": now.format('YYYY-MM-DD'),
+                            "metadata": 'd',
+                            "max": 5
+                        }
+                    });
+                });
+
+                it('success', function () {
+                    expectedHttpRequest.respond(200, 'results');
+                    db.findUpcomingEvents(request, response);
+                    $http.flush();
+                    expect(response.success).toHaveBeenCalledWith('results');
+                });
+            });
         });
 
         describe('human resources db', function() {
             var db;
 
-            beforeEach(inject(function(restBinartaHumanResourcesDB) {
-                db = restBinartaHumanResourcesDB;
+            beforeEach(inject(function(restBinartaHumanResourcesGateway) {
+                db = restBinartaHumanResourcesGateway;
             }));
 
             describe('search', function () {
@@ -798,6 +1510,8 @@
         'binarta-applicationjs-angular1',
         'binarta-applicationjs-rest-angular1',
         'binarta-checkpointjs-rest-angular1',
+        'binarta-publisherjs-rest-angular1',
+        'binarta-calendarjs-rest-angular1',
         'binarta-shopjs-rest-angular1',
         'binarta-humanresourcesjs-rest-angular1'
     ]).factory('binartaReadRouteOnLocaleChange', function () {

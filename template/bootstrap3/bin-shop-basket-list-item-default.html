@@ -1,53 +1,19 @@
-<div class="bin-basket-item thumbnail clearfix">
-    <div ng-controller="binImageCarouselHeroController as hero"
-         ng-init="hero.init({id: item.id, items: item.carousel})">
-        <a class="item-image" bin-href="{{::'/view' + item.id}}" ng-if="::hero.image">
-            <img bin-image="{{::hero.image.path}}" read-only>
-        </a>
+<div class="bin-basket-item">
+    <h3 class="item-title">
+        <a bin-href="{{::'/view' + item.id}}" i18n code="{{::item.id}}" read-only ng-bind="::var"></a>
+    </h3>
+
+    <div class="item-quantity">
+        <input type="number" min="1" class="form-control" ng-model="item.quantity" ng-change="item.update()">
     </div>
 
-    <div class="caption">
-        <h3 class="item-title">
-            <a bin-href="{{::'/view' + item.id}}" i18n code="{{::item.id}}" read-only ng-bind="::var"></a>
-        </h3>
+    <div class="item-price">
+        <span class="item-price" ng-bind="::item.presentableTotal"></span>
+    </div>
 
-        <div class="item-remove" i18n code="shop.remove.item.confirm" read-only>
-            <button class="btn btn-danger btn-sm" type="button"
-                    ng-click-confirm="item.remove()"
-                    confirm-message="{{::var}}">
-                <i class="fa fa-times"></i>
-            </button>
-        </div>
-
-        <form ng-submit="update(item)">
-            <div class="form-group">
-                <div class="input-group">
-                    <input type="number" min="1" class="form-control" ng-model="item.quantity" ng-change="item.update()">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button" ng-click="item.incrementQuantity()"
-                                    ng-disabled="working">
-                                <i class="fa fa-plus"></i>
-                            </button>
-                            <button class="btn btn-default" type="button" ng-click="item.decrementQuantity()"
-                                    ng-disabled="item.quantity < 2 || working">
-                                <i class="fa fa-minus"></i>
-                            </button>
-                        </span>
-                </div>
-            </div>
-        </form>
-
-        <table class="item-prices">
-            <tbody>
-            <tr>
-                <th i18n code="shop.item.price.label" read-only>
-                    {{::var}}
-                </th>
-                <td>
-                    <span class="item-price" ng-bind="::item.presentableTotal"></span>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="item-remove" i18n code="shop.remove.item.confirm" read-only>
+        <button class="btn btn-danger btn-sm" type="button" ng-click-confirm="item.remove()" confirm-message="{{::var}}">
+            <i class="fa fa-times"></i>
+        </button>
     </div>
 </div>

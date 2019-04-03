@@ -2,14 +2,17 @@
     var ui;
 
     describe('binartajs-angular', function () {
-        var binarta, $rootScope, $compile, $location, $routeParams, $ctrl, localStorage, sessionStorage, config;
+        var binarta, $window, $document, $rootScope, $compile, $location, $routeParams, $ctrl, localStorage,
+            sessionStorage, config;
 
         beforeEach(function () {
             ui = new UI();
         });
         beforeEach(module('binartajs-angular1-spec'));
-        beforeEach(inject(function (_binarta_, _$rootScope_, _$compile_, _$location_, _$routeParams_, _localStorage_, _sessionStorage_, _config_) {
+        beforeEach(inject(function (_binarta_, _$window_, _$document_, _$rootScope_, _$compile_, _$location_, _$routeParams_, _localStorage_, _sessionStorage_, _config_) {
             binarta = _binarta_;
+            $window = _$window_;
+            $document = _$document_;
             $rootScope = _$rootScope_;
             $compile = _$compile_;
             $location = _$location_;
@@ -24,16 +27,32 @@
 
         afterEach(function () {
             binarta.application.gateway.clear();
+            if (binarta.shop.gateway.clear)
+                binarta.shop.gateway.clear();
             localStorage.removeItem('locale');
             localStorage.removeItem('binartaJSPaymentProvider');
+            localStorage.removeItem('cookiesAccepted');
             sessionStorage.removeItem('locale');
             sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
             sessionStorage.removeItem('binartaJSSetupBillingAgreementReturnUrl');
-            sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
+        });
+
+        function render(source) {
+            var $scope = $rootScope.$new();
+            var component = $compile(source)($scope);
+            $rootScope.$digest();
+            var html = component.html().replace(/<!--[\s\S]*?-->/g, '');
+            $scope.$destroy();
+            return html;
+        }
+
+        it('decorated with an empty pages attribute', function () {
+            expect(binarta.pages).toEqual({});
         });
 
         describe('binarta is initialised promise', function () {
-            var initialisedBinarta, $rootScope, binartaIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised, binartaCachesAreInitialised;
+            var initialisedBinarta, $rootScope, binartaIsInitialised, binartaGatewaysAreInitialised,
+                binartaConfigIsInitialised, binartaCachesAreInitialised;
 
             beforeEach(inject(function (_$rootScope_, _binartaIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_, _binartaCachesAreInitialised_) {
                 $rootScope = _$rootScope_;
@@ -47,7 +66,7 @@
                 });
             }));
 
-            fit('does not resolve when only gateways are initialised', function () {
+            it('does not resolve when only gateways are initialised', function () {
                 binartaGatewaysAreInitialised.resolve();
                 $rootScope.$digest();
                 expect(initialisedBinarta).toBeUndefined();
@@ -220,6 +239,76 @@
             });
         });
 
+        describe('bin-affix class', function () {
+            var handle, el, classes;
+
+            beforeEach(inject(function (binAffix) {
+                classes = [];
+                el = {
+                    parentElement: {
+                        getBoundingClientRect: function () {
+                            return {top: 'p'};
+                        }
+                    },
+                    classList: {
+                        add: function (it) {
+                            classes.push(it);
+                        },
+                        remove: function () {
+                            classes = [];
+                        }
+                    }
+                };
+                handle = binAffix.new(el);
+            }));
+
+            it('add affix class to element when scroll idx moves below 0', function () {
+                handle.on(-1);
+                expect(classes).toEqual(['affix']);
+            });
+
+            it('remove affix class to element when scroll idx moves to 0', function () {
+                classes = ['affix'];
+                handle.on(0);
+                expect(classes).toEqual([]);
+            });
+
+            it('remove affix class to element when scroll idx moves above 0', function () {
+                classes = ['affix'];
+                handle.on(1);
+                expect(classes).toEqual([]);
+            });
+
+            it('given $window does not support animation frames when callback is executed then execute in current thread', function () {
+                handle.withScrollIndex = jasmine.createSpy();
+                handle.withAnimationFrame();
+                expect(handle.withScrollIndex).toHaveBeenCalled();
+            });
+
+            describe('given $window supports request animation frame when callback is executed', function () {
+                beforeEach(function () {
+                    $window.requestAnimationFrame = jasmine.createSpy();
+                    handle.withScrollIndex = jasmine.createSpy();
+                    handle.withAnimationFrame();
+                });
+
+                it('then animation frame is requested', function () {
+                    expect($window.requestAnimationFrame).toHaveBeenCalled();
+                });
+
+                it('then execute in animation frame', function () {
+                    $window.requestAnimationFrame.calls.mostRecent().args[0]();
+                    expect(handle.withScrollIndex).toHaveBeenCalled();
+                });
+            });
+
+            it('with scroll index fetches the scroll index from the element and executes the callback', function () {
+                handle.on = jasmine.createSpy();
+                handle.withScrollIndex();
+                expect(handle.on).toHaveBeenCalledWith('p');
+            });
+        });
+
         describe('component controller decorator', function () {
             var spy1, spy2;
 
@@ -268,11 +357,68 @@
                 $ctrl.addDestroyHandler(spy1);
                 expect(spy1).toHaveBeenCalled();
             });
+
+            describe('with observer installed', function () {
+                var rx1, rx2;
+
+                beforeEach(function () {
+                    rx1 = new BinartaRX();
+                    rx2 = new BinartaRX();
+                    $ctrl.observables = [{
+                        toObserver: function () {
+                            return rx1.observe({
+                                hello: function (it) {
+                                    $ctrl.msg = 'Hello ' + it + '!';
+                                }
+                            });
+                        }
+                    }, {
+                        toObserver: function () {
+                            return rx2.observe({
+                                status: function (it) {
+                                    $ctrl.status = it;
+                                }
+                            });
+                        }
+                    }];
+                });
+
+                it('notifications are ignored before init', function () {
+                    rx1.notify('hello', 'world');
+                    expect($ctrl.msg).not.toBeDefined();
+                });
+
+                describe('on init', function () {
+                    beforeEach(function () {
+                        $ctrl.$onInit();
+                    });
+
+                    it('process first observer', function () {
+                        rx1.notify('hello', 'world');
+                        expect($ctrl.msg).toEqual('Hello world!');
+                    });
+
+                    it('process second observer', function () {
+                        rx2.notify('status', 'listening');
+                        expect($ctrl.status).toEqual('listening');
+                    });
+
+                    it('on destroy stop listening', function () {
+                        $ctrl.$onDestroy();
+                        rx1.notify('hello', 'world');
+                        expect($ctrl.msg).not.toBeDefined();
+                    });
+                });
+            });
         });
 
         describe('binarta-applicationjs-angular1', function () {
-            var $rootScope, binartaApplicationRefresh, binartaApplicationAdhesiveReadingInitialised, binartaApplicationConfigIsInitialised, binartaApplicationCachesAreInitialised, binartaApplicationIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
-            var isApplicationRefreshedListener, isAdhesiveReadingInitialisedListener, isApplicationConfigInitialisedListener, areApplicationCachesInitialisedListener, applicationIsInitialisedListener;
+            var $rootScope, binartaApplicationRefresh, binartaApplicationAdhesiveReadingInitialised,
+                binartaApplicationConfigIsInitialised, binartaApplicationCachesAreInitialised,
+                binartaApplicationIsInitialised, binartaGatewaysAreInitialised, binartaConfigIsInitialised;
+            var isApplicationRefreshedListener, isAdhesiveReadingInitialisedListener,
+                isApplicationConfigInitialisedListener, areApplicationCachesInitialisedListener,
+                applicationIsInitialisedListener;
 
             beforeEach(inject(function (_$rootScope_, _binartaApplicationRefresh_, _binartaApplicationAdhesiveReadingInitialised_, _binartaApplicationConfigIsInitialised_, _binartaApplicationCachesAreInitialised_, _binartaApplicationIsInitialised_, _binartaGatewaysAreInitialised_, _binartaConfigIsInitialised_) {
                 $rootScope = _$rootScope_;
@@ -794,6 +940,244 @@
                 });
             });
 
+            describe('<cookie-permission-granted/>', function () {
+                beforeEach(inject(function ($componentController) {
+                    $ctrl = $componentController('cookiePermissionGranted', undefined, {});
+                    $ctrl.$onInit();
+                }));
+
+                it('exposes cookie permission status', function () {
+                    expect($ctrl.status).toEqual('permission-required');
+                });
+
+                it('grant permission', function () {
+                    $ctrl.grant();
+                    expect($ctrl.status).toEqual('permission-granted');
+                });
+
+                it('revoke permission', function () {
+                    $ctrl.revoke();
+                    expect($ctrl.status).toEqual('permission-revoked');
+                });
+            });
+
+            describe('<bin-dns/>', function () {
+                describe('without optional bindings', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binDns', undefined, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                        binarta.application.dns.save([]);
+                    });
+
+                    it('exposes default container template', function () {
+                        expect($ctrl.containerTemplate).toEqual('bin-all-dns-component-container-default.html');
+                    });
+
+                    it('exposes template url', function () {
+                        expect($ctrl.templateUrl).toEqual('bin-all-dns-component-widget.html');
+                    });
+
+                    it('exposes i18n codes', function () {
+                        expect($ctrl.i18n).toEqual({
+                            title: 'bin.dns.component.title'
+                        });
+                    });
+
+                    it('exposes records', function () {
+                        expect($ctrl.records).toEqual([]);
+                    });
+
+                    it('exposes draft', function () {
+                        expect($ctrl.draft).toEqual({});
+                    });
+
+                    describe('add record to widget', function () {
+                        beforeEach(function () {
+                            $ctrl.draft.type = 'T';
+                            $ctrl.draft.name = 'N';
+                            $ctrl.draft.values = 'V';
+
+                            $ctrl.submit();
+                        });
+
+                        it('appends the records to the exposed records', function () {
+                            expect($ctrl.records).toEqual([{id: 0, type: 'T', name: 'N', values: ['V']}]);
+                        });
+
+                        it('clears the draft', function () {
+                            expect($ctrl.draft).toEqual({});
+                        });
+                    });
+
+                    it('add record with multiple newline separated values to widget', function () {
+                        $ctrl.draft.type = 'T';
+                        $ctrl.draft.name = 'N';
+                        $ctrl.draft.values = 'x\ny\nz';
+
+                        $ctrl.submit();
+
+                        expect($ctrl.records).toEqual([{id: 0, type: 'T', name: 'N', values: ['x', 'y', 'z']}]);
+                    });
+
+                    it('add record with multiple carriage return separated values to widget', function () {
+                        $ctrl.draft.type = 'T';
+                        $ctrl.draft.name = 'N';
+                        $ctrl.draft.values = 'x\ry\rz';
+
+                        $ctrl.submit();
+
+                        expect($ctrl.records).toEqual([{id: 0, type: 'T', name: 'N', values: ['x', 'y', 'z']}]);
+                    });
+
+                    describe('adding multiple records', function () {
+                        beforeEach(function () {
+                            $ctrl.draft.type = 'A';
+                            $ctrl.draft.name = '';
+                            $ctrl.draft.values = '1.1.1.1\n2.2.2.2';
+                            $ctrl.submit();
+
+                            $ctrl.draft.type = 'TXT';
+                            $ctrl.draft.name = '';
+                            $ctrl.draft.values = 'config';
+                            $ctrl.submit();
+
+                            $ctrl.draft.type = 'CNAME';
+                            $ctrl.draft.name = 'www';
+                            $ctrl.draft.values = 'proxy.example.org.';
+                            $ctrl.submit();
+                        });
+
+                        it('exposes status', function () {
+                            expect($ctrl.status).toEqual('add');
+                        });
+
+                        it('is reflected in the exposed records', function () {
+                            expect($ctrl.records).toEqual([
+                                {id: 0, type: 'A', name: '', values: ['1.1.1.1', '2.2.2.2']},
+                                {id: 1, type: 'TXT', name: '', values: ['config']},
+                                {id: 2, type: 'CNAME', name: 'www', values: ['proxy.example.org.']}
+                            ]);
+                        });
+
+                        it('remove first record', function () {
+                            $ctrl.remove({type: 'A', name: ''});
+                            expect($ctrl.records).toEqual([
+                                {id: 1, type: 'TXT', name: '', values: ['config']},
+                                {id: 2, type: 'CNAME', name: 'www', values: ['proxy.example.org.']}
+                            ]);
+                        });
+
+                        it('remove second record', function () {
+                            $ctrl.remove({type: 'TXT', name: ''});
+                            expect($ctrl.records).toEqual([
+                                {id: 0, type: 'A', name: '', values: ['1.1.1.1', '2.2.2.2']},
+                                {id: 2, type: 'CNAME', name: 'www', values: ['proxy.example.org.']}
+                            ]);
+                        });
+
+                        it('remove third record', function () {
+                            $ctrl.remove({type: 'CNAME', name: 'www'});
+                            expect($ctrl.records).toEqual([
+                                {id: 0, type: 'A', name: '', values: ['1.1.1.1', '2.2.2.2']},
+                                {id: 1, type: 'TXT', name: '', values: ['config']}
+                            ]);
+                        });
+
+                        it('save updates results in database', function () {
+                            $ctrl.save();
+                            binarta.application.dns.refresh();
+                            binarta.application.dns.observe({
+                                records: function (it) {
+                                    expect(it).toEqual([
+                                        {id: 0, type: 'A', name: '', values: ['1.1.1.1', '2.2.2.2']},
+                                        {id: 1, type: 'TXT', name: '', values: ['config']},
+                                        {id: 2, type: 'CNAME', name: 'www', values: ['proxy.example.org.']}
+                                    ]);
+                                }
+                            }).disconnect();
+                        });
+
+                        describe('when modifying a record', function () {
+                            beforeEach(function () {
+                                $ctrl.modify($ctrl.records[0]);
+                            });
+
+                            it('exposes status', function () {
+                                expect($ctrl.status).toEqual('update');
+                            });
+
+                            it('exposes details on draft', function () {
+                                expect($ctrl.draft).toEqual({
+                                    type: 'A',
+                                    name: '',
+                                    values: '1.1.1.1\n2.2.2.2'
+                                });
+                            });
+
+                            describe('on submit', function () {
+                                beforeEach(function () {
+                                    $ctrl.draft.values = '1.1.1.1';
+                                    $ctrl.submit();
+                                });
+
+                                it('exposes status', function () {
+                                    expect($ctrl.status).toEqual('add');
+                                });
+
+                                it('the modified record is updated in the exposed records', function () {
+                                    expect($ctrl.records).toEqual([
+                                        {id: 0, type: 'A', name: '', values: ['1.1.1.1']},
+                                        {id: 1, type: 'TXT', name: '', values: ['config']},
+                                        {id: 2, type: 'CNAME', name: 'www', values: ['proxy.example.org.']}
+                                    ]);
+                                });
+
+                                it('system reverts to add record on submit', function () {
+                                    $ctrl.draft.type = 'T';
+                                    $ctrl.draft.name = 'N';
+                                    $ctrl.draft.values = 'V';
+
+                                    $ctrl.submit();
+
+                                    expect($ctrl.records.length).toEqual(4);
+                                });
+                            });
+
+                            describe('on clear', function () {
+                                beforeEach(function () {
+                                    $ctrl.clear();
+                                });
+
+                                it('exposes status', function () {
+                                    expect($ctrl.status).toEqual('add');
+                                });
+
+                                it('clears draft', function () {
+                                    expect($ctrl.draft).toEqual({});
+                                });
+                            });
+                        });
+                    });
+                });
+
+                describe('with optional bindings', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binDns', undefined, {
+                            containerTemplate: 'test-border-template.html'
+                        });
+                        $ctrl.$onInit();
+                    }));
+
+                    it('exposes default container template', function () {
+                        expect($ctrl.containerTemplate).toEqual('test-border-template.html');
+                    });
+                });
+            });
+
             describe('component controller decorator', function () {
                 var spy;
 
@@ -916,6 +1300,69 @@
                         });
                     });
                 });
+
+                describe('observe application lock', function () {
+                    var spy;
+
+                    beforeEach(function () {
+                        spy = jasmine.createSpyObj('handler', ['editing', 'viewing']);
+                    });
+
+                    it('triggers viewing when lock is currently open', function () {
+                        $ctrl.lock.addHandler(spy);
+                        expect(spy.viewing).toHaveBeenCalled();
+                    });
+
+                    it('triggers editing when lock is currently closed', function () {
+                        binarta.application.lock.reserve();
+                        $ctrl.lock.addHandler(spy);
+                        expect(spy.editing).toHaveBeenCalled();
+                    });
+
+                    it('triggers editing when lock is closed', function () {
+                        $ctrl.lock.addHandler(spy);
+                        binarta.application.lock.reserve();
+                        expect(spy.viewing).toHaveBeenCalled();
+                    });
+
+                    it('triggers viewing when lock is released', function () {
+                        $ctrl.lock.addHandler(spy);
+                        binarta.application.lock.reserve();
+                        binarta.application.lock.release();
+                        expect(spy.viewing.calls.count()).toEqual(2);
+                    });
+
+                    it('no events are received after the controller has been destroyed', function () {
+                        $ctrl.lock.addHandler(spy);
+                        $ctrl.$onDestroy();
+                        binarta.application.lock.reserve();
+                        expect(spy.editing).not.toHaveBeenCalled();
+                    });
+                });
+
+                describe('<bin-application-lock/>', function () {
+                    var template;
+
+                    beforeEach(function () {
+                        template = '<bin-application-lock>' +
+                            '<div ng-if="$lock.status == \'open\'">open</div>' +
+                            '<div ng-if="$lock.status == \'closed\'">closed</div>' +
+                            '</bin-application-lock>';
+                    });
+
+                    it('render based on open lock', function () {
+                        var doc = $compile(template)($rootScope.$new());
+                        $rootScope.$digest();
+                        expect(doc.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<div ng-if="$lock.status == \'open\'" class="ng-scope">open</div>');
+                    });
+
+                    it('render based on closed lock', function () {
+                        binarta.application.lock.reserve();
+                        var doc = $compile(template)($rootScope.$new());
+                        $rootScope.$digest();
+                        expect(doc.html().replace(/<!--[\s\S]*?-->/g, '')).toEqual('<div ng-if="$lock.status == \'closed\'" class="ng-scope">closed</div>');
+                    });
+                });
             });
 
             function expectHref(a) {
@@ -939,7 +1386,7 @@
         });
 
         describe('binarta-mediajs-angular1', function () {
-            describe('images sub module', function() {
+            describe('images sub module', function () {
                 beforeEach(function () {
                     config.namespace = 'N';
                     $location.path('/en/');
@@ -947,11 +1394,17 @@
                 });
 
                 it('toURL is decorated to add the section parameter', function () {
-                    expect(binarta.media.images.toURL({path: 'bg.img', width: 200})).toEqual('bg.img?width=200&section=/');
+                    expect(binarta.media.images.toURL({
+                        path: 'bg.img',
+                        width: 200
+                    })).toEqual('bg.img?width=200&section=/');
                 });
 
                 it('toRelativeURL creates a valid relative image url', function () {
-                    expect(binarta.media.images.toRelativeURL({path: 'bg.img', width: 200})).toEqual('image/N/bg.img?width=200&section=/');
+                    expect(binarta.media.images.toRelativeURL({
+                        path: 'bg.img',
+                        width: 200
+                    })).toEqual('image/N/bg.img?width=200&section=/');
                 });
             });
         });
@@ -1059,7 +1512,7 @@
                         ctrl.$onInit();
                     });
 
-                    it('should expose the public recaptcha key', function() {
+                    it('should expose the public recaptcha key', function () {
                         expect(ctrl.recaptchaPublicKey).toEqual(config.recaptchaPublicKey);
                     });
 
@@ -1115,11 +1568,1118 @@
                         expect(ctrl.captcha).toBeUndefined();
                     });
 
-                    it('should remove the recaptcha key when switching to signin mode', function() {
+                    it('should remove the recaptcha key when switching to signin mode', function () {
                         ctrl.switchToSigninMode();
 
                         expect(ctrl.recaptchaPublicKey).toBeUndefined();
                     })
+                });
+            });
+
+            describe('component controller decorator', function () {
+                var spy;
+
+                beforeEach(inject(function ($controller) {
+                    spy = jasmine.createSpyObj('handler', ['gained', 'lost']);
+                    $ctrl = $controller('TestComponentController'); // Mind how this controller has been declared
+                }));
+
+                describe('observing permission changes', function () {
+                    it('since we are signed out the permission handler is not executed', function () {
+                        $ctrl.profile.addWithPermissionHandler('p1', spy);
+                        expect(spy.gained).not.toHaveBeenCalled()
+                    });
+
+                    it('when we sign in without the requested permission the handler is not executed', function () {
+                        $ctrl.profile.addWithPermissionHandler('?', spy);
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                        expect(spy.gained).not.toHaveBeenCalled()
+                    });
+
+                    it('when we sign in with the requested permission the handler is executed', function () {
+                        $ctrl.profile.addWithPermissionHandler('p1', spy);
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                        expect(spy.gained).toHaveBeenCalled()
+                    });
+
+                    it('when we are already signed in with the requested permission the handler is executed', function () {
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                        $ctrl.profile.addWithPermissionHandler('p1', spy);
+                        expect(spy.gained).toHaveBeenCalled()
+                    });
+
+                    it('when the controller is destroyed and we gain the requested permission afterwards then the handler is not executed', function () {
+                        $ctrl.profile.addWithPermissionHandler('p1', spy);
+                        $ctrl.$onDestroy();
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                        expect(spy.gained).not.toHaveBeenCalled()
+                    });
+
+                    it('when we sign out the handler is executed', function () {
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                        $ctrl.profile.addWithPermissionHandler('p1', spy);
+                        binarta.checkpoint.profile.signout();
+                        expect(spy.lost).toHaveBeenCalled()
+                    });
+                });
+            })
+        });
+
+        describe('binarta-publisherjs-angular1', function () {
+            beforeEach(function () {
+                binarta.publisher.db = jasmine.createSpyObj('db', ['findAllPublishedBlogsForLocale', 'findAllBlogsInDraftForLocale']);
+            });
+
+            describe('<div bin-blog-searchable-feed/>', function () {
+                beforeEach(inject(function ($compile, $rootScope) {
+                    var $scope = $rootScope.$new();
+                    var element = $compile('<div bin-blog-searchable-feed/>')($scope);
+                    $rootScope.$digest();
+                    this.$ctrl = element.controller('binBlogSearchableFeed');
+                }));
+
+                it('exposes a replayable binartax instance', function () {
+                    var spy = jasmine.createSpyObj('spy', ['evt']);
+                    this.$ctrl.events.notify('evt', 'ctx');
+
+                    this.$ctrl.events.observe(spy);
+
+                    expect(spy.evt).toHaveBeenCalledWith('ctx');
+                });
+
+            });
+
+            describe('<bin-blog-search/>', function () {
+                beforeEach(inject(function ($componentController, $location) {
+                    this.$location = $location;
+                    this.searchableFeed = {events: new ReplayableBinartaRX()};
+                    this.$ctrl = $componentController('binBlogSearch', {}, {searchableFeed: this.searchableFeed});
+                    this.searchableFeed.events.observe({
+                        search: function (payload) {
+                            this.payload = payload;
+                        }.bind(this)
+                    })
+                }));
+
+                describe('$onInit', function () {
+                    beforeEach(function () {
+                        binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                        this.$ctrl.$onInit();
+                    });
+
+                    it('fires a search event with an undefined content fitler', function () {
+                        expect(this.payload).toEqual({content: undefined});
+                    });
+
+                    describe('and entering search terms', function () {
+                        beforeEach(function () {
+                            this.withSearchTerm = function (term) {
+                                this.$ctrl.content = term;
+                                this.$ctrl.search();
+                            }
+                        });
+
+                        it('stores the search term in $location and notifies listeners', function () {
+                            this.withSearchTerm('content');
+
+                            expect(this.$location.search().content).toEqual('content');
+                            expect(this.payload.content).toEqual('content');
+                        });
+
+                        it('coerces empty strings into undefined', function () {
+                            this.withSearchTerm('');
+
+                            expect(this.$location.search().content).toBeUndefined();
+                            expect(this.payload.content).toBeUndefined();
+                        });
+                    });
+                });
+
+                describe('$onInit with previous search term in url', function () {
+                    beforeEach(function () {
+                        binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                        this.$location.search('content', 'content');
+                        this.$ctrl.$onInit();
+                    });
+
+                    it('fires a search event with the extracted search term', function () {
+                        expect(this.payload.content).toEqual('content');
+                    });
+                })
+            });
+
+            describe('<bin-blog-more/>', function () {
+                describe('with defaults', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogMore', null, {});
+                    }));
+
+                    it('no mode selected', function () {
+                        expect($ctrl.mode).toBeUndefined();
+                    });
+                });
+
+                describe('with link mode', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogMore', null, {
+                            mode: 'link'
+                        });
+                    }));
+
+                    it('no mode selected', function () {
+                        expect($ctrl.mode).toEqual('link');
+                    });
+                });
+            });
+
+            describe('<bin-blog-spotlight/>', function () {
+                afterEach(function () {
+                    $ctrl.$onDestroy();
+                });
+
+                describe('with defaults', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogSpotlight', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    it('defaults to max 8 blog posts to load', function () {
+                        expect($ctrl.max).toEqual(8);
+                    });
+
+                    it('post template url is undefined', function () {
+                        expect($ctrl.postTemplateUrl).toBeUndefined();
+                    });
+                });
+
+                describe('with optionals', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogSpotlight', null, {
+                            max: 6,
+                            postTemplateUrl: 'post-template-url'
+                        });
+                        $ctrl.$onInit();
+                    }));
+
+                    it('defaults to max 8 blog posts to load', function () {
+                        expect($ctrl.max).toEqual(6);
+                    });
+
+                    it('post template url is undefined', function () {
+                        expect($ctrl.postTemplateUrl).toEqual('post-template-url');
+                    });
+                });
+            });
+
+            describe('<bin-blog-feed/>', function () {
+                beforeEach(inject(function ($componentController) {
+                    this.searchableFeed = {events: new ReplayableBinartaRX()};
+                    $ctrl = $componentController('binBlogFeed', null, {searchableFeed: this.searchableFeed});
+                }));
+
+                it('load an initial set of published blog posts when the component initialises and binarta has initialised', function () {
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    $ctrl.$onInit();
+                    expect(binarta.publisher.db.findAllPublishedBlogsForLocale).toHaveBeenCalled();
+                });
+
+                it('does not load an initial set of posts when autoload is disabled', inject(function ($componentController) {
+                    $ctrl = $componentController('binBlogFeed', null, {autoload: 'false'});
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    $ctrl.$onInit();
+                    expect(binarta.publisher.db.findAllPublishedBlogsForLocale).not.toHaveBeenCalled();
+                }));
+
+                describe('$onInit', function () {
+                    beforeEach(function () {
+                        binarta.publisher.db = {
+                            findAllPublishedBlogsForLocale: function (request, response) {
+                                expect(request.type).toBeUndefined();
+                                response.success([{id: 'x'}, {id: 'y'}]);
+                            }
+                        };
+                        $ctrl.$onInit();
+                        binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    });
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('initially loaded posts are exposed', function () {
+                        expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}, {id: 'y', uri: '/blog/post/y'}]);
+                    });
+
+                    it('status is exposed', function () {
+                        expect($ctrl.status).toEqual('no-more');
+                    });
+
+                    it('append additional posts', function () {
+                        binarta.publisher.db = {
+                            findAllPublishedBlogsForLocale: function (request, response) {
+                                response.success([{id: 'z'}]);
+                            }
+                        };
+                        $ctrl.more();
+                        expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}, {
+                            id: 'y',
+                            uri: '/blog/post/y'
+                        }, {id: 'z', uri: '/blog/post/z'}]);
+                    });
+
+                    describe('and search event was received', function () {
+                        beforeEach(function () {
+                            binarta.publisher.db = {
+                                findAllPublishedBlogsForLocale: function (request, response) {
+                                    expect(request.content).toEqual('content');
+                                    response.success([{id: 'x'}]);
+                                }
+                            };
+                            this.searchableFeed.events.notify('search', {content: 'content'});
+                        });
+
+                        it('throws away previously loaded posts and exposes the new ones', function () {
+                            expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}]);
+                        });
+                    });
+                });
+
+                describe('$onInit with blog type', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogFeed', null, {type: 'type'});
+                        $ctrl.$onInit();
+                        binarta.application.adhesiveReading.read('-');
+                    }));
+
+                    it('finds all published blogs for the blog type', function () {
+                        expect(binarta.publisher.db.findAllPublishedBlogsForLocale).toHaveBeenCalledWith(jasmine.objectContaining({type: 'type'}), jasmine.anything())
+                    });
+                });
+
+                it('posts can be limited to a custom max', inject(function ($componentController) {
+                    binarta.publisher.db = {
+                        findAllPublishedBlogsForLocale: function (request) {
+                            expect(request.subset).toEqual({offset: 0, max: 3});
+                        }
+                    };
+                    $ctrl = $componentController('binBlogFeed', null, {max: 3});
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                }));
+
+                it('posts can be limited to a custom max will convert string to number', inject(function ($componentController) {
+                    binarta.publisher.db = {
+                        findAllPublishedBlogsForLocale: function (request) {
+                            expect(request.subset).toEqual({offset: 0, max: 3});
+                        }
+                    };
+                    $ctrl = $componentController('binBlogFeed', null, {max: '3'});
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                }));
+
+                it('posts can be limited to a custom count', inject(function ($componentController) {
+                    binarta.publisher.db = {
+                        findAllPublishedBlogsForLocale: function (request) {
+                            expect(request.subset).toEqual({offset: 0, max: 3});
+                        }
+                    };
+                    $ctrl = $componentController('binBlogFeed', null, {count: 3});
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                }));
+
+                it('posts can be limited to a custom count will convert string to number', inject(function ($componentController) {
+                    binarta.publisher.db = {
+                        findAllPublishedBlogsForLocale: function (request) {
+                            expect(request.subset).toEqual({offset: 0, max: 3});
+                        }
+                    };
+                    $ctrl = $componentController('binBlogFeed', null, {count: '3'});
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                }));
+            });
+
+            describe('<bin-blog-drafts/>', function () {
+                beforeEach(inject(function ($componentController) {
+                    $ctrl = $componentController('binBlogDraftFeed', null, {});
+                }));
+
+                it('load an initial set of published blog posts when the component initialises and binarta has initialised', function () {
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    expect(binarta.publisher.db.findAllBlogsInDraftForLocale).toHaveBeenCalled();
+                });
+
+                describe('$onInit', function () {
+                    beforeEach(function () {
+                        binarta.publisher.db = {
+                            findAllBlogsInDraftForLocale: function (request, response) {
+                                response.success([{id: 'x'}, {id: 'y'}]);
+                            }
+                        };
+                        $ctrl.$onInit();
+                        binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    });
+
+                    it('initially loaded posts are exposed', function () {
+                        expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}, {id: 'y', uri: '/blog/post/y'}]);
+                    });
+
+                    it('status is exposed', function () {
+                        expect($ctrl.status).toEqual('no-more');
+                    });
+
+                    it('append additional posts', function () {
+                        binarta.publisher.db = {
+                            findAllBlogsInDraftForLocale: function (request, response) {
+                                response.success([{id: 'z'}]);
+                            }
+                        };
+                        $ctrl.more();
+                        expect($ctrl.posts).toEqual([{id: 'x', uri: '/blog/post/x'}, {
+                            id: 'y',
+                            uri: '/blog/post/y'
+                        }, {id: 'z', uri: '/blog/post/z'}]);
+                    });
+                });
+
+                describe('$onInit with blog type', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogDraftFeed', null, {type: 'type'});
+                        $ctrl.$onInit();
+                        binarta.application.adhesiveReading.read('-');
+                    }));
+
+                    it('finds all published blogs for the blog type', function () {
+                        expect(binarta.publisher.db.findAllBlogsInDraftForLocale).toHaveBeenCalledWith(jasmine.objectContaining({type: 'type'}), jasmine.anything())
+                    });
+                });
+
+                it('posts can be limited to a custom count', inject(function ($componentController) {
+                    binarta.publisher.db = {
+                        findAllBlogsInDraftForLocale: function (request) {
+                            expect(request.subset).toEqual({offset: 0, max: 3});
+                        }
+                    };
+                    $ctrl = $componentController('binBlogDraftFeed', null, {count: 3});
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                }));
+
+                it('posts can be limited to a custom count will convert string to number', inject(function ($componentController) {
+                    binarta.publisher.db = {
+                        findAllBlogsInDraftForLocale: function (request) {
+                            expect(request.subset).toEqual({offset: 0, max: 3});
+                        }
+                    };
+                    $ctrl = $componentController('binBlogDraftFeed', null, {count: '3'});
+                    $ctrl.$onInit();
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                }));
+            });
+
+            describe('<bin-blog-post/>', function () {
+                var post;
+
+                beforeEach(inject(function ($componentController) {
+                    post = {
+                        coverImageURI: 'cover-image-uri',
+                        title: 'title',
+                        publicationTime: 'publication-time',
+                        uri: 'uri'
+                    };
+                    $ctrl = $componentController('binBlogPost', null, {
+                        post: post,
+                        templateUrl: 'template-url'
+                    });
+                }));
+
+                it('default bindings', function () {
+                    $ctrl.$onInit();
+                    expect($ctrl.post).toEqual(post);
+                    expect($ctrl.templateUrl).toEqual('template-url');
+                    expect($ctrl.linkMode).toEqual('to-details');
+                });
+
+                it('overriden bindings', inject(function ($componentController) {
+                    $ctrl = $componentController('binBlogPost', null, {
+                        linkMode: 'm'
+                    });
+                    $ctrl.$onInit();
+                    expect($ctrl.linkMode).toEqual('m');
+                }));
+
+                describe('<bin-blog-post-cover-image/>', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogPostCoverImage', null, {
+                            $parent: $ctrl
+                        });
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('exposes cover image uri', function () {
+                        expect($ctrl.value).toEqual('cover-image-uri');
+                    });
+                });
+
+                describe('<bin-blog-post-title/>', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogPostTitle', null, {
+                            $parent: $ctrl
+                        });
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('exposes title', function () {
+                        expect($ctrl.value).toEqual('title');
+                    });
+                });
+
+                describe('<bin-blog-post-publication-time/>', function () {
+                    describe('with defaults', function () {
+                        beforeEach(inject(function ($componentController) {
+                            $ctrl = $componentController('binBlogPostPublicationTime', null, {
+                                $parent: $ctrl
+                            });
+                            $ctrl.$onInit();
+                        }));
+
+                        afterEach(function () {
+                            $ctrl.$onDestroy();
+                        });
+
+                        it('exposes publication time', function () {
+                            expect($ctrl.value).toEqual('publication-time');
+                        });
+
+                        it('exposes format', function () {
+                            expect($ctrl.format).toEqual('LL');
+                        });
+
+                        it('<bin-blog-post-raw-publication-time/>', inject(function ($componentController) {
+                            $componentController('binBlogPostPublicationTime', null, {
+                                $parent: $ctrl
+                            });
+                        }));
+                    });
+
+                    describe('with optionals', function () {
+                        beforeEach(inject(function ($componentController) {
+                            $ctrl = $componentController('binBlogPostPublicationTime', null, {
+                                $parent: $ctrl,
+                                format: 'format'
+                            });
+                            $ctrl.$onInit();
+                        }));
+
+                        afterEach(function () {
+                            $ctrl.$onDestroy();
+                        });
+
+                        it('exposes format', function () {
+                            expect($ctrl.format).toEqual('format');
+                        });
+                    });
+                });
+
+                describe('<bin-blog-post-link/>', function () {
+                    describe('with defaults', function () {
+                        beforeEach(inject(function ($componentController) {
+                            $ctrl.$onInit();
+                            $ctrl = $componentController('binBlogPostLink', null, {
+                                $parent: $ctrl
+                            });
+                            $ctrl.$onInit();
+                        }));
+
+                        afterEach(function () {
+                            $ctrl.$onDestroy();
+                        });
+
+                        it('exposes link', function () {
+                            expect($ctrl.value).toEqual('uri');
+                        });
+
+                        it('exposes label template url', function () {
+                            expect($ctrl.labelTemplateUrl).toEqual('bin-publisher-blog-post-link-label.html');
+                        });
+
+                        it('resolves link mode from parent', function() {
+                            expect($ctrl.linkMode).toEqual('to-details');
+                        });
+                    });
+
+                    describe('with optionals', function () {
+                        beforeEach(inject(function ($componentController) {
+                            $ctrl.linkMode = 'from-details';
+                            $ctrl.$onInit();
+                            $ctrl = $componentController('binBlogPostLink', null, {
+                                $parent: $ctrl,
+                                labelTemplateUrl: 'label-template-url'
+                            });
+                            $ctrl.$onInit();
+                        }));
+
+                        afterEach(function () {
+                            $ctrl.$onDestroy();
+                        });
+
+                        it('exposes label template url', function () {
+                            expect($ctrl.labelTemplateUrl).toEqual('label-template-url');
+                        });
+
+                        it('resolves link mode from parent', function() {
+                            expect($ctrl.linkMode).toEqual('from-details');
+                        });
+
+                        it('exposes link', function () {
+                            expect($ctrl.value).toEqual('/blog');
+                        });
+                    });
+                });
+            });
+
+            describe('<bin-add-blog-post/>', function () {
+                beforeEach(inject(function ($componentController) {
+                    $ctrl = $componentController('binAddBlogPost', null, {});
+                }));
+
+                it('is initially in disabled status', function () {
+                    expect($ctrl.status).toEqual('disabled');
+                });
+
+                it('in disabled status adding a draft is ignored', function () {
+                    binarta.publisher.db = {
+                        add: function () {
+                            throw new Error();
+                        }
+                    };
+                    $ctrl.add();
+                });
+
+                describe('when user has permission to add blog posts', function () {
+                    beforeEach(function () {
+                        $ctrl.$onInit();
+                        binarta.checkpoint.gateway.addPermission('new.blog.post');
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                    });
+
+                    it('remain in disabled status as the application lock is still open', function () {
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+
+                    describe('and application lock is acquired', function () {
+                        beforeEach(function () {
+                            binarta.application.lock.reserve();
+                        });
+
+                        it('enter idle status', function () {
+                            expect($ctrl.status).toEqual('idle');
+                        });
+
+                        it('return to disabled status on signout', function () {
+                            binarta.checkpoint.profile.signout();
+                            expect($ctrl.status).toEqual('disabled');
+                        });
+
+                        it('return to disabled status when the application lock is released', function () {
+                            binarta.application.lock.release();
+                            expect($ctrl.status).toEqual('disabled');
+                        });
+
+                        it('in idle status adding a draft is possible', function () {
+                            binarta.publisher.db = jasmine.createSpyObj('db', ['add']);
+                            $ctrl.add();
+                            expect(binarta.publisher.db.add).toHaveBeenCalled();
+                        });
+
+                        describe('while adding a draft', function () {
+                            beforeEach(function () {
+                                binarta.publisher.db = jasmine.createSpyObj('db', ['add']);
+                                $ctrl.add();
+                            });
+
+                            it('we are in drafting status', function () {
+                                expect($ctrl.status).toEqual('drafting');
+                            });
+
+                            it('adding a draft is ignored', function () {
+                                binarta.publisher.db = {
+                                    add: function () {
+                                        throw new Error();
+                                    }
+                                };
+                                $ctrl.add();
+                            });
+                        });
+
+                        describe('when draft is created', function () {
+                            beforeEach(function () {
+                                binarta.publisher.db = {
+                                    add: function (request, response) {
+                                        response.success('/id');
+                                    }
+                                };
+                                $ctrl.add();
+                            });
+
+                            it('we return to idle status', function () {
+                                expect($ctrl.status).toEqual('idle');
+                            });
+
+                            it('we redirect to the detail page', function () {
+                                expect($location.path()).toEqual('/blog/post/id');
+                            });
+                        });
+                    });
+                });
+
+                describe('when the application lock is acquired', function () {
+                    beforeEach(function () {
+                        binarta.application.lock.reserve();
+                    });
+
+                    it('remain in disabled status as the user still needs permission', function () {
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+
+                    it('enter idle status when permission is gained', function () {
+                        $ctrl.$onInit();
+                        binarta.checkpoint.gateway.addPermission('new.blog.post');
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                        binarta.checkpoint.profile.refresh();
+                        expect($ctrl.status).toEqual('idle');
+                    });
+                });
+
+                it('supports adding a draft for a blog type', inject(function ($componentController) {
+                    binarta.publisher.db = jasmine.createSpyObj('db', ['add']);
+
+                    $ctrl = $componentController('binAddBlogPost', null, {type: 'type'});
+                    $ctrl.$onInit();
+                    binarta.checkpoint.gateway.addPermission('new.blog.post');
+                    binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                    binarta.checkpoint.profile.refresh();
+                    binarta.application.lock.reserve();
+
+                    $ctrl.add();
+
+                    expect(binarta.publisher.db.add).toHaveBeenCalledWith(jasmine.objectContaining({type: 'type'}), jasmine.anything());
+                }));
+            });
+
+            describe('<bin-display-blog-post/>', function () {
+                beforeEach(inject(function ($componentController, $routeParams) {
+                    $ctrl = $componentController('binDisplayBlogPost', null, {});
+                    binarta.application.adhesiveReading.read('-'); // make binarta.schedule trigger
+                    $routeParams.part1 = 'blog';
+                    $routeParams.part2 = 'id';
+                }));
+
+                it('resolves id from $routeParams', function () {
+                    binarta.publisher.db = {
+                        get: function (request, response) {
+                        }
+                    };
+                    $ctrl.$onInit();
+                    expect($ctrl.id).toEqual('/blog/id');
+                });
+
+                it('when blog post is unknown redirect to blog overview', function () {
+                    binarta.publisher.db = {
+                        get: function (request, response) {
+                            response.notFound();
+                        }
+                    };
+                    $ctrl.$onInit();
+                    expect($location.path()).toEqual('/blog');
+                });
+
+                it('passes bound id to db', function () {
+                    binarta.publisher.db = {
+                        get: function (request, response) {
+                            expect(request.id).toEqual('/blog/id');
+                        }
+                    };
+                    $ctrl.$onInit();
+                });
+
+                describe('when blog post is known', function () {
+                    var post;
+
+                    beforeEach(function () {
+                        post = {id: 'p'};
+                        binarta.publisher.db = {
+                            get: function (request, response) {
+                                response.success(post);
+                            }
+                        };
+                        $ctrl.$onInit();
+                    });
+
+                    it('enters idle status', function () {
+                        expect($ctrl.status).toEqual('idle');
+                    });
+
+                    it('expose post on controller', function () {
+                        expect($ctrl.post).toEqual(post);
+                    });
+
+                    it('setting type invokes db', function () {
+                        binarta.publisher.db = jasmine.createSpyObj('db', ['setType']);
+
+                        $ctrl.post.type = 'type';
+                        $ctrl.setType();
+
+                        expect(binarta.publisher.db.setType).toHaveBeenCalledWith({
+                            id: 'p',
+                            type: 'type'
+                        }, jasmine.anything());
+                    });
+
+                    describe('when post is in draft', function () {
+                        beforeEach(function () {
+                            post.status = 'draft';
+                        });
+
+                        describe('and user has permission to publish blog posts', function () {
+                            beforeEach(function () {
+                                binarta.checkpoint.gateway.addPermission('publish.blog.post');
+                                binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                                binarta.checkpoint.profile.refresh();
+                            });
+
+                            it('remain non publishable as the application lock is still open', function () {
+                                expect($ctrl.status).toEqual('idle');
+                            });
+
+                            describe('and application lock is acquired', function () {
+                                beforeEach(function () {
+                                    binarta.application.lock.reserve();
+                                });
+
+                                it('become publishable', function () {
+                                    expect($ctrl.status).toEqual('publishable');
+                                });
+
+                                it('return to non publishable on signout', function () {
+                                    binarta.checkpoint.profile.signout();
+                                    expect($ctrl.status).toEqual('idle');
+                                });
+
+                                it('return to non publishable when the application lock is released', function () {
+                                    binarta.application.lock.release();
+                                    expect($ctrl.status).toEqual('idle');
+                                });
+
+                                it('publishing passes timestamp to db', function () {
+                                    binarta.publisher.db = {
+                                        publish: function (request) {
+                                            expect(request.id).toEqual('p');
+                                            expect(request.timestamp).toEqual('t');
+                                        }
+                                    };
+                                    $ctrl.publish();
+                                });
+
+                                it('deleting invokes the db', function () {
+                                    binarta.publisher.db = jasmine.createSpyObj('db', ['delete']);
+                                    $ctrl.delete();
+                                    expect(binarta.publisher.db.delete).toHaveBeenCalled();
+                                });
+
+                                it('when delete succeeds redirect to blog feed', function () {
+                                    binarta.publisher.db = {
+                                        delete: function (request, response) {
+                                            response.success();
+                                        }
+                                    };
+                                    $ctrl.delete();
+                                    expect($location.path()).toEqual('/blog');
+                                });
+                            });
+                        });
+
+                        describe('and user has permission to withdraw blog posts', function () {
+                            beforeEach(function () {
+                                binarta.checkpoint.gateway.addPermission('withdraw.blog.post');
+                                binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                                binarta.checkpoint.profile.refresh();
+                            });
+
+                            it('remain non withdrawable as the application lock is still open', function () {
+                                expect($ctrl.status).toEqual('idle');
+                            });
+
+                            it('and application lock is acquired then remain publishable as post is still a draft', function () {
+                                binarta.application.lock.reserve();
+                                expect($ctrl.status).toEqual('publishable');
+                            });
+                        })
+                    });
+
+                    describe('when post is published', function () {
+                        beforeEach(function () {
+                            post.status = 'published';
+                        });
+
+                        describe('and user has permission to withdraw blog posts', function () {
+                            beforeEach(function () {
+                                binarta.checkpoint.gateway.addPermission('withdraw.blog.post');
+                                binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                                binarta.checkpoint.profile.refresh();
+                            });
+
+                            it('remain non withdrawable as the application lock is still open', function () {
+                                expect($ctrl.status).toEqual('idle');
+                            });
+
+                            describe('and application lock is acquired', function () {
+                                beforeEach(function () {
+                                    binarta.application.lock.reserve();
+                                });
+
+                                it('become withdrawable', function () {
+                                    expect($ctrl.status).toEqual('withdrawable');
+                                });
+
+                                it('return to non withdrawable on signout', function () {
+                                    binarta.checkpoint.profile.signout();
+                                    expect($ctrl.status).toEqual('idle');
+                                });
+
+                                it('return to non withdrawable when the application lock is released', function () {
+                                    binarta.application.lock.release();
+                                    expect($ctrl.status).toEqual('idle');
+                                });
+
+                                it('withdrawing calls db', function () {
+                                    binarta.publisher.db = {
+                                        withdraw: function (request) {
+                                            expect(request.id).toEqual('p');
+                                        }
+                                    };
+                                    $ctrl.withdraw();
+                                });
+                            });
+                        });
+
+                        describe('and user has permission to publish blog posts', function () {
+                            beforeEach(function () {
+                                binarta.checkpoint.gateway.addPermission('publish.blog.post');
+                                binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                                binarta.checkpoint.profile.refresh();
+                            });
+
+                            it('remain non publishable as the application lock is still open', function () {
+                                expect($ctrl.status).toEqual('idle');
+                            });
+
+                            it('and application lock is acquired then remain withdrawable as post is already published', function () {
+                                binarta.application.lock.reserve();
+                                expect($ctrl.status).toEqual('withdrawable');
+                            });
+                        })
+                    })
+                });
+            });
+
+            describe('<bin-display-blog-lead/>', function() {
+                beforeEach(inject(function($componentController) {
+                    this.bindings = {};
+                    this.onInit = function() {
+                        this.component = $componentController('binDisplayBlogLead', null, this.bindings);
+                        this.component.$onInit();
+                    }
+                }));
+
+                it('uses default templates when no overrides are provided', function() {
+                    this.onInit();
+
+                    expect(this.component.openedTemplate).toEqual('bin-publisher-display-blog-lead-opened-default.html');
+                    expect(this.component.closedTemplate).toEqual('bin-publisher-display-blog-lead-closed-default.html');
+                });
+
+                it('uses the overridden templates if they were provided', function() {
+                    this.bindings.openedTemplate = 'my-opened-template.html';
+                    this.bindings.closedTemplate = 'my-closed-template.html';
+
+                    this.onInit();
+
+                    expect(this.component.openedTemplate).toEqual('my-opened-template.html');
+                    expect(this.component.closedTemplate).toEqual('my-closed-template.html');
+                });
+            });
+
+            describe('<bin-blog-search-widget/>', function () {
+                describe('with defaults', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogFeedWidget', null, {});
+                    }));
+
+                    it('exposes default attributes', function () {
+                        expect($ctrl.postTemplateUrl).toBeUndefined();
+                    });
+                });
+
+                describe('with optionals', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogFeedWidget', null, {
+                            postTemplateUrl: 'post-template-url'
+                        });
+                    }));
+
+                    it('exposes default attributes', function () {
+                        expect($ctrl.postTemplateUrl).toEqual('post-template-url');
+                    });
+                });
+            });
+
+            describe('/blog{/type}', function () {
+                var config, $scope;
+
+                beforeEach(inject(['$controller', '$routeParams', 'BinSearchBlogPostsRouteController.config', function ($controller, $routeParams, _config_) {
+                    $scope = {};
+                    this.config = _config_;
+                    this.$routeParams = $routeParams;
+
+                    this.init = function () {
+                        this.$ctrl = $controller('BinSearchBlogPostsRouteController', {$scope: $scope});
+                    }
+                }]));
+
+                describe('in legacy mode', function () {
+                    it('exposes template names', function () {
+                        this.init();
+
+                        expect(this.$ctrl.decoratorTemplate).toEqual('partials/blog/index.html');
+                        expect(this.$ctrl.pageTemplate).toBeUndefined();
+                        expect(this.$ctrl.publicationTemplate).toBeUndefined();
+                    });
+
+                    it('exposes the blogType', function () {
+                        $routeParams.blogType = 'type';
+                        this.init();
+                        expect($scope.blogType).toBe('type');
+                        expect(this.$ctrl.type).toBeUndefined();
+                    });
+                });
+
+                describe('when legacy mode disabled', function () {
+                    beforeEach(function () {
+                        binarta.pages.BlogSearch = {useLibraryTemplate: true};
+                    });
+
+                    it('exposes template names', function () {
+                        this.init();
+
+                        expect(this.$ctrl.decoratorTemplate).toEqual('bin-all-route-decorator.html');
+                        expect(this.$ctrl.pageTemplate).toEqual('bin-publisher-blog-search-route.html');
+                        expect(this.$ctrl.publicationTemplate).toBeUndefined();
+                    });
+
+                    it('the decorator template can be overridden via config', function () {
+                        binarta.pages.BlogSearch.templateUrl = 't';
+                        this.init();
+                        expect(this.$ctrl.decoratorTemplate).toEqual('t');
+                    });
+
+                    it('the decorator template can be overridden via legacy config', function () {
+                        this.config.decoratorTemplate = 't';
+                        this.init();
+                        expect(this.$ctrl.decoratorTemplate).toEqual('t');
+                    });
+
+                    it('exposes the blogType', function () {
+                        $routeParams.blogType = 'type';
+                        this.init();
+                        expect(this.$ctrl.type).toBe('type');
+                        expect($scope.blogType).toBeUndefined();
+                    });
+                });
+            });
+
+            describe('/blog/post/:id', function () {
+                var config;
+
+                beforeEach(inject(['$routeParams', '$controller', 'BinDisplayBlogPostRouteController.config', function ($routeParams, $controller, _config_) {
+                    $routeParams.part1 = 'blog';
+                    $routeParams.part2 = 'id';
+                    $ctrl = $controller('BinDisplayBlogPostRouteController', {});
+                    config = _config_;
+                }]));
+
+                describe('in legacy mode', function () {
+                    it('exposes id', function () {
+                        expect($ctrl.id).toEqual('/blog/id');
+                    });
+
+                    it('exposes template names', function () {
+                        expect($ctrl.decoratorTemplate).toEqual('bin-all-route-decorator.html');
+                        expect($ctrl.pageTemplate).toEqual('bin-publisher-blog-post-route.html');
+                        expect($ctrl.template).toEqual('bin-publisher-display-blog-post-details.html');
+                        expect($ctrl.headerTemplate).toBeUndefined();
+                        expect($ctrl.sidebarTemplate).toBeUndefined();
+                    });
+
+                    it('the decorator template can be overridden', inject(function ($controller) {
+                        config.decoratorTemplate = 't';
+                        expect($controller('BinDisplayBlogPostRouteController', {}).decoratorTemplate).toEqual('t');
+                    }));
+
+                    it('the template can be overridden', inject(function ($controller) {
+                        config.template = 't';
+                        expect($controller('BinDisplayBlogPostRouteController', {}).template).toEqual('t');
+                    }));
+
+                    it('supports overriding the headerTemplate', inject(function ($controller) {
+                        config.headerTemplate = 't';
+                        expect($controller('BinDisplayBlogPostRouteController', {}).headerTemplate).toEqual('t');
+                    }));
+
+                    it('supports overriding the sidebarTemplate', inject(function ($controller) {
+                        config.sidebarTemplate = 't';
+                        expect($controller('BinDisplayBlogPostRouteController', {}).sidebarTemplate).toEqual('t');
+                    }));
+                });
+
+                describe('when legacy mode disabled', function () {
+                    beforeEach(function () {
+                        binarta.pages.BlogPost = {useLibraryTemplate: true};
+                    });
+
+                    it('exposes id', function () {
+                        expect($ctrl.id).toEqual('/blog/id');
+                    });
+
+                    it('exposes template names', function () {
+                        expect($ctrl.decoratorTemplate).toEqual('bin-all-route-decorator.html');
+                        expect($ctrl.pageTemplate).toEqual('bin-publisher-blog-post-route.html');
+                        expect($ctrl.template).toEqual('bin-publisher-display-blog-post-details.html');
+                        expect($ctrl.headerTemplate).toBeUndefined();
+                        expect($ctrl.sidebarTemplate).toBeUndefined();
+                    });
+
+                    it('the page template can be overridden', inject(function ($controller) {
+                        binarta.pages.BlogPost.templateUrl = 't';
+                        expect($controller('BinDisplayBlogPostRouteController', {}).pageTemplate).toEqual('t');
+                    }));
                 });
             });
         });
@@ -1303,6 +2863,15 @@
                     expect($location.path()).toEqual('/checkout/completed');
                 });
 
+                it('on summary step an optional comment can be specified', function () {
+                    binarta.shop.checkout.start({provider: 'with-sufficient-funds'}, ['summary', 'completed']);
+
+                    ctrl.comment = 'x';
+                    ctrl.confirm();
+
+                    expect(binarta.shop.checkout.context().order.comment).toEqual('x');
+                });
+
                 it('on setup payment provider retry will redeliver the order and proceed to next step', function () {
                     binarta.shop.checkout.start({provider: 'with-sufficient-funds'}, ['setup-payment-provider', 'completed']);
 
@@ -1318,7 +2887,7 @@
                     $location.search({token: 'invalid'});
                     ctrl.confirmPayment();
 
-                    expect(ctrl.status()).toEqual('payment');
+                    expect(ctrl.status()).toEqual('summary');
                     expect(ctrl.violationReport()).toEqual({token: ['invalid']});
                 });
 
@@ -1371,11 +2940,12 @@
                 });
             });
 
-            describe('BasketController', function () {
+            describe('<bin-basket/>', function () {
                 var ctrl;
 
-                beforeEach(inject(function ($controller) {
-                    ctrl = $controller('BinartaBasketController');
+                beforeEach(inject(function ($componentController) {
+                    ctrl = $componentController('binBasket', undefined, {});
+                    ctrl.name = 'ctrl1';
                 }));
 
                 it('exposes the viewport', inject(function (viewport) {
@@ -1474,72 +3044,99 @@
                     });
                 });
 
+                function commonLinkTests(mode) {
+                    beforeEach(function () {
+                        ctrl.mode = mode;
+                        binarta.shop.basket.add({
+                            item: {id: 'i', price: 100, quantity: 1}
+                        });
+                        ctrl.$onInit();
+                    });
+
+                    it('preview exposes the order from the basket', function () {
+                        expect(ctrl.preview.items[0].id).toEqual('i');
+                    });
+
+                    it('increment item quantity', function () {
+                        ctrl.preview.items[0].incrementQuantity();
+                        ctrl.preview.items[0].incrementQuantity();
+                        expect(ctrl.preview.quantity).toEqual(3);
+                        expect(binarta.shop.basket.toOrder().quantity).toEqual(3);
+                    });
+
+                    it('decrement item quantity', function () {
+                        ctrl.preview.items[0].incrementQuantity();
+                        ctrl.preview.items[0].incrementQuantity();
+
+                        ctrl.preview.items[0].decrementQuantity();
+                        expect(ctrl.preview.quantity).toEqual(2);
+                        expect(binarta.shop.basket.toOrder().quantity).toEqual(2);
+
+                        ctrl.preview.items[0].decrementQuantity();
+                        expect(ctrl.preview.quantity).toEqual(1);
+                        expect(binarta.shop.basket.toOrder().quantity).toEqual(1);
+                    });
+
+                    it('update to a specific quantity', function () {
+                        ctrl.preview.items[0].quantity = 10;
+
+                        ctrl.preview.items[0].update();
+
+                        expect(ctrl.preview.quantity).toEqual(10);
+                        expect(binarta.shop.basket.toOrder().quantity).toEqual(10);
+                    });
+
+                    it('remove an item from the basket', function () {
+                        ctrl.preview.items[0].remove();
+
+                        expect(ctrl.preview.quantity).toEqual(0);
+                        expect(binarta.shop.basket.toOrder().items.length).toEqual(0);
+                    });
+
+                    it('when basket is cleared previewed contents are updated', function () {
+                        binarta.shop.basket.clear();
+                        expect(ctrl.preview.quantity).toEqual(0);
+                    });
+
+                    it('$onInit installs a basket event listener', function () {
+                        expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeFalsy();
+                    });
+
+                    it('$onDestroy will remove basket event listener', function () {
+                        ctrl.$onDestroy();
+                        expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
+                    });
+                }
+
                 [
                     'link',
-                    'minimal-link'
+                    'minimal-link',
+                    'dropdown-link',
                 ].forEach(function (mode) {
                     describe('in ' + mode + ' mode', function () {
-                        beforeEach(function () {
-                            ctrl.mode = mode;
-                            binarta.shop.basket.add({
-                                item: {id: 'i', price: 100, quantity: 1}
+                        commonLinkTests(mode);
+
+                        if (mode === 'dropdown-link') {
+                            it('should toggle isDropdownActive', function () {
+                                ctrl.onDropdownClick();
+                                expect(ctrl.isDropdownActive).toBeTruthy();
+                                ctrl.onDropdownClick();
+                                expect(ctrl.isDropdownActive).toBeFalsy();
                             });
-                            ctrl.$onInit();
-                        });
 
-                        it('preview exposes the order from the basket', function () {
-                            expect(ctrl.preview.items[0].id).toEqual('i');
-                        });
+                            it('should close the dropdown', function () {
+                                ctrl.isDropdownActive = true;
+                                ctrl.onCloseDropdownClick();
+                                expect(ctrl.isDropdownActive).toBeFalsy();
+                            });
 
-                        it('increment item quantity', function () {
-                            ctrl.preview.items[0].incrementQuantity();
-                            ctrl.preview.items[0].incrementQuantity();
-                            expect(ctrl.preview.quantity).toEqual(3);
-                            expect(binarta.shop.basket.toOrder().quantity).toEqual(3);
-                        });
-
-                        it('decrement item quantity', function () {
-                            ctrl.preview.items[0].incrementQuantity();
-                            ctrl.preview.items[0].incrementQuantity();
-
-                            ctrl.preview.items[0].decrementQuantity();
-                            expect(ctrl.preview.quantity).toEqual(2);
-                            expect(binarta.shop.basket.toOrder().quantity).toEqual(2);
-
-                            ctrl.preview.items[0].decrementQuantity();
-                            expect(ctrl.preview.quantity).toEqual(1);
-                            expect(binarta.shop.basket.toOrder().quantity).toEqual(1);
-                        });
-
-                        it('update to a specific quantity', function () {
-                            ctrl.preview.items[0].quantity = 10;
-
-                            ctrl.preview.items[0].update();
-
-                            expect(ctrl.preview.quantity).toEqual(10);
-                            expect(binarta.shop.basket.toOrder().quantity).toEqual(10);
-                        });
-
-                        it('remove an item from the basket', function () {
-                            ctrl.preview.items[0].remove();
-
-                            expect(ctrl.preview.quantity).toEqual(0);
-                            expect(binarta.shop.basket.toOrder().items.length).toEqual(0);
-                        });
-
-                        it('when basket is cleared previewed contents are updated', function () {
-                            binarta.shop.basket.clear();
-                            expect(ctrl.preview.quantity).toEqual(0);
-                        });
-
-                        it('$onInit installs a basket event listener', function () {
-                            expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeFalsy();
-                        });
-
-                        it('$onDestroy will remove basket event listener', function () {
-                            ctrl.$onDestroy();
-                            expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
-                        });
+                            it('should close the dropdown on routechange', function () {
+                                ctrl.isDropdownActive = true;
+                                $rootScope.$broadcast('$routeChangeStart', {params: {}});
+                                $rootScope.$digest();
+                                expect(ctrl.isDropdownActive).toBeFalsy();
+                            });
+                        }
                     });
                 });
 
@@ -1549,16 +3146,13 @@
                         ctrl.$onInit();
                     });
 
-                    // it('$onInit does not install a basket event listener', function () {
-                    //     expect(binarta.shop.basket.eventRegistry.isEmpty()).toBeTruthy();
-                    // });
-
                     describe('when adding an item to the basket', function () {
                         var ctrl2;
 
-                        beforeEach(inject(function ($controller) {
-                            ctrl2 = $controller('BinartaBasketController');
-                            ctrl2.mode = 'detailed';
+                        beforeEach(inject(function ($componentController) {
+                            ctrl2 = $componentController('binBasket', undefined, {});
+                            ctrl2.mode = 'add-to-basket-button';
+                            ctrl2.name = 'ctrl2';
                             ctrl2.$onInit();
                         }));
 
@@ -1577,6 +3171,10 @@
 
                         it('then expose item added flag', function () {
                             expect(ctrl.itemAdded).toBeTruthy();
+                        });
+
+                        it('then the item added flag is not exposed on other controllers', function () {
+                            expect(ctrl2.itemAdded).toBeFalsy();
                         });
 
                         it('when flushing timeout then item added flag is reset', inject(function ($timeout) {
@@ -1756,10 +3354,10 @@
                 });
             });
 
-            describe('AddressController', function () {
-                var ctrl;
+            describe('<bin-address/>', function () {
+                var $ctrl;
 
-                beforeEach(inject(function ($controller) {
+                beforeEach(inject(function ($componentController) {
                     binarta.checkpoint.profile.edit();
                     binarta.checkpoint.profile.updateRequest().address.label = 'home';
                     binarta.checkpoint.profile.updateRequest().address.addressee = 'John Doe';
@@ -1769,94 +3367,98 @@
                     binarta.checkpoint.profile.updateRequest().address.city = 'Johnyville';
                     binarta.checkpoint.profile.updateRequest().address.country = 'BE';
                     binarta.checkpoint.profile.update();
-                    ctrl = $controller('BinartaAddressController');
-                    ctrl.onSelect = jasmine.createSpy('on-select');
+                    $ctrl = $componentController('binAddress', null, {});
+                    $ctrl.onSelect = jasmine.createSpy('on-select');
                 }));
 
+                afterEach(function () {
+                    $ctrl.$onDestroy();
+                });
+
                 it('mode defaults to display', function () {
-                    expect(ctrl.mode).toEqual('display');
+                    expect($ctrl.mode).toEqual('display');
                 });
 
                 it('expose profile status', function () {
-                    expect(ctrl.profileStatus()).toEqual('idle');
+                    expect($ctrl.profileStatus()).toEqual('idle');
                 });
 
                 it('expose address status', function () {
-                    expect(ctrl.addressStatus()).toEqual('awaiting-selection');
+                    expect($ctrl.addressStatus()).toEqual('awaiting-selection');
                 });
 
                 it('expose all addresses', function () {
-                    expect(ctrl.addresses().map(function (it) {
+                    expect($ctrl.addresses().map(function (it) {
                         return it.label;
                     })).toEqual(['home']);
                 });
 
                 it('when selecting an address then the selection listener is triggered', function () {
-                    ctrl.select('home');
-                    expect(ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
+                    $ctrl.select('home');
+                    expect($ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
                 });
 
                 it('when an undefined initial address is specified', function () {
-                    ctrl.initialAddress = undefined;
-                    ctrl.$onInit();
-                    expect(ctrl.onSelect).not.toHaveBeenCalled();
+                    $ctrl.initialAddress = undefined;
+                    $ctrl.$onInit();
+                    expect($ctrl.onSelect).not.toHaveBeenCalled();
                 });
 
                 it('when a known initial address is specified', function () {
-                    ctrl.initialAddress = {label: 'home'};
-                    ctrl.$onInit();
-                    expect(ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
+                    $ctrl.initialAddress = {label: 'home'};
+                    $ctrl.$onInit();
+                    expect($ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
                 });
 
                 it('when the initial address matches the default then changes to the default change the selection', function () {
-                    ctrl.default = {label: 'home'};
-                    ctrl.initialAddress = {label: 'home'};
-                    ctrl.$onInit();
-                    ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
-                    expect(ctrl.label).toEqual('work');
+                    $ctrl.default = {label: 'home'};
+                    $ctrl.initialAddress = {label: 'home'};
+                    $ctrl.$onInit();
+                    $ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
+                    expect($ctrl.label).toEqual('work');
                 });
 
                 it('when the initial address does not match the default then changes to the default are ignored', function () {
-                    ctrl.default = {label: 'work'};
-                    ctrl.initialAddress = {label: 'home'};
-                    ctrl.$onInit();
-                    ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
-                    expect(ctrl.label).toEqual('home');
+                    $ctrl.default = {label: 'work'};
+                    $ctrl.initialAddress = {label: 'home'};
+                    $ctrl.$onInit();
+                    $ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
+                    expect($ctrl.label).toEqual('home');
                 });
 
                 describe('when a specific address is selected', function () {
                     beforeEach(function () {
-                        ctrl.select('home');
+                        $ctrl.select('home');
                     });
 
                     it('expose address status', function () {
-                        expect(ctrl.addressStatus()).toEqual('idle');
+                        expect($ctrl.addressStatus()).toEqual('idle');
                     });
 
                     it('expose attributes', function () {
-                        expect(ctrl.addressee()).toEqual('John Doe');
-                        expect(ctrl.street()).toEqual('Johny Lane');
-                        expect(ctrl.number()).toEqual('1');
-                        expect(ctrl.zip()).toEqual('1000');
-                        expect(ctrl.city()).toEqual('Johnyville');
-                        expect(ctrl.country()).toEqual('BE');
+                        expect($ctrl.addressee()).toEqual('John Doe');
+                        expect($ctrl.street()).toEqual('Johny Lane');
+                        expect($ctrl.number()).toEqual('1');
+                        expect($ctrl.zip()).toEqual('1000');
+                        expect($ctrl.city()).toEqual('Johnyville');
+                        expect($ctrl.country()).toEqual('BE');
                     });
 
                     it('expose countries', function () {
-                        expect(ctrl.countries().length > 0).toBeTruthy();
+                        expect($ctrl.countries().length > 0).toBeTruthy();
                     });
 
                     describe('when in edit mode', function () {
                         beforeEach(function () {
-                            ctrl.edit();
+                            $ctrl.edit();
                         });
 
                         it('expose updated status', function () {
-                            expect(ctrl.addressStatus()).toEqual('editing');
+                            expect($ctrl.addressStatus()).toEqual('editing');
                         });
 
                         it('expose update request as form', function () {
-                            expect(ctrl.form).toEqual({
+                            expect($ctrl.form).toEqual({
                                 id: {label: 'home'},
                                 label: 'home',
                                 addressee: 'John Doe',
@@ -1869,100 +3471,104 @@
                         });
 
                         it('update the address', function () {
-                            ctrl.form.addressee = 'Jane Smith';
-                            ctrl.update();
-                            expect(ctrl.addressee()).toEqual('Jane Smith');
+                            $ctrl.form.addressee = 'Jane Smith';
+                            $ctrl.update();
+                            expect($ctrl.addressee()).toEqual('Jane Smith');
                         });
 
                         it('regenerate the address label on update', function () {
-                            ctrl.generateLabel = true;
+                            $ctrl.generateLabel = true;
 
-                            ctrl.update();
+                            $ctrl.update();
 
-                            expect(ctrl.form.label).toEqual('(1000) Johny Lane 1');
-                            expect(ctrl.addressee()).toEqual('John Doe');
+                            expect($ctrl.form.label).toEqual('(1000) Johny Lane 1');
+                            expect($ctrl.addressee()).toEqual('John Doe');
                         });
 
                         it('cancel editing', function () {
-                            ctrl.cancel();
-                            expect(ctrl.addressStatus()).toEqual('idle');
+                            $ctrl.cancel();
+                            expect($ctrl.addressStatus()).toEqual('idle');
                         });
                     });
                 });
 
                 describe('when specifying a default address', function () {
                     beforeEach(function () {
-                        ctrl.default = {label: 'home'};
-                        ctrl.$onInit();
+                        $ctrl.default = {label: 'home'};
+                        $ctrl.$onInit();
                     });
 
                     it('then the corresponding address is selected', function () {
-                        expect(ctrl.label).toEqual('home');
+                        expect($ctrl.label).toEqual('home');
                     });
 
                     it('then the selection listener is triggered', function () {
-                        expect(ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
+                        expect($ctrl.onSelect.calls.argsFor(0)[0].label).toEqual('home');
                     });
 
                     it('when the default address is changed then the selected address also changes', function () {
-                        ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
-                        expect(ctrl.label).toEqual('work');
+                        $ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
+                        expect($ctrl.label).toEqual('work');
                     });
 
                     it('when something other than the default address is changed then the selected address remains as is', function () {
-                        ctrl.$onChanges({purpose: {currentValue: '-'}});
-                        expect(ctrl.label).toEqual('home');
+                        $ctrl.$onChanges({purpose: {currentValue: '-'}});
+                        expect($ctrl.label).toEqual('home');
                     });
 
                     it('when selecting null then fallback to default label', function () {
-                        ctrl.select(null);
-                        expect(ctrl.label).toEqual('home');
+                        $ctrl.select(null);
+                        expect($ctrl.label).toEqual('home');
                     });
 
                     it('when a selection is made changes to the default address are ignored', function () {
-                        ctrl.select('neighbour');
-                        ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
-                        expect(ctrl.label).toEqual('neighbour');
+                        $ctrl.select('neighbour');
+                        $ctrl.$onChanges({default: {currentValue: {label: 'work'}}});
+                        expect($ctrl.label).toEqual('neighbour');
                     });
                 });
 
                 it('cancel new address has no effect when profile is in editing mode but this controller did not cause it', function () {
                     binarta.checkpoint.profile.edit();
-                    ctrl.cancelNewAddress();
-                    expect(ctrl.profileStatus()).toEqual('editing');
+                    $ctrl.cancelNewAddress();
+                    expect($ctrl.profileStatus()).toEqual('editing');
                 });
 
                 describe('when entering create a new address mode', function () {
                     beforeEach(function () {
-                        ctrl.$onInit();
-                        ctrl.new();
+                        $ctrl.$onInit();
+                        $ctrl.new();
                     });
 
                     it('then profile status changes to editing', function () {
-                        expect(ctrl.profileStatus()).toEqual('editing');
+                        expect($ctrl.profileStatus()).toEqual('editing');
                     });
 
                     it('then expose profile update request', function () {
-                        expect(ctrl.form).toEqual(binarta.checkpoint.profile.updateRequest().address);
+                        expect($ctrl.form).toEqual(binarta.checkpoint.profile.updateRequest().address);
                     });
 
                     describe('when creating a new address', function () {
                         var ctrl2;
 
-                        beforeEach(inject(function ($controller) {
-                            ctrl2 = $controller('BinartaAddressController');
+                        beforeEach(inject(function ($componentController) {
+                            ctrl2 = $componentController('binAddress', null, {});
                             ctrl2.$onInit();
 
-                            ctrl.form.label = 'work';
-                            ctrl.form.addressee = 'John Doe';
-                            ctrl.form.street = 'Johny Lane';
-                            ctrl.form.number = '1';
-                            ctrl.form.zip = '1000';
-                            ctrl.form.city = 'Johnyville';
-                            ctrl.form.country = 'BE';
+                            $ctrl.form.label = 'work';
+                            $ctrl.form.addressee = 'John Doe';
+                            $ctrl.form.street = 'Johny Lane';
+                            $ctrl.form.number = '1';
+                            $ctrl.form.zip = '1000';
+                            $ctrl.form.city = 'Johnyville';
+                            $ctrl.form.country = 'BE';
 
-                            ctrl.create();
+                            $ctrl.create();
                         }));
+
+                        afterEach(function () {
+                            ctrl2.$onDestroy();
+                        });
 
                         it('then the address is added to the profile', function () {
                             expect(binarta.checkpoint.profile.addresses().map(function (it) {
@@ -1971,20 +3577,34 @@
                         });
 
                         it('then the newly created address is selected', function () {
-                            expect(ctrl.label).toEqual('work');
+                            expect($ctrl.label).toEqual('work');
                         });
                     });
 
                     it('when create address is rejected then expose the violation report', function () {
-                        ctrl.form.label = 'invalid';
-                        ctrl.create();
-                        expect(ctrl.violationReport()).toEqual({label: ['invalid']});
+                        $ctrl.form.label = 'invalid';
+                        $ctrl.create();
+                        expect($ctrl.violationReport()).toEqual({label: ['invalid']});
                     });
 
                     it('then it can be canceled', function () {
-                        ctrl.cancelNewAddress();
-                        expect(ctrl.profileStatus()).toEqual('idle');
+                        $ctrl.cancelNewAddress();
+                        expect($ctrl.profileStatus()).toEqual('idle');
                     });
+                });
+
+                it('with collect as active delivery method and purpose is collect then status becomes enabled', function () {
+                    $ctrl.purpose = 'collect';
+                    $ctrl.$onInit();
+                    binarta.application.setProfile({activeDeliveryMethod: 'collect'});
+                    expect($ctrl.status).toEqual('enabled');
+                });
+
+                it('with collect as active delivery method and purpose is shipping then status becomes disabled', function () {
+                    $ctrl.purpose = 'shipping';
+                    $ctrl.$onInit();
+                    binarta.application.setProfile({activeDeliveryMethod: 'collect'});
+                    expect($ctrl.status).toEqual('disabled');
                 });
             });
 
@@ -2027,6 +3647,90 @@
                     $ctrl.onCanceled = jasmine.createSpy('on-canceled');
                 }));
 
+                it('generates a provider template based on the provider parameter', function () {
+                    $ctrl.provider = 'test-bank';
+                    $ctrl.$onInit();
+                    expect($ctrl.providerTemplate).toEqual('bin-shop-payment-test-bank.html');
+                });
+
+                describe('given a signing context without approval url', function () {
+                    beforeEach(inject(function ($timeout) {
+                        $ctrl.order = {
+                            signingContext: {
+                                amount: 100,
+                                currency: 'EUR',
+                                locale: 'en'
+                            }
+                        };
+                        $ctrl.$onInit();
+                        $timeout.flush();
+                    }));
+
+                    it('then the user is not redirected', function () {
+                        expect($window.location).toBeUndefined();
+                    });
+                });
+
+                describe('given a signing context with approval url when controller is initialised', function () {
+                    beforeEach(inject(function ($timeout) {
+                        $ctrl.order = {signingContext: {approvalUrl: 'approval-url'}};
+                        $ctrl.$onInit();
+                        $timeout.flush();
+                    }));
+
+                    it('then visit approval url', inject(function ($window) {
+                        expect($window.location).toEqual('approval-url');
+                    }));
+
+                    it('then on confirmed listener is not yet invoked', function () {
+                        expect($ctrl.onConfirmed).not.toHaveBeenCalled();
+                    });
+
+                    describe('and reinitialised without tokens', function () {
+                        beforeEach(inject(function ($window) {
+                            $window.location = undefined;
+                            $ctrl.$onInit();
+                        }));
+
+                        it('then the payment is canceled', function () {
+                            expect($ctrl.onCanceled).toHaveBeenCalled();
+                        });
+
+                        it('then the user is not redirected to the approval url', inject(function ($timeout) {
+                            $timeout.verifyNoPendingTasks();
+                        }));
+
+                        it('and reinitialised again then visit the approval url', inject(function ($timeout, $window) {
+                            $ctrl.$onInit();
+                            $timeout.flush();
+                            expect($window.location).toEqual('approval-url');
+                        }));
+                    });
+
+                    describe('and reinitialised with tokens', function () {
+                        beforeEach(inject(function ($window) {
+                            $window.location = undefined;
+                            $routeParams.id = 'i';
+                            $ctrl.$onInit();
+                        }));
+
+                        it('then the payment is confirmed', function () {
+                            expect($ctrl.onConfirmed).toHaveBeenCalledWith({id: 'i'});
+                        });
+
+                        it('then the user is not redirected to the approval url', inject(function ($timeout) {
+                            $timeout.verifyNoPendingTasks();
+                        }));
+
+                        it('and reinitialised again then visit the approval url', inject(function ($timeout, $window) {
+                            $routeParams.id = undefined;
+                            $ctrl.$onInit();
+                            $timeout.flush();
+                            expect($window.location).toEqual('approval-url');
+                        }));
+                    });
+                });
+
                 describe('given an order with approval url when controller is initialised', function () {
                     beforeEach(inject(function ($timeout) {
                         $ctrl.order = {approvalUrl: 'approval-url'};
@@ -2064,11 +3768,340 @@
                     });
                 });
 
-                it('given a token as route parameter when controller is initialised then confirm payment', inject(function ($routeParams) {
+                it('given a payment id as route parameter when controller is initialised then confirm payment', inject(function ($routeParams) {
+                    $routeParams.id = 'i';
+                    $ctrl.$onInit();
+                    expect($ctrl.onConfirmed).toHaveBeenCalledWith({id: 'i'});
+                }));
+
+                it('given a paypal token as route parameter when controller is initialised then confirm payment', inject(function ($routeParams) {
                     $routeParams.token = 't';
                     $ctrl.$onInit();
                     expect($ctrl.onConfirmed).toHaveBeenCalledWith({token: 't'});
                 }));
+            });
+
+            describe('bin-stripe-connect component', function () {
+                describe('when disconnected', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binStripeConnect', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('exposes status', function () {
+                        expect($ctrl.status).toEqual('disconnected');
+                    });
+
+                    it('connect', inject(function ($window) {
+                        $ctrl.connect();
+                        expect($window.location).toEqual('http://example.org/stripe');
+                    }));
+
+                    it('connecting while controller destroy hook has been called will not redirect', function () {
+                        $ctrl.$onDestroy();
+                        $ctrl.connect();
+                        expect($window.location).toBeUndefined();
+                    });
+                });
+
+                describe('when connected', function () {
+                    beforeEach(inject(function ($componentController) {
+                        binarta.shop.gateway.stripeConnect(undefined, {
+                            success: function () {
+                            }
+                        });
+                        $ctrl = $componentController('binStripeConnect', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('expose connected status', function () {
+                        expect($ctrl.status).toEqual('connected');
+                    });
+
+                    it('expose account id', function () {
+                        expect($ctrl.id).toEqual('stripe-account-id');
+                    });
+
+                    it('disconnect', function () {
+                        $ctrl.disconnect();
+                        expect($ctrl.status).toEqual('disconnected');
+                    });
+                });
+            });
+
+            describe('bin-payment-on-receipt-config component', function () {
+                describe('when disabled', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binPaymentOnReceiptConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    it('exposes status', function () {
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+
+                    it('exposes params', function () {
+                        expect($ctrl.params).toBeUndefined();
+                    });
+
+                    it('configure', function () {
+                        $ctrl.configure();
+                        expect($ctrl.status).toEqual('configured');
+                        $ctrl.disable();
+                    });
+
+                    it('configuring while controller destroy hook has been called will not receive updates', function () {
+                        $ctrl.$onDestroy();
+                        $ctrl.configure();
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+                });
+
+                describe('when configured', function () {
+                    beforeEach(inject(function ($componentController) {
+                        binarta.shop.gateway.configurePaymentOnReceipt({}, {
+                            success: function () {
+                            }
+                        });
+                        $ctrl = $componentController('binPaymentOnReceiptConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('expose configured status', function () {
+                        expect($ctrl.status).toEqual('configured');
+                    });
+
+                    it('expose params', function () {
+                        expect($ctrl.params).toEqual({});
+                    });
+
+                    describe('disable', function () {
+                        beforeEach(function () {
+                            $ctrl.disable();
+                        });
+
+                        it('expose diabled status', function () {
+                            expect($ctrl.status).toEqual('disabled');
+                        });
+
+                        it('expose updated params', function () {
+                            expect($ctrl.params).toBeUndefined();
+                        });
+                    });
+                });
+            });
+
+            describe('bin-cc-config component', function () {
+                describe('when disabled', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binCcConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    it('exposes status', function () {
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+
+                    it('exposes params', function () {
+                        expect($ctrl.params).toEqual({
+                            supportedBy: ['piggybank', 'megabank']
+                        });
+                    });
+
+                    it('configure', function () {
+                        $ctrl.params.bankId = 'piggybank';
+                        $ctrl.configure();
+                        expect($ctrl.status).toEqual('configured');
+                    });
+
+                    describe('when configuration is rejected', function () {
+                        beforeEach(function () {
+                            $ctrl.configure();
+                        });
+
+                        it('expose the violation report', function () {
+                            expect($ctrl.violationReport).toEqual({
+                                bankId: ['required']
+                            });
+                        });
+
+                        it('on re-configuration clear the violation report', function () {
+                            $ctrl.params.bankId = 'piggybank';
+                            $ctrl.configure();
+                            expect($ctrl.violationReport).toBeUndefined();
+                        });
+                    });
+
+                    it('configuring while controller destroy hook has been called will not receive updates', function () {
+                        $ctrl.$onDestroy();
+                        $ctrl.params.bankId = 'piggybank';
+                        $ctrl.configure();
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+                });
+
+                describe('when configured', function () {
+                    beforeEach(inject(function ($componentController) {
+                        binarta.shop.gateway.configureCC({bankId: 'piggybank'}, {
+                            success: function () {
+                            }
+                        });
+                        $ctrl = $componentController('binCcConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('expose configured status', function () {
+                        expect($ctrl.status).toEqual('configured');
+                    });
+
+                    it('expose params', function () {
+                        expect($ctrl.params).toEqual({
+                            bankId: 'piggybank',
+                            supportedBy: ['piggybank', 'megabank']
+                        });
+                    });
+
+                    describe('disable', function () {
+                        beforeEach(function () {
+                            $ctrl.disable();
+                        });
+
+                        it('expose diabled status', function () {
+                            expect($ctrl.status).toEqual('disabled');
+                        });
+
+                        it('expose updated params', function () {
+                            expect($ctrl.params).toEqual({
+                                supportedBy: ['piggybank', 'megabank']
+                            });
+                        });
+                    });
+
+                    it('disable clears the violation report', function () {
+                        $ctrl.violationReport = 'violation-report';
+                        $ctrl.disable();
+                        expect($ctrl.violationReport).toBeUndefined();
+                    });
+                });
+            });
+
+            describe('bin-bancontact-config component', function () {
+                describe('when disabled', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBancontactConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    it('exposes status', function () {
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+
+                    it('exposes params', function () {
+                        expect($ctrl.params).toEqual({
+                            supportedBy: ['piggybank', 'megabank']
+                        });
+                    });
+
+                    it('configure', function () {
+                        $ctrl.params.owner = 'John Doe';
+                        $ctrl.params.bankId = 'piggybank';
+                        $ctrl.configure();
+                        expect($ctrl.status).toEqual('configured');
+                    });
+
+                    describe('when configuration is rejected', function () {
+                        beforeEach(function () {
+                            $ctrl.configure();
+                        });
+
+                        it('expose the violation report', function () {
+                            expect($ctrl.violationReport).toEqual({
+                                bankId: ['required'],
+                                owner: ['required']
+                            });
+                        });
+
+                        it('on re-configuration clear the violation report', function () {
+                            $ctrl.params.owner = 'John Doe';
+                            $ctrl.params.bankId = 'piggybank';
+                            $ctrl.configure();
+                            expect($ctrl.violationReport).toBeUndefined();
+                        });
+                    });
+
+                    it('configuring while controller destroy hook has been called will not receive updates', function () {
+                        $ctrl.$onDestroy();
+                        $ctrl.params.owner = 'John Doe';
+                        $ctrl.params.bankId = 'piggybank';
+                        $ctrl.configure();
+                        expect($ctrl.status).toEqual('disabled');
+                    });
+                });
+
+                describe('when configured', function () {
+                    beforeEach(inject(function ($componentController) {
+                        binarta.shop.gateway.configureBancontact({owner: 'John Doe', bankId: 'piggybank'}, {
+                            success: function () {
+                            }
+                        });
+                        $ctrl = $componentController('binBancontactConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('expose configured status', function () {
+                        expect($ctrl.status).toEqual('configured');
+                    });
+
+                    it('expose params', function () {
+                        expect($ctrl.params).toEqual({
+                            owner: 'John Doe',
+                            bankId: 'piggybank',
+                            supportedBy: ['piggybank', 'megabank']
+                        });
+                    });
+
+                    describe('disable', function () {
+                        beforeEach(function () {
+                            $ctrl.disable();
+                        });
+
+                        it('expose diabled status', function () {
+                            expect($ctrl.status).toEqual('disabled');
+                        });
+
+                        it('expose updated params', function () {
+                            expect($ctrl.params).toEqual({
+                                supportedBy: ['piggybank', 'megabank']
+                            });
+                        });
+                    });
+
+                    it('disable clears the violation report', function () {
+                        $ctrl.violationReport = 'violation-report';
+                        $ctrl.disable();
+                        expect($ctrl.violationReport).toBeUndefined();
+                    });
+                });
             });
 
             describe('bin-coupon component', function () {
@@ -2206,6 +4239,135 @@
                     });
                 });
             });
+
+            describe('<bin-delivery-methods/>', function () {
+                describe('when unauthenticated', function () {
+                    it('render blank', function () {
+                        expect(render('<bin-delivery-methods></bin-delivery-methods>')).toEqual('');
+                    });
+
+                    it('with profile render blank', function () {
+                        binarta.application.setProfile({activeDeliveryMethod: 'shipping'});
+                        expect(render('<bin-delivery-methods></bin-delivery-methods>')).toEqual('');
+                    });
+                });
+
+                describe('when authenticated', function () {
+                    beforeEach(function () {
+                        binarta.checkpoint.registrationForm.submit({username: 'u', password: 'p'});
+                    });
+
+                    it('render blank', function () {
+                        expect(render('<bin-delivery-methods></bin-delivery-methods>')).toEqual('');
+                    });
+
+                    it('supported methods on controller are not known without permission', inject(function ($componentController) {
+                        $ctrl = $componentController('binDeliveryMethods', null, {});
+                        $ctrl.$onInit();
+                        expect($ctrl.supportedMethods).not.toBeDefined();
+                        $ctrl.$onDestroy();
+                    }));
+
+                    describe('with permission', function () {
+                        beforeEach(function () {
+                            binarta.checkpoint.gateway.addPermission('get.delivery.method.params');
+                        });
+
+                        describe('with controller', function () {
+                            var $ctrl;
+
+                            beforeEach(inject(function ($componentController) {
+                                $ctrl = $componentController('binDeliveryMethods', null, {});
+                                $ctrl.$onInit();
+                            }));
+
+                            afterEach(function () {
+                                $ctrl.$onDestroy();
+                            });
+
+                            it('exposes status', function () {
+                                expect($ctrl.status).toEqual('idle');
+                            });
+
+                            it('exposes supported methods', function () {
+                                expect($ctrl.supportedMethods).toEqual(['shipping', 'collect']);
+                            });
+
+                            it('exposes active method', function () {
+                                expect($ctrl.activeMethod).toEqual('shipping');
+                            });
+
+                            describe('when activating method', function () {
+                                beforeEach(function () {
+                                    $ctrl.activeMethod = 'collect';
+                                    $ctrl.activate();
+                                });
+
+                                it('exposed active method reflects activated method', function () {
+                                    expect($ctrl.activeMethod).toEqual('collect');
+                                });
+
+                                it('internally the active method is updated', function () {
+                                    binarta.shop.deliveryMethods.observe({
+                                        activeDeliveryMethod: function (it) {
+                                            expect(it).toEqual('collect');
+                                        }
+                                    }).disconnect();
+                                });
+                            });
+                        });
+                    });
+                });
+
+                describe('when configured', function () {
+                    beforeEach(inject(function ($componentController) {
+                        binarta.shop.gateway.configurePaymentOnReceipt({}, {
+                            success: function () {
+                            }
+                        });
+                        $ctrl = $componentController('binPaymentOnReceiptConfig', null, {});
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('expose configured status', function () {
+                        expect($ctrl.status).toEqual('configured');
+                    });
+
+                    it('expose params', function () {
+                        expect($ctrl.params).toEqual({});
+                    });
+
+                    describe('disable', function () {
+                        beforeEach(function () {
+                            $ctrl.disable();
+                        });
+
+                        it('expose diabled status', function () {
+                            expect($ctrl.status).toEqual('disabled');
+                        });
+
+                        it('expose updated params', function () {
+                            expect($ctrl.params).toBeUndefined();
+                        });
+                    });
+                });
+            })
+        });
+
+        describe('binarta-humanresourcesjs-angular1', function () {
+            beforeEach(function () {
+                config.namespace = 'N';
+                $location.path('/en/');
+                binarta.application.setLocaleForPresentation('en');
+            });
+
+            it('installs humanresources handler on binarta', function () {
+                expect(binarta.humanresources).toBeDefined();
+            });
         });
 
         describe('binarta-humanresourcesjs-angular1', function() {
@@ -2223,6 +4385,96 @@
         function expectApplicationListenerUninstalled(listenerName) {
             expectEventListenerUninstalled(binarta.application.eventRegistry, listenerName);
         }
+
+        describe('binarta-edit-modejs-angular1', function () {
+            describe('component controller decorator', function () {
+                beforeEach(inject(function ($controller, topicRegistry) {
+                    this.topicRegistry = topicRegistry;
+                    this.controller = $controller('TestComponentController');
+                }));
+
+                it('exposes an indicator for edit mode status which is disabled by default', function () {
+                    expect(this.controller.editMode.enabled).toBe(false);
+                });
+
+                it('enables the indicator when an edit mode event with positive payload is received', function () {
+                    this.topicRegistry.fire('edit.mode', true);
+
+                    expect(this.controller.editMode.enabled).toBe(true);
+                });
+
+                it('disables the indicator again when an edit mode event with negative payload is received', function () {
+                    this.topicRegistry.fire('edit.mode', true);
+                    this.topicRegistry.fire('edit.mode', false);
+
+                    expect(this.controller.editMode.enabled).toBe(false);
+                });
+
+                it('unregisters the event when the controller is destroyed', function () {
+                    this.controller.$onDestroy();
+
+                    this.topicRegistry.fire('edit.mode', true);
+
+                    expect(this.controller.editMode.enabled).toBe(false);
+                });
+            });
+        });
+
+        describe('binarta-calendarjs-angular1', function () {
+            describe('<bin-calendar-upcoming-events/>', function () {
+                beforeEach(inject(function ($componentController) {
+                    $ctrl = $componentController('binCalendarUpcomingEvents');
+                }));
+
+                it('events are empty without initialization', function () {
+                    expect($ctrl.events).toEqual([]);
+                });
+
+                it('events are loaded from server on init', inject(function (binartaCalendarGateway) {
+                    binartaCalendarGateway.upcomingEvents = ['a', 'b', 'c'];
+                    $ctrl.$onInit();
+                    expect($ctrl.events).toEqual(['a', 'b', 'c']);
+                }));
+            });
+        });
+
+        describe('binarta-namespacesjs-angular1', function () {
+            var $ctrl;
+
+            beforeEach(inject(function ($componentController) {
+                $ctrl = $componentController('binNamespaceAdd', null, {});
+                $ctrl.$onInit();
+            }));
+
+            afterEach(function () {
+                $ctrl.$onDestroy();
+            });
+
+            it('initially enters personal mode', function () {
+                expect($ctrl.mode).toEqual('personal');
+            });
+
+            describe('on reseller', function () {
+                beforeEach(function () {
+                    $ctrl.hooks.reseller();
+                });
+
+                it('switch to reseller mode', function () {
+                    expect($ctrl.mode).toEqual('reseller');
+                });
+
+                it('switch to personal mode', function () {
+                    $ctrl.hooks.disabled();
+                    expect($ctrl.mode).toEqual('personal');
+                });
+            });
+        });
+
+        describe('binarta-catalogjs-angular1', function () {
+            it('is installed', function () {
+                expect(binarta.catalog).toBeDefined();
+            });
+        });
 
         function expectAdhesiveReadingListenerUninstalled(listenerName) {
             expectEventListenerUninstalled(binarta.application.adhesiveReading.eventRegistry, listenerName);
@@ -2243,18 +4495,52 @@
         'binarta-applicationjs-angular1',
         'binarta-mediajs-angular1',
         'binarta-checkpointjs-angular1',
+        'binarta-catalogjs-angular1',
+        'binarta-edit-modejs-angular1',
+        'binarta-publisherjs-angular1',
         'binarta-shopjs-angular1',
-        'binarta-humanresourcesjs-angular1'
+        'binarta-humanresourcesjs-angular1',
+        'binarta-calendarjs-angular1',
+        'binarta-namespacesjs-angular1'
     ])
         .service('$window', MockWindow)
         .factory('i18nLocation', MockI18nLocationFactory)
         .service('viewport', MockViewport)
         .service('dependencyA', DependencyStub)
         .service('dependencyB', DependencyStub)
+        .service('resourceLoader', MockResourceLoader)
+        .service('applicationBrand', MockApplicationBrand)
         .controller('TestComponentController', ['dependencyA', 'dependencyB', binComponentController(TestComponentController)])
+        .filter('trust', ['$sce', MockTrustFilter])
         .config(ExtendBinarta);
 
+    angular.module('notifications', [])
+        .service('topicRegistry', [MockTopicRegistry]);
+
+    function MockTopicRegistry() {
+        var topics = {};
+
+        this.fire = function (topic, payload) {
+            var handlers = topics[topic] || [];
+            handlers.forEach(function (handler) {
+                handler(payload);
+            });
+        };
+
+        this.subscribe = function (topic, handler) {
+            if (topics[topic] === undefined)
+                topics[topic] = [];
+            topics[topic].push(handler);
+            return function () {
+                var handlers = topics[topic];
+                var index = handlers.indexOf(handler);
+                if (index != -1) handlers.splice(index, 1);
+            }
+        };
+    }
+
     function MockWindow() {
+        this.navigator = {userAgent: ''};
     }
 
     function DependencyStub() {
@@ -2267,6 +4553,18 @@
     function MockViewport() {
     }
 
+    function MockTrustFilter($sce) {
+        return function (val) {
+            return $sce.trustAsHtml(val);
+        };
+    }
+
+    function MockResourceLoader() {
+    }
+
+    function MockApplicationBrand() {
+    }
+
     function ExtendBinarta(binartaProvider, shopProvider) {
         binartaProvider.ui.initiatingBillingAgreement = ui.initiatingBillingAgreement;
         binartaProvider.ui.canceledBillingAgreement = ui.canceledBillingAgreement;
@@ -2274,6 +4572,7 @@
             ui.confirmedBillingAgreement();
             shopProvider.ui.confirmedBillingAgreement();
         };
+        binartaProvider.ui.promptForPublicationTime = ui.promptForPublicationTime;
     }
 
     function UI() {
@@ -2288,6 +4587,10 @@
 
         this.confirmedBillingAgreement = function () {
             self.confirmedBillingAgreementRequest = true;
+        };
+
+        this.promptForPublicationTime = function (response) {
+            response.success('t');
         }
     }
 
@@ -2296,10 +4599,14 @@
             .provider('binartaApplicationGateway', [strategy + 'BinartaApplicationGatewayProvider', proxy]);
         angular.module('binarta-checkpointjs-gateways-angular1', ['binarta-checkpointjs-' + strategy + '-angular1'])
             .provider('binartaCheckpointGateway', [strategy + 'BinartaCheckpointGatewayProvider', proxy]);
+        angular.module('binarta-publisherjs-gateways-angular1', ['binarta-publisherjs-' + strategy + '-angular1'])
+            .provider('binartaPublisherGateway', [strategy + 'BinartaPublisherGatewayProvider', proxy]);
         angular.module('binarta-shopjs-gateways-angular1', ['binarta-shopjs-' + strategy + '-angular1'])
             .provider('binartaShopGateway', [strategy + 'BinartaShopGatewayProvider', proxy]);
         angular.module('binarta-humanresourcesjs-gateways-angular1', ['binarta-humanresourcesjs-' + strategy + '-angular1'])
             .provider('binartaHumanResourcesGateway', [strategy + 'BinartaHumanResourcesGatewayProvider', proxy]);
+        angular.module('binarta-calendarjs-gateways-angular1', ['binarta-calendarjs-' + strategy + '-angular1'])
+            .provider('binartaCalendarGateway', [strategy + 'BinartaCalendarGatewayProvider', proxy]);
 
         function proxy(gateway) {
             return gateway;
@@ -2320,8 +4627,6 @@
         $ctrl.constructorArguments = arguments;
         $ctrl.customAttribute = 'custom-attribute';
     }
-
-
 })();
 
 var $ = function () {
