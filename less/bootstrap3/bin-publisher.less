@@ -59,6 +59,36 @@ bin-blog-post {
   }
 }
 
+bin-display-blog-post {
+  bin-blog-post {
+    display: block;
+    margin: 15px;
+
+    bin-blog-post-title {
+      &:extend(h1);
+    }
+
+    bin-blog-post-publication-time {
+      display: block;
+      margin-bottom: 28px;
+    }
+
+    bin-display-blog-lead {
+      display: block;
+      bottom: 15px;
+    }
+
+    bin-display-blog-body {
+      display: block;
+      margin-bottom: 15px;
+    }
+
+    bin-blog-post-link {
+      display: block;
+    }
+  }
+}
+
 .bin-blog-content {
   margin: auto;
   display: flex;
