@@ -5,7 +5,7 @@ $templateCache.put("bin-publisher-blog-feed.html","<bin-blog-post ng-repeat=\"po
 $templateCache.put("bin-publisher-blog-more.html","<a ng-if=\"$ctrl.mode == \'link\'\" bin-href=\"/blog\" class=\"btn btn-primary view-more-link\"><span i18n=\"\" code=\"catalog.view.more.button\" read-only=\"\" ng-bind=\"::var\"></span> <i class=\"fa fa-arrow-right fa-fw\"></i></a>");
 $templateCache.put("bin-publisher-blog-post-attribute.html","{{::$ctrl.value}}");
 $templateCache.put("bin-publisher-blog-post-cover-image.html","<img class=\"cover\" bin-image=\"{{::$ctrl.value}}\" read-only=\"\">");
-$templateCache.put("bin-publisher-blog-post-default.html","<bin-blog-post-cover-image></bin-blog-post-cover-image><bin-blog-post-title></bin-blog-post-title><bin-blog-post-publication-time></bin-blog-post-publication-time><bin-blog-post-link></bin-blog-post-link>");
+$templateCache.put("bin-publisher-blog-post-default.html","<bin-blog-post-cover-image></bin-blog-post-cover-image><bin-blog-post-title></bin-blog-post-title><bin-blog-post-publication-time></bin-blog-post-publication-time><bin-display-blog-lead></bin-display-blog-lead><bin-display-blog-body></bin-display-blog-body><bin-blog-post-link></bin-blog-post-link>");
 $templateCache.put("bin-publisher-blog-post-draft-list.html","<a bin-href=\"{{::$ctrl.post.uri}}\">{{::$ctrl.post.title}}</a>");
 $templateCache.put("bin-publisher-blog-post-link-label.html","more");
 $templateCache.put("bin-publisher-blog-post-link.html","<a bin-href=\"{{::$ctrl.value}}\"><ng-include src=\"::$ctrl.labelTemplateUrl\"></ng-include></a>");
