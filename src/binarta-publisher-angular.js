@@ -22,7 +22,6 @@
         .component('binDisplayBlogPost', new DisplayBlogPostComponent())
         .directive('binDisplayBlogPostResult', displayBlogPostResult)
         .component('binDisplayBlogTitle', new DisplayBlogAttributeComponent('title'))
-        .component('binDisplayBlogTitle', new DisplayBlogAttributeComponent('title'))
         .component('binDisplayBlogLead', new DisplayBlogAttributeComponent('lead'))
         .component('binDisplayBlogBody', new DisplayBlogAttributeComponent('body'))
         .component('binBlogFeedWidget', new BlogFeedWidgetComponent())
