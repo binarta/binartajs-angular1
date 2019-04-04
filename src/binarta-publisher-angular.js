@@ -1,11 +1,11 @@
 (function () {
     angular.module('binarta-publisherjs-angular1', [
         'ngRoute',
-        'binartajs-angular1',
+        'binarta-i18njs-angular1',
         'binarta-publisherjs-gateways-angular1',
         'binarta-publisherjs-tpls-angular1'
     ])
-        .provider('publisher', ['binartaPublisherGatewayProvider', 'applicationProvider', PublisherProvider])
+        .provider('publisher', ['binartaPublisherGatewayProvider', 'applicationProvider', 'binI18nProvider', PublisherProvider])
         .component('binBlogMore', new BlogMoreComponent())
         .component('binBlogSpotlight', new BlogSpotlightComponent())
         .component('binBlogFeed', new BlogFeedComponent())
@@ -239,7 +239,7 @@
             $ctrl.addInitHandler(function () {
                 $ctrl.labelTemplateUrl = $ctrl.labelTemplateUrl || 'bin-publisher-blog-post-link-label.html';
                 $ctrl.linkMode = $ctrl.$parent.linkMode;
-                if($ctrl.linkMode == 'from-details')
+                if ($ctrl.linkMode == 'from-details')
                     $ctrl.value = '/blog';
             });
         };
@@ -387,8 +387,8 @@
             closedTemplate: '@'
         };
         this.templateUrl = 'bin-publisher-display-blog-' + attr + '.html';
-        this.controller = function() {
-            this.$onInit = function() {
+        this.controller = function () {
+            this.$onInit = function () {
                 if (!this.openedTemplate)
                     this.openedTemplate = 'bin-publisher-display-blog-' + attr + '-opened-default.html';
                 if (!this.closedTemplate)
@@ -458,8 +458,11 @@
         }
     }
 
-    function PublisherProvider(db, provider) {
-        this.publisher = new BinartaPublisherjs({application: provider.application});
+    function PublisherProvider(db, applicationProvider, i18nProvider) {
+        this.publisher = new BinartaPublisherjs({
+            application: applicationProvider.application,
+            i18n: i18nProvider.i18n
+        });
         this.publisher.db = this.publisher.newRoutingByApplicationLockDB(this.publisher.newCachingDB(db.gateway), db.gateway);
         this.ui = new UI();
         this.$get = [function () {
