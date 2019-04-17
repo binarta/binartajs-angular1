@@ -60,7 +60,7 @@
       "bin.dns.component.title": "DNS",
       "bin.dns.record.A.format": "Verwacht formaat: 'd.d.d.d' (waarbij d een waarde tussen 0 en 255 is)",
       "bin.dns.record.MX.format": "Verwacht formaat: 'prio domeinnaam'. (waarbij prio een waarde tussen 0 en 65536 is, heeft de domeinnaam geen spaties en eindigt optioneel in een punt)",
-      "bin.dns.record.TXT.format": "Verwacht formaat: '\"vrij formaat\"'",
+      "bin.dns.record.TXT.format": "Verwacht formaat: 'elke lijn moet beginnen en eindigen met een dubbele quote (\")'",
       "bin.dns.record.CNAME.format": "Verwachte fomat: 'domeinnaam'. (waarbij de domeinnaam geen spaties heeft en optioneel eindigt in een punt)",
       "bin.dns.record.SRV.format": "Verwacht formaat: 'prioriteit gewicht poort doeldomein.'"
     },
@@ -124,7 +124,7 @@
       "bin.dns.component.title": "DNS",
       "bin.dns.record.A.format": "Expected format: 'd.d.d.d' (where d is a value between 0 and 255)",
       "bin.dns.record.MX.format": "Expected format: 'prio domainname.' (where prio is a value between 0 and 65536, the domain name has no spaces and optionally ends in a dot)",
-      "bin.dns.record.TXT.format": "Expected format: '\"free format\"'",
+      "bin.dns.record.TXT.format": "Expected format: 'each line must start and end with a double quote (\")'",
       "bin.dns.record.CNAME.format": "Expected fomat: 'domainname.' (where the domainname has no spaces and optionally ends in a dot)",
       "bin.dns.record.SRV.format": "Expected format: 'priority weight port targetdomain.'"
     },
@@ -188,7 +188,7 @@
       "bin.dns.component.title": "DNS",
       "bin.dns.record.A.format": "Format attendu: 'd.d.d.d' (où d est une valeur comprise entre 0 et 255)",
       "bin.dns.record.MX.format": "Format attendu: 'prio domainname.' (où prio est une valeur comprise entre 0 et 65536, le nom de domaine n'a pas d'espaces et se termine éventuellement par un point)",
-      "bin.dns.record.TXT.format": "Format attendu: '\"format libre\"'",
+      "bin.dns.record.TXT.format": "Format attendu: 'chaque ligne doit commencer et se terminer par un double guillemet (\")'",
       "bin.dns.record.CNAME.format": "Fomat attendu: 'nom de domaine.' (où le nom de domaine n'a pas d'espaces et se termine éventuellement par un point)",
       "bin.dns.record.SRV.format": "Format attendu: 'priorité poids port domain.'"
     },
@@ -252,7 +252,7 @@
       "bin.dns.component.title": "DNS",
       "bin.dns.record.A.format": "Erwartetes Format: 'd.d.d.d' (wobei d ein Wert zwischen 0 und 255 ist)",
       "bin.dns.record.MX.format": "Erwartetes Format: 'prio Domainname'. (wobei prio einen Wert zwischen 0 und 65536 hat, enthält der Domänenname keine Leerzeichen und endet optional mit einem Punkt)",
-      "bin.dns.record.TXT.format": "Erwartetes Format: '\"freies Format\"'",
+      "bin.dns.record.TXT.format": "Erwartetes Format: 'Jede zeile muss mit einem doppelten anführungszeichen beginnen und enden (\")'",
       "bin.dns.record.CNAME.format": "Erwarteter fomat: 'Domänenname' (wobei der Domainname keine Leerzeichen hat und optional mit einem Punkt endet)",
       "bin.dns.record.SRV.format": "Erwartetes Format: 'Priorität gewichtung port Zieldomäne.'"
     }
