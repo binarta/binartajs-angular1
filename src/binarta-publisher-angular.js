@@ -305,7 +305,9 @@
             headerTemplate: '@',
             sidebarTemplate: '@'
         };
-        this.templateUrl = 'bin-publisher-display-blog-post.html';
+        this.templateUrl = ['$attrs', function($attrs) {
+            return $attrs.templateUrl || 'bin-publisher-display-blog-post.html';
+        }];
         this.controller = ['binarta', 'i18nLocation', '$q', '$routeParams', binComponentController(function (binarta, $location, $q, $routeParams) {
             var $ctrl = this;
             var handle;
