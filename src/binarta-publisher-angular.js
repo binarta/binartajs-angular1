@@ -15,6 +15,7 @@
         .component('binBlogPostCoverImage', new BlogPostAttributeComponent('coverImageURI', BlogPostCoverImageComponent))
         .component('binBlogPostBreadcrumb', new BlogPostAttributeComponent('title', BlogPostBreadcrumbComponent))
         .component('binBlogPostTitle', new BlogPostAttributeComponent('title', BlogPostTitleComponent))
+        .component('binBlogPostLead', new BlogPostAttributeComponent('lead', angular.noop))
         .component('binBlogPostPublicationTime', new BlogPostAttributeComponent('publicationTime', BlogPostPublicationTimeComponent))
         .component('binBlogPostRawPublicationTime', new BlogPostRawPublicationTimeComponent())
         .component('binBlogPostLink', new BlogPostAttributeComponent('uri', BlogPostLinkComponent))
