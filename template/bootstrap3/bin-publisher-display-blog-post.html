@@ -4,45 +4,9 @@
     </div>
     <div class="bin-blog-content">
         <div class="bin-blog-post">
-            <bin-edit>
-                <bin-actions>
-                    <bin-action-group>
-                        <bin-action bin-action-type="expression" bin-action-expression="$ctrl.publish()"
-                                    bin-action-icon-class="fa-eye" bin-action-i18n-code="catalog.item.publish"
-                                    ng-if="$ctrl.status == 'publishable'">
-                        </bin-action>
-                        <bin-action bin-action-type="expression" bin-action-expression="$ctrl.withdraw()"
-                                    bin-action-icon-class="fa-eye-slash" bin-action-i18n-code="catalog.item.unpublish"
-                                    ng-if="$ctrl.status == 'withdrawable'">
-                        </bin-action>
-                        <bin-action bin-action-type="expression" bin-action-expression="$ctrl.draft()"
-                                    bin-action-icon-class="fa-language" bin-action-i18n-code="blog.post.translate"
-                                    ng-if="$ctrl.status == 'translatable'">
-                        </bin-action>
-                        <li checkpoint-permission-for="delete.blog.post" ng-show="permitted" i18n
-                            code="blog.article.remove.confirm"
-                            default="Are you sure?" read-only>
-                            <button type="button" class="bin-link bin-link-danger" ng-click-confirm="$ctrl.delete()"
-                                    confirm-message="{{::var}}" ng-if="::var" ng-disabled="$ctrl.status == 'deleting'">
-                                <span i18n code="blog.article.remove.button" read-only ng-bind="::var"></span>
-                            </button>
-                        </li>
-                    </bin-action-group>
-                </bin-actions>
-                <bin-edit-body>
-                    <div ng-if="!$ctrl.hideStatus">
-                        <div class="alert alert-info" ng-if="$ctrl.status == 'publishable'">
-                            <i class="fa fa-eye-slash fa-fw"></i>
-                            <span i18n code="catalog.item.draft" read-only ng-bind="::var"></span>
-                        </div>
-                        <div class="alert alert-info" ng-if="$ctrl.status == 'translatable'">
-                            <i class="fa fa-language fa-fw"></i>
-                            <span i18n code="blog.post.translatable" read-only ng-bind="::var"></span>
-                        </div>
-                    </div>
-                    <ng-include src="$ctrl.template"></ng-include>
-                </bin-edit-body>
-            </bin-edit>
+            <bin-blog-edit status="$ctrl.status">
+                <ng-include src="$ctrl.template"></ng-include>    
+            </bin-blog-edit>
         </div>
         <div class="bin-blog-sidebar" ng-if="::$ctrl.sidebarTemplate">
             <ng-include src="$ctrl.sidebarTemplate"></ng-include>

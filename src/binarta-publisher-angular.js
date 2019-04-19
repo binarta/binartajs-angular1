@@ -6,6 +6,7 @@
         'binarta-publisherjs-tpls-angular1'
     ])
         .provider('publisher', ['binartaPublisherGatewayProvider', 'applicationProvider', 'binI18nProvider', PublisherProvider])
+        .component('binBlogEdit', new BlogEditComponent())
         .component('binBlogMore', new BlogMoreComponent())
         .component('binBlogSpotlight', new BlogSpotlightComponent())
         .component('binBlogFeed', new BlogFeedComponent())
@@ -35,6 +36,43 @@
         .config(['binartaProvider', 'publisherProvider', ExtendBinarta])
         .config(['$routeProvider', InstallBinartaPublisherRoutes])
         .run(['publisher', WireAngularDependencies]);
+
+    function BlogEditComponent() {
+        this.templateUrl = 'bin-publisher-blog-edit.html';
+        this.require = {parent: '?^^binDisplayBlogPost'};
+        this.bindings = {
+            status: '<',
+            onPublish: '&?',
+            onWithdraw: '&?',
+            onDraft: '&?',
+            onDelete: '&?'
+        };
+        this.transclude = true;
+        this.controller = ['$log', binComponentController(function($log) {
+            var $ctrl = this;
+
+            var actionConfiguration = {
+                publish: 'onPublish',
+                draft: 'onDraft',
+                withdraw: 'onWithdraw',
+                delete: 'onDelete'
+            };
+
+            this.addInitHandler(function() {
+                Object.keys(actionConfiguration).forEach(function(fn) {
+                    var output = actionConfiguration[fn];
+                    $ctrl[fn] = function() {
+                        if ($ctrl[output])
+                            $ctrl[output]();
+                        else if ($ctrl.parent)
+                            $ctrl.parent[fn]();
+                        else 
+                            $log.warn('No ' + output + ' action was bound and no binDisplayBlogPostparent was found so no action was taken!');
+                    }
+                });
+            });
+        })];
+    }
 
     function BlogMoreComponent() {
         this.bindings = {

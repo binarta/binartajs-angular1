@@ -2544,6 +2544,90 @@
                 });
             });
 
+            describe('<bin-blog-edit/>', function() {
+                beforeEach(inject(function($componentController) {
+                    this.init = function() {
+                        this.component = $componentController('binBlogEdit', null, this.bindings);
+                        this.component.$onInit();
+                    };
+                }));
+                describe('with bound outputs', function() {
+                    beforeEach(function() {
+                        this.bindings = {
+                            onPublish: jasmine.createSpy('onPublish'),
+                            onWithdraw: jasmine.createSpy('onWithdraw'),
+                            onDelete: jasmine.createSpy('onDelete'),
+                            onDraft: jasmine.createSpy('onDraft')
+                        };
+                        this.init();
+                    });
+
+                    it('invokes the bound onPublish when publishing', function() {
+                        this.component.publish();
+
+                        expect(this.bindings.onPublish).toHaveBeenCalled();
+                    });
+
+                    it('invokes the bound onDraft when drafting', function() {
+                        this.component.draft();
+
+                        expect(this.bindings.onDraft).toHaveBeenCalled();
+                    });
+
+                    it('invokes the bound onWithdraw when withdrawing', function() {
+                        this.component.withdraw();
+
+                        expect(this.bindings.onWithdraw).toHaveBeenCalled();
+                    });
+
+                    it('invokes the bound onDelete when deleting', function() {
+                        this.component.delete();
+
+                        expect(this.bindings.onDelete).toHaveBeenCalled();
+                    });
+                });
+
+                describe('without bound outputs but a parent binDisplayBlogPost', function() {
+                    beforeEach(function() {
+                        this.bindings = {
+                            parent: {
+                                publish: jasmine.createSpy('publish'),
+                                draft: jasmine.createSpy('draft'),
+                                withdraw: jasmine.createSpy('withdraw'),
+                                delete: jasmine.createSpy('delete'),
+                            }
+                        };
+                        this.init();
+                    });
+
+                    it('invokes the parents publish function when publishing', function() {
+                        this.component.publish();
+
+                        expect(this.bindings.parent.publish).toHaveBeenCalled();
+                    });
+
+                    it('invokes the parents draft function when drafting', function() {
+                        this.component.draft();
+
+                        expect(this.bindings.parent.draft).toHaveBeenCalled();
+                    });
+
+                    it('invokes the parents withdraw function when withdrawing', function() {
+                        this.component.withdraw();
+
+                        expect(this.bindings.parent.withdraw).toHaveBeenCalled();
+                    });
+
+                    it('invokes the parents delete function when deleting', function() {
+                        this.component.delete();
+
+                        expect(this.bindings.parent.delete).toHaveBeenCalled();
+                    });
+                });
+
+
+            });
+
             describe('<bin-blog-search-widget/>', function () {
                 describe('with defaults', function () {
                     beforeEach(inject(function ($componentController) {
