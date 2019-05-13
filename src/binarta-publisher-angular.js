@@ -16,7 +16,7 @@
         .component('binBlogPostCoverImage', new BlogPostAttributeComponent('coverImageURI', BlogPostCoverImageComponent))
         .component('binBlogPostBreadcrumb', new BlogPostAttributeComponent('title', BlogPostBreadcrumbComponent))
         .component('binBlogPostTitle', new BlogPostAttributeComponent('title', BlogPostTitleComponent))
-        .component('binBlogPostLead', new BlogPostAttributeComponent('lead', angular.noop))
+        .component('binBlogPostLead', new BlogPostAttributeComponent('lead'))
         .component('binBlogPostPublicationTime', new BlogPostAttributeComponent('publicationTime', BlogPostPublicationTimeComponent))
         .component('binBlogPostRawPublicationTime', new BlogPostRawPublicationTimeComponent())
         .component('binBlogPostLink', new BlogPostAttributeComponent('uri', BlogPostLinkComponent))
@@ -226,7 +226,8 @@
         var parent = this;
         this.templateUrl = 'bin-publisher-blog-post-attribute.html';
         this.require = {$parent: '^^binBlogPost'};
-        Child.apply(parent, []);
+        if(Child)
+            Child.apply(parent, []);
         var ChildController = this.controller;
         this.controller = binComponentController(function () {
             var $ctrl = this;

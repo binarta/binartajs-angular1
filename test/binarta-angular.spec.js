@@ -1993,7 +1993,8 @@
                         coverImageURI: 'cover-image-uri',
                         title: 'title',
                         publicationTime: 'publication-time',
-                        uri: 'uri'
+                        uri: 'uri',
+                        lead: 'lead'
                     };
                     $ctrl = $componentController('binBlogPost', null, {
                         post: post,
@@ -2016,7 +2017,7 @@
                     expect($ctrl.linkMode).toEqual('m');
                 }));
 
-                describe('<bin-blog-post-breadcrumb/>', function() {
+                describe('<bin-blog-post-breadcrumb/>', function () {
                     beforeEach(inject(function ($componentController) {
                         $ctrl = $componentController('binBlogPostBreadcrumb', null, {
                             $parent: $ctrl
@@ -2114,6 +2115,23 @@
                     });
                 });
 
+                describe('<bin-blog-post-lead/>', function () {
+                    beforeEach(inject(function ($componentController) {
+                        $ctrl = $componentController('binBlogPostLead', null, {
+                            $parent: $ctrl
+                        });
+                        $ctrl.$onInit();
+                    }));
+
+                    afterEach(function () {
+                        $ctrl.$onDestroy();
+                    });
+
+                    it('exposes lead', function () {
+                        expect($ctrl.value).toEqual('lead');
+                    });
+                });
+
                 describe('<bin-blog-post-link/>', function () {
                     describe('with defaults', function () {
                         beforeEach(inject(function ($componentController) {
@@ -2136,7 +2154,7 @@
                             expect($ctrl.labelTemplateUrl).toEqual('bin-publisher-blog-post-link-label.html');
                         });
 
-                        it('resolves link mode from parent', function() {
+                        it('resolves link mode from parent', function () {
                             expect($ctrl.linkMode).toEqual('to-details');
                         });
                     });
@@ -2160,7 +2178,7 @@
                             expect($ctrl.labelTemplateUrl).toEqual('label-template-url');
                         });
 
-                        it('resolves link mode from parent', function() {
+                        it('resolves link mode from parent', function () {
                             expect($ctrl.linkMode).toEqual('from-details');
                         });
 
@@ -2517,23 +2535,23 @@
                 });
             });
 
-            describe('<bin-display-blog-lead/>', function() {
-                beforeEach(inject(function($componentController) {
+            describe('<bin-display-blog-lead/>', function () {
+                beforeEach(inject(function ($componentController) {
                     this.bindings = {};
-                    this.onInit = function() {
+                    this.onInit = function () {
                         this.component = $componentController('binDisplayBlogLead', null, this.bindings);
                         this.component.$onInit();
                     }
                 }));
 
-                it('uses default templates when no overrides are provided', function() {
+                it('uses default templates when no overrides are provided', function () {
                     this.onInit();
 
                     expect(this.component.openedTemplate).toEqual('bin-publisher-display-blog-lead-opened-default.html');
                     expect(this.component.closedTemplate).toEqual('bin-publisher-display-blog-lead-closed-default.html');
                 });
 
-                it('uses the overridden templates if they were provided', function() {
+                it('uses the overridden templates if they were provided', function () {
                     this.bindings.openedTemplate = 'my-opened-template.html';
                     this.bindings.closedTemplate = 'my-closed-template.html';
 
