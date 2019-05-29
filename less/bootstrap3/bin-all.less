@@ -1,5 +1,11 @@
 @bin-no-items-color-default: #c0c0c0;
 
+@media print {
+  a[href]:after {
+    content: none !important;
+  }
+}
+
 bin-no-items {
   .bin-no-items-icon {
     background: #f3f3f3;
