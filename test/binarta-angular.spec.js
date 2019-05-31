@@ -2035,8 +2035,11 @@
                 });
 
                 describe('<bin-blog-post-cover-image/>', function () {
+                    $element = undefined;
+
                     beforeEach(inject(function ($componentController) {
-                        $ctrl = $componentController('binBlogPostCoverImage', null, {
+                        $element = jasmine.createSpyObj('$element', ['addClass']);
+                        $ctrl = $componentController('binBlogPostCoverImage', {$element: $element}, {
                             $parent: $ctrl
                         });
                         $ctrl.$onInit();
@@ -2048,6 +2051,12 @@
 
                     it('exposes cover image uri', function () {
                         expect($ctrl.value).toEqual('cover-image-uri');
+                    });
+
+                    it('sets image-not-found class when not found callback is invoked', function() {
+                        $ctrl.onImageNotFound();
+
+                        expect($element.addClass).toHaveBeenCalledWith('image-not-found');
                     });
                 });
 

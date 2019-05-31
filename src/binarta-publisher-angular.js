@@ -228,8 +228,14 @@
         this.require = {$parent: '^^binBlogPost'};
         if(Child)
             Child.apply(parent, []);
-        var ChildController = this.controller;
-        this.controller = binComponentController(function () {
+        var ChildController;
+        var injectionTokens = [];
+        if (Array.isArray(this.controller)) {
+            ChildController = this.controller[this.controller.length -1];
+            injectionTokens = this.controller.slice(0, -1);
+        } else 
+            ChildController = this.controller;
+        this.controller = injectionTokens.concat([binComponentController(function () {
             var $ctrl = this;
 
             $ctrl.addInitHandler(function () {
@@ -237,12 +243,17 @@
             });
 
             if (ChildController)
-                ChildController.apply($ctrl);
-        });
+                ChildController.apply($ctrl, arguments);
+        })]);
     }
 
     function BlogPostCoverImageComponent() {
         this.templateUrl = 'bin-publisher-blog-post-cover-image.html';
+        this.controller = ['$element', function($element) {
+            this.onImageNotFound = function() {
+                $element.addClass('image-not-found');
+            }
+        }];
     }
 
     function BlogPostBreadcrumbComponent() {
