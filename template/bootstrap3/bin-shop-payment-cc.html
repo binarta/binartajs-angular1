@@ -1,7 +1,9 @@
-<div ng-init="$ctrl.open()">
-    <form>
-        <input id="cardholder-name" type="text">
-        <div id="card-element"></div>
-        <button id="card-button">Submit Payment</button>
+<div ng-init="$ctrl.open()" class="payment-request">
+    <form ng-submit="$ctrl.pay()">
+        <div class="form-group">
+            <label i18n code="checkout.roadmap.payment.card.request" readonly>{{::var}}</label>
+            <div id="card-element" class="form-control"></div>
+        </div>
+        <button type="submit" class="btn btn-primary" i18n code="checkout.roadmap.payment.confirm" readonly>{{::var}}</button>
     </form>
 </div>

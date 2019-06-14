@@ -447,7 +447,7 @@
 
     function PaymentController(binarta, $window, $routeParams, $timeout, sessionStorage, resourceLoader, brand) {
         var $ctrl = this;
-        var dialog, observer, brandName;
+        var dialog, observer, brandName, stripe, elements, card;
 
         $ctrl.$onInit = function () {
             $ctrl.providerTemplate = 'bin-shop-payment-' + $ctrl.provider + '.html';
@@ -483,10 +483,10 @@
             function doOpen() {
                 resourceLoader.getScript('https://js.stripe.com/v3').then(function () {
                     brandName = brand.observeBrandName(function (brandName) {
-                        var stripe = Stripe($ctrl.order.signingContext.apiKey);
-                        var elements = stripe.elements();
-                        var cardElement = elements.create('card');
-                        cardElement.mount('#card-element');
+                        stripe = Stripe($ctrl.order.signingContext.apiKey);
+                        elements = stripe.elements();
+                        card = elements.create('card', {hidePostalCode: true});
+                        card.mount('#card-element');
 
                         // var canceled = true;
                         // dialog = StripeCheckout.configure({
@@ -523,6 +523,10 @@
                 doOpen();
             else
                 observer = binarta.checkpoint.profile.eventRegistry.observe({signedin: doOpen});
+        };
+
+        $ctrl.pay = function () {
+            console.log('pay()');
         }
     }
 
@@ -834,7 +838,7 @@
     function InstallSummarySupport(binarta, decorator) {
         decorator.add(function (ctrl) {
             ctrl.confirm = function () {
-                if(ctrl.comment) {
+                if (ctrl.comment) {
                     var ctx = binarta.shop.checkout.context();
                     ctx.order.comment = ctrl.comment;
                     binarta.shop.checkout.persist(ctx);

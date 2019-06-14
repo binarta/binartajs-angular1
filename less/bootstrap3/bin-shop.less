@@ -1,0 +1,16 @@
+bin-pay {
+  > ng-include {
+    .payment-request {
+      display: flex;
+      justify-content: center;
+
+      > form {
+        flex: 1 1 auto;
+
+        @media (min-width: @screen-sm-min) {
+          flex: 0 1 400px;
+        }
+      }
+    }
+  }
+}
