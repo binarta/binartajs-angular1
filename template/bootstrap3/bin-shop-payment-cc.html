@@ -3,11 +3,14 @@
         <h1 i18n code="checkout.roadmap.payment.card.request" readonly>{{::var}}</h1>
         <div class="form-group">
             <label i18n code="checkout.roadmap.payment.card.name" readonly>{{::var}}</label>
-            <div class="form-control" ng-bind="$ctrl.cardHolderName"></div>
+            <input type="text" class="form-control" ng-model="$ctrl.cardHolderName">
         </div>
         <div class="form-group">
             <label i18n code="checkout.roadmap.payment.card.number" readonly>{{::var}}</label>
             <div id="card-element" class="form-control"></div>
+            <p class="help-block alert alert-warning" ng-repeat="v in $ctrl.validationReport.payment">
+                <i class="fa fa-exclamation-triangle fa-fw"></i> {{::v.description}}
+            </p>
         </div>
         <button type="submit" class="btn btn-primary" i18n code="checkout.roadmap.payment.confirm" readonly>{{::var}}</button>
     </form>

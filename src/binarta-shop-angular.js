@@ -447,10 +447,11 @@
 
     function PaymentController(binarta, $window, $routeParams, $timeout, sessionStorage, resourceLoader, brand) {
         var $ctrl = this;
-        var dialog, observer, brandName, stripe, card;
+        var dialog, observer, stripe, card;
 
         $ctrl.$onInit = function () {
             $ctrl.providerTemplate = 'bin-shop-payment-' + $ctrl.provider + '.html';
+            $ctrl.validationReport = {};
             if ($routeParams.token || $routeParams.id) {
                 sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
                 $ctrl.onConfirmed($routeParams);
@@ -475,49 +476,18 @@
                 dialog.close();
             if (observer)
                 observer.disconnect()
-            if (brandName)
-                brandName.disconnect()
         };
 
         $ctrl.open = function () {
             function doOpen() {
                 resourceLoader.getScript('https://js.stripe.com/v3').then(function () {
-                    console.log('open(' + JSON.stringify($ctrl.order) + ')');
-                    $ctrl.cardHolderName = $ctrl.order.billing.assignee;
+                    $ctrl.cardHolderName = $ctrl.order.billing.addressee;
                     stripe = Stripe($ctrl.order.signingContext.apiKey, {
                         stripeAccount: $ctrl.order.signingContext.accountId,
                         locale: $ctrl.order.signingContext.locale
                     });
                     card = stripe.elements().create('card', {hidePostalCode: true});
                     card.mount('#card-element');
-
-                    // var canceled = true;
-                    // dialog = StripeCheckout.configure({
-                    //     key: $ctrl.order.signingContext.apiKey,
-                    //     image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
-                    //     locale: $ctrl.order.signingContext.locale,
-                    //     token: function (it) {
-                    //         canceled = false;
-                    //         it.token = it.id;
-                    //         it.id = $ctrl.order.signingContext.payment;
-                    //         $ctrl.onConfirmed(it);
-                    //     },
-                    //     closed: function () {
-                    //         sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
-                    //         if (canceled) {
-                    //             $ctrl.onCanceled();
-                    //         }
-                    //     }
-                    // });
-                    // dialog.open({
-                    //     name: brandName,
-                    //     email: binarta.checkpoint.profile.email(),
-                    //     amount: $ctrl.order.signingContext.amount,
-                    //     locale: $ctrl.order.signingContext.locale,
-                    //     currency: $ctrl.order.signingContext.currency,
-                    //     allowRememberMe: true,
-                    //     zipCode: true
-                    // });
                 });
             }
 
@@ -528,6 +498,7 @@
         };
 
         $ctrl.pay = function () {
+            $ctrl.validationReport = {};
             stripe.handleCardPayment($ctrl.order.signingContext.clientSecret, card, {
                 payment_method_data: {
                     billing_details: {
@@ -542,9 +513,14 @@
                     }
                 }
             }).then(function (result) {
-                console.log('result: ' + JSON.stringify(result));
                 if (result.error) {
-
+                    $timeout(function () {
+                        $ctrl.validationReport = {
+                            payment: [
+                                {description: result.error.message}
+                            ]
+                        };
+                    });
                 } else {
                     result.id = $ctrl.order.signingContext.payment;
                     result.token = result.paymentIntent.id;
