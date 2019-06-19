@@ -447,7 +447,7 @@
 
     function PaymentController(binarta, $window, $routeParams, $timeout, sessionStorage, resourceLoader, brand) {
         var $ctrl = this;
-        var dialog, observer, brandName, stripe, elements, card;
+        var dialog, observer, brandName, stripe, card;
 
         $ctrl.$onInit = function () {
             $ctrl.providerTemplate = 'bin-shop-payment-' + $ctrl.provider + '.html';
@@ -482,40 +482,42 @@
         $ctrl.open = function () {
             function doOpen() {
                 resourceLoader.getScript('https://js.stripe.com/v3').then(function () {
-                    brandName = brand.observeBrandName(function (brandName) {
-                        stripe = Stripe($ctrl.order.signingContext.apiKey);
-                        elements = stripe.elements();
-                        card = elements.create('card', {hidePostalCode: true});
-                        card.mount('#card-element');
+                    console.log('open(' + JSON.stringify($ctrl.order) + ')');
+                    $ctrl.cardHolderName = $ctrl.order.billing.assignee;
+                    stripe = Stripe($ctrl.order.signingContext.apiKey, {
+                        stripeAccount: $ctrl.order.signingContext.accountId,
+                        locale: $ctrl.order.signingContext.locale
+                    });
+                    card = stripe.elements().create('card', {hidePostalCode: true});
+                    card.mount('#card-element');
 
-                        // var canceled = true;
-                        // dialog = StripeCheckout.configure({
-                        //     key: $ctrl.order.signingContext.apiKey,
-                        //     image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
-                        //     locale: $ctrl.order.signingContext.locale,
-                        //     token: function (it) {
-                        //         canceled = false;
-                        //         it.token = it.id;
-                        //         it.id = $ctrl.order.signingContext.payment;
-                        //         $ctrl.onConfirmed(it);
-                        //     },
-                        //     closed: function () {
-                        //         sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
-                        //         if (canceled) {
-                        //             $ctrl.onCanceled();
-                        //         }
-                        //     }
-                        // });
-                        // dialog.open({
-                        //     name: brandName,
-                        //     email: binarta.checkpoint.profile.email(),
-                        //     amount: $ctrl.order.signingContext.amount,
-                        //     locale: $ctrl.order.signingContext.locale,
-                        //     currency: $ctrl.order.signingContext.currency,
-                        //     allowRememberMe: true,
-                        //     zipCode: true
-                        // });
-                    })
+                    // var canceled = true;
+                    // dialog = StripeCheckout.configure({
+                    //     key: $ctrl.order.signingContext.apiKey,
+                    //     image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+                    //     locale: $ctrl.order.signingContext.locale,
+                    //     token: function (it) {
+                    //         canceled = false;
+                    //         it.token = it.id;
+                    //         it.id = $ctrl.order.signingContext.payment;
+                    //         $ctrl.onConfirmed(it);
+                    //     },
+                    //     closed: function () {
+                    //         sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
+                    //         if (canceled) {
+                    //             $ctrl.onCanceled();
+                    //         }
+                    //     }
+                    // });
+                    // dialog.open({
+                    //     name: brandName,
+                    //     email: binarta.checkpoint.profile.email(),
+                    //     amount: $ctrl.order.signingContext.amount,
+                    //     locale: $ctrl.order.signingContext.locale,
+                    //     currency: $ctrl.order.signingContext.currency,
+                    //     allowRememberMe: true,
+                    //     zipCode: true
+                    // });
                 });
             }
 
@@ -526,7 +528,29 @@
         };
 
         $ctrl.pay = function () {
-            console.log('pay()');
+            stripe.handleCardPayment($ctrl.order.signingContext.clientSecret, card, {
+                payment_method_data: {
+                    billing_details: {
+                        name: $ctrl.cardHolderName,
+                        email: binarta.checkpoint.profile.email(),
+                        address: {
+                            line1: $ctrl.order.billing.street + ' ' + $ctrl.order.billing.number,
+                            postal_code: $ctrl.order.billing.zip,
+                            city: $ctrl.order.billing.city,
+                            country: $ctrl.order.billing.country
+                        }
+                    }
+                }
+            }).then(function (result) {
+                console.log('result: ' + JSON.stringify(result));
+                if (result.error) {
+
+                } else {
+                    result.id = $ctrl.order.signingContext.payment;
+                    result.token = result.paymentIntent.id;
+                    $ctrl.onConfirmed(result);
+                }
+            });
         }
     }
 
