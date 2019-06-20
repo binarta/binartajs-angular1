@@ -527,6 +527,11 @@
                     $ctrl.onConfirmed(result);
                 }
             });
+        };
+
+        $ctrl.cancel = function() {
+            sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
+            $ctrl.onCanceled();
         }
     }
 

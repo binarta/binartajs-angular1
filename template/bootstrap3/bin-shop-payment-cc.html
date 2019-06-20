@@ -12,6 +12,15 @@
                 <i class="fa fa-exclamation-triangle fa-fw"></i> {{::v.description}}
             </p>
         </div>
-        <button type="submit" class="btn btn-primary" i18n code="checkout.roadmap.payment.confirm" readonly>{{::var}}</button>
+        <div class="buttons">
+            <button type="submit" class="btn btn-primary btn-pay" i18n code="checkout.roadmap.payment.confirm" readonly>
+                <i class="fa fa-check fa-fw"></i>
+                {{::var}}
+            </button>
+            <button type="button" class="btn btn-default btn-cancel" ng-click="$ctrl.cancel()" i18n code="checkout.roadmap.payment.cancel" readonly>
+                <i class="fa fa-caret-left fa-fw"></i>
+                {{::var}}
+            </button>
+        </div>
     </form>
 </div>

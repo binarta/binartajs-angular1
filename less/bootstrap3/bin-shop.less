@@ -12,6 +12,19 @@ bin-pay {
         @media (min-width: @screen-sm-min) {
           flex: 0 1 400px;
         }
+
+        > .buttons {
+          display: flex;
+
+          > .btn-cancel {
+            order: 1;
+          }
+
+          > .btn-pay {
+            order: 2;
+            margin-left: auto;
+          }
+        }
       }
     }
   }
