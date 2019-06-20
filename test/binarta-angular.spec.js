@@ -2053,7 +2053,7 @@
                         expect($ctrl.value).toEqual('cover-image-uri');
                     });
 
-                    it('sets image-not-found class when not found callback is invoked', function() {
+                    it('sets image-not-found class when not found callback is invoked', function () {
                         $ctrl.onImageNotFound();
 
                         expect($element.addClass).toHaveBeenCalledWith('image-not-found');
@@ -2571,15 +2571,15 @@
                 });
             });
 
-            describe('<bin-blog-edit/>', function() {
-                beforeEach(inject(function($componentController) {
-                    this.init = function() {
+            describe('<bin-blog-edit/>', function () {
+                beforeEach(inject(function ($componentController) {
+                    this.init = function () {
                         this.component = $componentController('binBlogEdit', null, this.bindings);
                         this.component.$onInit();
                     };
                 }));
-                describe('with bound outputs', function() {
-                    beforeEach(function() {
+                describe('with bound outputs', function () {
+                    beforeEach(function () {
                         this.bindings = {
                             onPublish: jasmine.createSpy('onPublish'),
                             onWithdraw: jasmine.createSpy('onWithdraw'),
@@ -2589,33 +2589,33 @@
                         this.init();
                     });
 
-                    it('invokes the bound onPublish when publishing', function() {
+                    it('invokes the bound onPublish when publishing', function () {
                         this.component.publish();
 
                         expect(this.bindings.onPublish).toHaveBeenCalled();
                     });
 
-                    it('invokes the bound onDraft when drafting', function() {
+                    it('invokes the bound onDraft when drafting', function () {
                         this.component.draft();
 
                         expect(this.bindings.onDraft).toHaveBeenCalled();
                     });
 
-                    it('invokes the bound onWithdraw when withdrawing', function() {
+                    it('invokes the bound onWithdraw when withdrawing', function () {
                         this.component.withdraw();
 
                         expect(this.bindings.onWithdraw).toHaveBeenCalled();
                     });
 
-                    it('invokes the bound onDelete when deleting', function() {
+                    it('invokes the bound onDelete when deleting', function () {
                         this.component.delete();
 
                         expect(this.bindings.onDelete).toHaveBeenCalled();
                     });
                 });
 
-                describe('without bound outputs but a parent binDisplayBlogPost', function() {
-                    beforeEach(function() {
+                describe('without bound outputs but a parent binDisplayBlogPost', function () {
+                    beforeEach(function () {
                         this.bindings = {
                             parent: {
                                 publish: jasmine.createSpy('publish'),
@@ -2627,25 +2627,25 @@
                         this.init();
                     });
 
-                    it('invokes the parents publish function when publishing', function() {
+                    it('invokes the parents publish function when publishing', function () {
                         this.component.publish();
 
                         expect(this.bindings.parent.publish).toHaveBeenCalled();
                     });
 
-                    it('invokes the parents draft function when drafting', function() {
+                    it('invokes the parents draft function when drafting', function () {
                         this.component.draft();
 
                         expect(this.bindings.parent.draft).toHaveBeenCalled();
                     });
 
-                    it('invokes the parents withdraw function when withdrawing', function() {
+                    it('invokes the parents withdraw function when withdrawing', function () {
                         this.component.withdraw();
 
                         expect(this.bindings.parent.withdraw).toHaveBeenCalled();
                     });
 
-                    it('invokes the parents delete function when deleting', function() {
+                    it('invokes the parents delete function when deleting', function () {
                         this.component.delete();
 
                         expect(this.bindings.parent.delete).toHaveBeenCalled();
@@ -3861,7 +3861,7 @@
 
                 describe('given an order with approval url when controller is initialised', function () {
                     beforeEach(inject(function ($timeout) {
-                        $ctrl.order = {approvalUrl: 'approval-url'};
+                        $ctrl.order = {signingContext: {approvalUrl: 'approval-url'}};
                         $ctrl.$onInit();
                         $timeout.flush();
                     }));

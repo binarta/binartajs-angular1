@@ -457,7 +457,7 @@
                 $ctrl.onConfirmed($routeParams);
             }
             else if ($ctrl.order) {
-                var approvalUrl = $ctrl.order.approvalUrl || ($ctrl.order.signingContext ? $ctrl.order.signingContext.approvalUrl : undefined);
+                var approvalUrl = $ctrl.order.signingContext ? $ctrl.order.signingContext.approvalUrl : undefined;
                 if (approvalUrl) {
                     if (sessionStorage.binartaJSAwaitingConfirmationWithPaymentProvider) {
                         sessionStorage.removeItem('binartaJSAwaitingConfirmationWithPaymentProvider');
