@@ -4301,6 +4301,7 @@
                             coupon: 'x',
                             termsAndConditions: 'accepted',
                             provider: 'payment-method',
+                            paymentProtocolVersion: '20190620',
                             items: []
                         }, jasmine.any(Object));
                     });
@@ -4329,6 +4330,7 @@
                         expect(binarta.shop.gateway.submitOrder).toHaveBeenCalledWith({
                             termsAndConditions: 'accepted',
                             provider: 'payment-method',
+                            paymentProtocolVersion: '20190620',
                             items: []
                         }, jasmine.any(Object));
                     });
@@ -4352,6 +4354,7 @@
                             coupon: 'x',
                             termsAndConditions: 'accepted',
                             provider: 'payment-method',
+                            paymentProtocolVersion: '20190620',
                             items: []
                         }, jasmine.any(Object));
                     });
