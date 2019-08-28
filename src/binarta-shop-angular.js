@@ -66,15 +66,21 @@
         this.controller = ['binarta', 'viewport', 'i18nLocation', '$timeout', '$scope', function BinartaBasketController(binarta, viewport, $location, $timeout, $scope) {
             var profileEventListener = new ProfileEventListener();
             var basketEventListener = new BasketEventListener();
+            var paymentMethodChangeListener = new PaymentMethodChangeListener();
             var self = this, status = 'idle';
 
             this.viewport = viewport;
             this.quantity = 1;
 
+            function isSummary() {
+                return self.mode === 'summary';
+            }
+
             this.$onInit = function () {
                 if (['summary', 'detailed', 'link', 'minimal-link', 'add-to-basket-button', 'dropdown-link'].indexOf(self.mode) > -1) {
-                    if (self.mode == 'summary') {
+                    if (isSummary()) {
                         binarta.checkpoint.profile.eventRegistry.add(profileEventListener);
+                        binarta.shop.checkout.eventRegistry.add(paymentMethodChangeListener);
                         refreshFromPreview();
                     }
                     if (['detailed', 'link', 'minimal-link', 'add-to-basket-button', 'dropdown-link'].indexOf(self.mode) > -1) {
@@ -96,13 +102,16 @@
             };
 
             this.$onChanges = function () {
-                if (self.mode == 'summary')
+                if (isSummary())
                     refreshFromPreview();
             };
 
             this.$onDestroy = function () {
                 binarta.checkpoint.profile.eventRegistry.remove(profileEventListener);
                 binarta.shop.basket.eventRegistry.remove(basketEventListener);
+                if (isSummary()) {
+                    binarta.shop.checkout.eventRegistry.remove(paymentMethodChangeListener);
+                }
             };
 
             this.isDiscounted = function () {
@@ -147,6 +156,13 @@
 
             function ProfileEventListener() {
                 this.updated = refreshFromPreview;
+            }
+
+            function PaymentMethodChangeListener() {
+                this.onPaymentMethodChange = function(provider) {
+                    self.order.provider = provider;
+                    refreshFromPreview();
+                }
             }
 
             function refreshFromBasket() {

@@ -12,7 +12,7 @@
     "templates:default": "gulp templates-bootstrap3",
     "templates:shop": "gulp templates-shop-bootstrap3",
     "templates:publisher": "gulp publisher-bootstrap3",
-    "postinstall": "bower install"
+    "postinstall": "bower update"
   },
   "devDependencies": {
     "gulp": "^3.8.10",

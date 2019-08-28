@@ -3082,6 +3082,8 @@
 
                 describe('in summary mode', function () {
                     beforeEach(function () {
+                        binarta.shop.checkout.persist({order: {}});
+                        binarta.shop.checkout.jumpTo('summary');
                         ctrl.mode = 'summary';
                         ctrl.order = {items: [{id: 'i', quantity: 1}]};
                         ctrl.$onInit();
@@ -3104,6 +3106,29 @@
                     it('an order with coupon code is considered to be discounted', function () {
                         ctrl.order.coupon = '-';
                         expect(ctrl.isDiscounted()).toBeTruthy();
+                    });
+
+                    describe('with payment method change', function() {
+                        beforeEach(function() {
+                            ctrl.preview = undefined;
+                            binarta.shop.checkout.setPaymentProvider('payment-provider');
+                        });
+
+                        it('stores the payment provider on the local order', function() {
+                            expect(ctrl.order.provider).toEqual('payment-provider');
+                        });
+
+                        it('refreshes the preview', function() {
+                            expect(ctrl.preview).toEqual(ctrl.order);
+                        });
+
+                        it('after destroy events are not handled anymore', function() {
+                            ctrl.$onDestroy();
+
+                            binarta.shop.checkout.setPaymentProvider('ignored-payment-provider');
+
+                            expect(ctrl.order.provider).toEqual('payment-provider');
+                        });
                     });
                 });
 
