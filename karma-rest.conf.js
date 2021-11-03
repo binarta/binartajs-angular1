@@ -21,7 +21,7 @@ module.exports = function(config) {
             {pattern:'src/**/*.js'},
             {pattern:'test/**/binarta-rest-angular.spec.js'}
         ],
-        browsers:['PhantomJS'],
+        browsers:['ChromeHeadless'],
         reporters: ['dots', 'junit'],
         junitReporter: {
             outputFile: 'test-results-rest.xml',

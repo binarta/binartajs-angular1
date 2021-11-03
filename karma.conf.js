@@ -26,7 +26,7 @@ module.exports = function(config) {
             {pattern:'test/**/binarta-angular.spec.js'},
             {pattern:'test/recaptcha.mock.js'}
         ],
-        browsers:['PhantomJS'],
+        browsers:['ChromeHeadless'],
         reporters: ['dots', 'junit'],
         junitReporter: {
             outputFile: 'test-results.xml',
